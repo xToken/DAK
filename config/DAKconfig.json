@@ -12,7 +12,7 @@
 	 "kVoteRandomEnabledDuration": "Random teams have been enabled for the next %s Minutes",
 	 "kVoteRandomConnectAlert": "Random teams are enabled, you are being randomed to a team.",
 	 "kVoteRandomVoteCountAlert": "%s voted for random teams. (%s votes, needed %s).",
-	 "_TournamentMode": true,
+	 "_TournamentMode": false,
 	 "kTournamentModePubMode": false,
 	 "kTournamentModePubMinPlayers": 3,
 	 "kTournamentModePubPlayerWarning": "Game will start once each team has %s players.",
@@ -21,7 +21,7 @@
 	 "kTournamentModeGameStartDelay": 15,
 	 "kEnableFriendlyFireWithTournamentMode": false,
 	 "kTournamentModeCountdown": "Game will start in %s seconds!",
-	 "_ReservedSlots": true,
+	 "_ReservedSlots": false,
 	 "kMaximumSlots": 19,
 	 "kReservedSlots": 3,
 	 "kMinimumSlots": 1,
@@ -37,6 +37,7 @@
 						"* rtv: To initiate a map vote aka Rock The Vote                     ", 
 						"* voterandom: To vote for auto-random teams for next 30 minutes     ", 
 						"* timeleft: To get time until next map vote                         ",
+						"* surrender: To initiate or vote in a surrender vote for your team. ",
 						"* acceptmotd: To accept and supress this message                    ",
 						"********************************************************************" ],
 	 "kMOTDMessageDelay": 6,
@@ -77,5 +78,9 @@
 	 "kAFKKickWarning2": 10,
 	 "kAFKKickWarningMessage2": "You will be kicked in %d seconds for idling.",
 	 "_EnhancedLogging": true,
-	 "kEnhancedLoggingSubDir": "Logs"
+	 "kEnhancedLoggingSubDir": "Logs",
+	 "_VoteSurrender": true,
+	 "kVoteSurrenderMinimumPercentage": 60,
+	 "kVoteSurrenderVotingTime": 120,
+	 "kVoteSurrenderAlertDelay": 20
 }

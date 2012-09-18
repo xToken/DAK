@@ -4,9 +4,11 @@ DAKLoader.lua would need to be called instead of Server.lua in your game_setup.x
 Generally lua files will not need to be edited (hopefully), but depending on your server hosting setup there is one main standout.  Due to the way NS2 
 currently loads/saves files, many servers operators with servers hosted by GSP's will not have access to APPDATA, which is where NS2 loads files from.  
 Because of this, there is a kCheckGameDirectory variable in the DAKLoader.lua file.  Changing this to true will have the mod check the game directory for 
-the DAKConfig.json file, DAKServerAdmin.json file, the mapcycle.txt, and the ReservedPlayers.json files.  Not that the DAKSettings.json file will still be stored in appdata, 
-as the game prevents writing to files in the game directory.  This mod now attempts to override the default admin system completely, and uses a different ServerAdmin.json
-file to accomplish this best.  You will get messages about not having access to commands, but this can also corrected by removing/commenting the line below:
+the DAKConfig.json file, DAKServerAdmin.json file, the mapcycle.txt, and the ReservedPlayers.json files.  Note that the DAKSettings.json file will still be stored in appdata, 
+as the game prevents writing to files in the game directory.  
+
+This mod now attempts to override the default admin system completely, and uses a different ServerAdmin.json file to accomplish this best. 
+You will get messages about not having access to commands, but this can also corrected by removing/commenting the line below:
 Line 25 in Server.lua
 Script.Load("lua/ServerAdminCommands.lua")
 change to or remove-
@@ -99,6 +101,10 @@ A sample usable config file is included with the mod, which uses the recommended
  "kAFKKickWarningMessage2": Second warning message shown to AFK users.
  "_EnhancedLogging": Boolean which controls if the Enhanced logging plugin is enabled.
  "kEnhancedLoggingSubDir": Subdirectory under the adminpath in which log files should be stored.
+ "_VoteSurrender": Boolean which controls if the Surrender Vote plugin is loaded.
+ "kVoteSurrenderMinimumPercentage": Minimum Percentage of votes needed for surrender to pass
+ "kVoteSurrenderVotingTime": Time that a surrender vote will run for.
+ "kVoteSurrenderAlertDelay": Delay between alert messages regarding the surrender vote.
  Generally the default configuration should work for most instances, if you do customize the messages be sure to maintain the same amount of regex strings (%s, %f, %d).
  
  Server Admin commands added:
@@ -118,6 +124,8 @@ A sample usable config file is included with the mod, which uses the recommended
  sv_listadmins - will list all groups and admins configured in the DAKServerAdmin.json file
  sv_killserver - Does exactly what it says - This is not a clean closing of the server, it uses a bug which causes a crash.
  sv_hasreserve - Will grant this admin a reserve slot that does not expire.
+ sv_surrendervote - Will start a surrender vote for the team provided.
+ sv_cancelsurrendervote - Will cancel a in progress surrender vote for the team provided.
 
  All server admin commands will also print to any other admins consoles when used (admins that also have access to that command)
  
@@ -129,7 +137,71 @@ A sample usable config file is included with the mod, which uses the recommended
  ready - marks your team as ready if tournamentmode is enabled.
  vote - used to vote for a map during map vote, needs to have a number as a paramater.
  rtv or rockthevote - used to vote for a map vote (can be started anytime)
-
+ surrender - used to start or vote in an active surrender vote.
+ 
+ Breakdown of current 'Plugins' system and the standard 'Plugins'
+ DAK extends various events from the engine, and creates a couple of its own.
+ kDAKOnClientConnect
+ kDAKOnClientDisconnect
+ kDAKOnServerUpdate
+ kDAKOnClientDelayedConnect
+ kDAKOnTeamJoin
+ kDAKOnGameEnd
+ kDAKOnEntityKilled
+ 
+ Functions can be added to these variables which will be run when these events occur, sample shown below:
+ table.insert(kDAKOnClientDisconnect, function(client) return LogOnClientDisconnect(client) end)
+ 
+ Please note that errors caused in functions added are systemic, meaning they will affect the execution of NS2 gamecode, so some care must be taken.
+ 
+ OverrideInterp Plugin
+ - This is mainly for testing, however it overrides the default interpolation value of 100ms on each clients connect, making sure that
+ the value is correct set client/server side.
+ 
+ VoteRandom Plugin
+ - This plugin enables players to vote to enable random teams, and supports either randoming the teams instantly, or enabling random teams for a set duration,
+ where the next game and all games for a set duration have random teams.
+ 
+ TournamentMode Plugin
+ - This plugin is more or less obsolete now, the NS2stats system has a better tournament plugin now which is superior to this.
+ May still have some utility for turning on friendlyfire.
+ 
+ ReservedSlots Plugin
+ - Basic Reserve slots plugin, however is more a proof of concept and does not have the ability to work in a way that provides a good user experience.
+ Basic framework may prove useful should the ability arise to reject clients connection earlier or modify query response.
+ 
+ MOTD Plugin
+ - This plugin provides a MOTD system that could be more accurately described as a rules system, which allows clients to accept and have the messages
+ not always appear on connect.  Should be loaded as last plugin so that other plugins can stop the messages if needed.  Messages are also sent in groups
+ so that they can all be viewed onscreen.
+ 
+ MapVote Plugin
+ - This plugin provides a map voting system, which will read the mapcycle.txt for cycle time and the list of maps.  On round end a map vote is triggered
+ if enough time has elapsed, with a randomly selected list of maps which excludes some of the map last played.  Since NS2 only has 4 offical maps currently
+ the plugin will automatically add back in maps if there is not enough to make the minimum.  Almost all parts are configurable in the configs.
+ 
+ AFKKicker Plugin
+ - This plugin checks if a player is idle by caching their viewangles and origin, and displays messages to alert them if they are going to be kicked.
+ May in the future be improved to use idle parameter on the player.
+ 
+ EnhancedLogging Plugin
+ - This plugin enables alot of extra logging, which is done to a seperate directory within the configured server admin path.
+ Sample log file below with some information omitted:
+ 
+ L 9/16/2012 - 12:55:53 - <AAA><10><STEAMID><0> joined team 2.
+ L 9/16/2012 - 12:55:59 - <[Mi7] JumpinJackFlas><13><STEAMID><0> changed name to [Mi7] JumpinJackFlash.
+ L 9/16/2012 - 12:56:01 - <[Mi7] JumpinJackFlas><13><STEAMID><0> connected, address IPADDRESS
+ L 9/16/2012 - 12:56:06 - <FatherTime><6><STEAMID><2> killed <Sphen><4><STEAMID><1> with BiteLeap at (attacker_position 38.560000 3.970000 -2.400000) (victim_position 39.510000 2.750000 -4.130000)
+ L 9/16/2012 - 12:56:20 - <FatherTime><6><STEAMID><2> killed <Siylenia><12><STEAMID><1> with BiteLeap at (attacker_position 62.810000 0.330000 19.350000) (victim_position 63.350000 -0.160000 20.500000)
+ L 9/16/2012 - 12:56:47 - <Siylenia><12><STEAMID><1> killed <FatherTime><6><STEAMID><2> with Rifle at (attacker_position 81.250000 0.390000 30.740000) (victim_position 83.000000 1.180000 30.890000)
+ L 9/16/2012 - 12:56:53 - <Siylenia><12><STEAMID><1> killed <AAA><10><STEAMID><2> with Rifle at (attacker_position 75.930000 -0.100000 35.140000) (victim_position 68.780000 4.880000 36.570000)
+ L 9/16/2012 - 12:57:00 - <Teh_Prodigy><2><STEAMID><1> killed Hydra with Shotgun at (attacker_position 69.100000 0.010000 33.650000) (victim_position 64.600000 -0.000000 30.490000)
+ 
+ VoteSurrender Plugin
+ - This plugin provides a surrender vote system for each team, which can be used to vote for the game to end if a set percentage of the team votes.
+ 
+ //Config
+ 
  Reserve Slot config
 
  -Name is just a friendly name for the user, is not checked in game.
@@ -142,3 +214,23 @@ A sample usable config file is included with the mod, which uses the recommended
  {
  	{ "name": "dragon", "id": 5176141, "reason": "meh", "time": 0 }
  }
+ 
+ DAKServerAdmin config
+ 
+ This files works identically to the base admin system's configuration file.
+ 
+ Sample file below:
+ 
+ {
+    "groups":
+    {
+        "admin_group": { "type": "disallowed", "commands": [ ] },
+        "mod_group": { "type": "disallowed", "commands": [ "sv_ban", "sv_reset" ] },
+        "clan_group": { "type": "allowed", "commands": [ "sv_kick", "sv_say" ] }
+    }
+    
+    "users":
+    {
+        "dragon": { "id": 5176141, "groups": [ "clan_group" ] },
+    }
+}
