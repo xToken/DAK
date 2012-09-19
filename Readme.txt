@@ -1,11 +1,14 @@
 This collection of plugins (and loader) make up what I started calling the DAK (Duck Admin Kit?)
 
 DAKLoader.lua would need to be called instead of Server.lua in your game_setup.xml file.  Alternatively you can setup a mod that starts DAKLoader.lua.
-Generally lua files will not need to be edited (hopefully), but depending on your server hosting setup there is one main standout.  Due to the way NS2 
-currently loads/saves files, many servers operators with servers hosted by GSP's will not have access to APPDATA, which is where NS2 loads files from.  
-Because of this, there is a kCheckGameDirectory variable in the DAKLoader.lua file.  Changing this to true will have the mod check the game directory for 
-the DAKConfig.json file, DAKServerAdmin.json file, the mapcycle.txt, and the ReservedPlayers.json files.  Note that the DAKSettings.json file will still be stored in appdata, 
-as the game prevents writing to files in the game directory.  
+
+Since B220, server admin files are loaded all from the same directory - YAY - makes this alot easier.
+
+Simply set the -config_path on the server command line, and place the DAK config files there,
+DAKConfig.json
+DAKServerAdmin.json
+ReservedPlayers.json
+The DAKSettings.json file will also be created here as necessary.
 
 This mod now attempts to override the default admin system completely, and uses a different ServerAdmin.json file to accomplish this best. 
 You will get messages about not having access to commands, but this can also corrected by removing/commenting the line below:
@@ -13,11 +16,6 @@ Line 25 in Server.lua
 Script.Load("lua/ServerAdminCommands.lua")
 change to or remove-
 //Script.Load("lua/ServerAdminCommands.lua")
-
-A note about the config files,  and their directories.  Using the -adminpath command line argument is recommended.  When used, both the config files in 
-the user (appdata) folder, and the config files in the game directory (if kCheckGameDirectory is enabled).  So if using -adminpath NS2Server1, the game 
-will look in %APPDATA%\Natural Selection 2\NS2Server1 for user:\\ load statements, and in the ServerFolder\%GAMEMOD%\NS2Server1 for game:\\ load statements.
-By default %GAMEMOD% would be ns2, but if you created a mod called DAK it would be in the DAK folder.
 
 All mods can be enabled/disabled via the DAKconfig.json file.  Any variable starting with _ is a boolean for if that plugin should be loaded.  Also that 
 generally starts the configuration section for that plugin.  Below is a sample config file with the values ommited, and descriptions in their place.  
