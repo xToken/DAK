@@ -163,7 +163,7 @@ A sample usable config file is included with the mod, which uses the recommended
  where the next game and all games for a set duration have random teams.
  
  TournamentMode Plugin
- - This plugin is more or less obsolete now, the NS2stats system has a better tournament plugin now which is superior to this.
+ - This plugin is more or less obsolete now, the NS2stats system has a tournament plugin now which is superior to this one.
  May still have some utility for turning on friendlyfire.
  
  ReservedSlots Plugin
