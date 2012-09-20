@@ -4,7 +4,7 @@ DAKLoader.lua would need to be called instead of Server.lua in your game_setup.x
 
 Since B220, server admin files are loaded all from the same directory - YAY - makes this alot easier.
 
-Simply set the -config_path on the server command line, and place the DAK config files there,
+Simply set the -config_path on the server command line, and place the DAK config files there, or place the files in %AppData%\Natural Selection 2
 DAKConfig.json
 DAKServerAdmin.json
 ReservedPlayers.json
@@ -149,6 +149,20 @@ A sample usable config file is included with the mod, which uses the recommended
  
  Functions can be added to these variables which will be run when these events occur, sample shown below:
  table.insert(kDAKOnClientDisconnect, function(client) return LogOnClientDisconnect(client) end)
+ 
+ Notes about Gamerules overrides - they require the same args from vanilla NS2, or will need manual configuration.
+ This can be changed in DAKLoader.lua, kDAKBaseGamerules
+ Below are the functions overriden and their default configuration.
+ 
+	function NS2Gamerules:OnCreate()
+	function NS2Gamerules:JoinTeam(player, newTeamNumber, force)
+	function NS2Gamerules:EndGame(winningTeam)
+	function NS2Gamerules:OnEntityKilled(targetEntity, attacker, doer, point, direction)
+	function NS2Gamerules:UpdatePregame(timePassed)
+	function NS2Gamerules:SetGameState(state)
+	function NS2Gamerules:CastVoteByPlayer( voteTechId, player )
+	
+ These can be disabled in DAKConfig.json, _GamerulesExtensions.
  
  Please note that errors caused in functions added are systemic, meaning they will affect the execution of NS2 gamecode, so some care must be taken.
  

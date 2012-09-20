@@ -82,5 +82,6 @@
 	 "_VoteSurrender": true,
 	 "kVoteSurrenderMinimumPercentage": 60,
 	 "kVoteSurrenderVotingTime": 120,
-	 "kVoteSurrenderAlertDelay": 20
+	 "kVoteSurrenderAlertDelay": 20,
+	 "_GamerulesExtensions": true
 }
