@@ -19,7 +19,6 @@
 	 "kTournamentModePubAlertDelay": 30,
 	 "kTournamentModeReadyDelay": 2,
 	 "kTournamentModeGameStartDelay": 15,
-	 "kEnableFriendlyFireWithTournamentMode": false,
 	 "kTournamentModeCountdown": "Game will start in %s seconds!",
 	 "_ReservedSlots": false,
 	 "kMaximumSlots": 19,

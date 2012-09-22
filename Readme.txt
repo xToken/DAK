@@ -114,9 +114,9 @@ A sample usable config file is included with the mod, which uses the recommended
  sv_randomoff - will turn off random teams
  sv_tournamentmode - will enable/disable tournamentmode - The current state of the tournamentmode is saved in the DAKSettings.json file, so this will 
 	persist between map changes.
+ sv_setcaptain - Can be used to set a captain for a team, is required for official mode.
  sv_forceroundstart - Used in tournamentmode to force the round start as an Admin.
  sv_cancelroundstart - Used in tournamentmode to cancel the round start as an Admin.
- sv_friendlyfire - will enable/disable friendlyfire
  sv_votemap - starts a mapvote at anytime
  sv_cancelmapvote - cancels any in progress map votes.
  sv_listadmins - will list all groups and admins configured in the DAKServerAdmin.json file
@@ -175,8 +175,8 @@ A sample usable config file is included with the mod, which uses the recommended
  where the next game and all games for a set duration have random teams.
  
  TournamentMode Plugin
- - This plugin is more or less obsolete now, the NS2stats system has a tournament plugin now which is superior to this one.
- May still have some utility for turning on friendlyfire.
+ - Made a recent re-visit to this plugin to improve basics regarding it, created basic framework for PCW/Official modes.  May continue to improve
+ and add to differences between modes.
  
  ReservedSlots Plugin
  - Basic Reserve slots plugin, however is more a proof of concept and does not have the ability to work in a way that provides a good user experience.
