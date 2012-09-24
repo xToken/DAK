@@ -146,6 +146,7 @@ A sample usable config file is included with the mod, which uses the recommended
  kDAKOnTeamJoin
  kDAKOnGameEnd
  kDAKOnEntityKilled
+ kDAKOnClientChatMessage
  
  Functions can be added to these variables which will be run when these events occur, sample shown below:
  table.insert(kDAKOnClientDisconnect, function(client) return LogOnClientDisconnect(client) end)
@@ -162,6 +163,11 @@ A sample usable config file is included with the mod, which uses the recommended
 	function NS2Gamerules:SetGameState(state)
 	function NS2Gamerules:CastVoteByPlayer( voteTechId, player )
 	
+	Also included is a function to capture chat messages and raise events based on them, disabling the gamerules extensions
+	will also disable this.
+
+	function Server.AddChatToHistory(message, playerName, steamId, teamNumber, teamOnly)
+
  These can be disabled in DAKConfig.json, _GamerulesExtensions.
  
  Please note that errors caused in functions added are systemic, meaning they will affect the execution of NS2 gamecode, so some care must be taken.
