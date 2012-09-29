@@ -3,8 +3,8 @@
 if Server then
 	
 	//Load base NS2 Scripts
-	Script.Load("lua/Server.lua")
-	Script.Load("lua/dkjson.lua")
+	//Script.Load("lua/Server.lua")
+	//Script.Load("lua/dkjson.lua")
 
 	kDAKConfig = nil 						//Global variable storing all configuration items for mods
 	kDAKSettings = nil 						//Global variable storing all settings for mods
@@ -437,7 +437,7 @@ if Server then
 		
 		Shared.LinkClassToMap("NS2DAKGamerules", NS2DAKGamerules.kMapName, { })
 					
-		function Server.AddChatToHistory(message, playerName, steamId, teamNumber, teamOnly)
+		function DAKChatLogging(message, playerName, steamId, teamNumber, teamOnly)
 			
 			local client = GetClientMatchingSteamId(steamId)
 			if #kDAKOnClientChatMessage > 0 then
@@ -445,10 +445,6 @@ if Server then
 					kDAKOnClientChatMessage[i](message, playerName, steamId, teamNumber, teamOnly, client)
 				end
 			end
-			if chatMessageCount == nil then chatMessageCount = 0 end
-			chatMessageCount = chatMessageCount + 1
-			Server.recentChatMessages:Insert({ id = chatMessageCount, message = message, player = playerName,
-											   steamId = steamId, team = teamNumber, teamOnly = teamOnly })
 
 		end
 		

@@ -1,6 +1,11 @@
 This collection of plugins (and loader) make up what I started calling the DAK (Duck Admin Kit?)
 
-DAKLoader.lua would need to be called instead of Server.lua in your game_setup.xml file.  Alternatively you can setup a mod that starts DAKLoader.lua.
+With 221, this has changed somewhat.  The best way IMO to load this if you wish to use Consistency Checks is to add the following line to ConsistencyConfig.json
+"ignore": [ "lua/Server.lua" ]
+This will have Server.lua not checked (which should matter IMO as clients shouldnt load that anyways regardless).  This allows DAK to be loaded there.
+You will want to replace line 26 in Server.lua, Script.Load("lua/ServerAdminCommands.lua"), with Script.Load("lua/DAKLoader.lua")
+If you  wish to enable chat logging/processing for commands, you will want to edit line 71 in Server.lua, adding in 
+DAKChatLogging(message, playerName, steamId, teamNumber, teamOnly)
 
 Since B220, server admin files are loaded all from the same directory - YAY - makes this alot easier.
 
@@ -9,13 +14,6 @@ DAKConfig.json
 DAKServerAdmin.json
 ReservedPlayers.json
 The DAKSettings.json file will also be created here as necessary.
-
-This mod now attempts to override the default admin system completely, and uses a different ServerAdmin.json file to accomplish this best. 
-You will get messages about not having access to commands, but this can also corrected by removing/commenting the line below:
-Line 25 in Server.lua
-Script.Load("lua/ServerAdminCommands.lua")
-change to or remove-
-//Script.Load("lua/ServerAdminCommands.lua")
 
 All mods can be enabled/disabled via the DAKconfig.json file.  Any variable starting with _ is a boolean for if that plugin should be loaded.  Also that 
 generally starts the configuration section for that plugin.  Below is a sample config file with the values ommited, and descriptions in their place.  
@@ -124,6 +122,7 @@ A sample usable config file is included with the mod, which uses the recommended
  sv_hasreserve - Will grant this admin a reserve slot that does not expire.
  sv_surrendervote - Will start a surrender vote for the team provided.
  sv_cancelsurrendervote - Will cancel a in progress surrender vote for the team provided.
+ sv_afkimmune - Can be granted to users to prevent them from being AFKkicked.
 
  All server admin commands will also print to any other admins consoles when used (admins that also have access to that command)
  
