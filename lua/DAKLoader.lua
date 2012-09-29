@@ -1,10 +1,8 @@
 //DAK Loader/Base Config
 
 if Server then
-	
-	//Load base NS2 Scripts
-	//Script.Load("lua/Server.lua")
-	//Script.Load("lua/dkjson.lua")
+
+	Script.Load("lua/dkjson.lua")
 
 	kDAKConfig = nil 						//Global variable storing all configuration items for mods
 	kDAKSettings = nil 						//Global variable storing all settings for mods
