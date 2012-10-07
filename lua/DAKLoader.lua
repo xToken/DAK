@@ -4,6 +4,7 @@ if Server then
 
 	Script.Load("lua/dkjson.lua")
 
+	kDAKDefaultMods = "5f4f178"
 	kDAKConfig = nil 						//Global variable storing all configuration items for mods
 	kDAKSettings = nil 						//Global variable storing all settings for mods
 	kDAKRevisions = { }						//List used to track revisions of plugins
@@ -132,7 +133,7 @@ if Server then
 		//Base DAK Config
 		if Plugin == "DAKLoader" or Plugin == "ALL" then
 			local ModsTable = { }
-			table.insert(ModsTable, "5f4f178")
+			table.insert(ModsTable, kDAKDefaultMods)
 			if kDAKConfig == nil then
 				kDAKConfig = { }
 			end
