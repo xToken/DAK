@@ -22,11 +22,9 @@ Script.Load("lua/Bot.lua")
 Script.Load("lua/VoteManager.lua")
 
 Script.Load("lua/ServerConfig.lua")
-Script.Load("lua/DAKLoader.lua")
 
 if kDAKConfig and kDAKConfig.BaseAdminCommands and kDAKConfig.BaseAdminCommands.kEnabled then
 else
-	Print("Falling back")
 	Script.Load("lua/ServerAdmin.lua")
 	Script.Load("lua/ServerAdminCommands.lua")
 	Script.Load("lua/MapCycle.lua")
@@ -40,13 +38,9 @@ Script.Load("lua/NetworkMessages_Server.lua")
 
 Script.Load("lua/dkjson.lua")
 
-Script.Load("lua/DbgTracer_Server.lua")
 Script.Load("lua/InfestationMap.lua")
 
 Script.Load("lua/NetworkDebug.lua")
- 
-Server.dbgTracer = DbgTracer()
-Server.dbgTracer:Init()
 
 Server.readyRoomSpawnList = table.array(32)
 
@@ -162,6 +156,18 @@ function GetLoadSpecial(mapName, groupName, values)
 
 end
 
+local function DumpServerEntity(mapName, groupName, values)
+
+    Print("------------ %s ------------", ToString(mapName))
+    
+    for key, value in pairs(values) do    
+        Print("[%s] %s", ToString(key), ToString(value))
+    end
+    
+    Print("---------------------------------------------")
+
+end
+
 local function LoadServerMapEntity(mapName, groupName, values)
 
     if not GetLoadEntity(mapName, groupName, values) then
@@ -205,6 +211,8 @@ local function LoadServerMapEntity(mapName, groupName, values)
             end
             
         end
+        
+        //DumpServerEntity(mapName, groupName, values)
         
     end  
         

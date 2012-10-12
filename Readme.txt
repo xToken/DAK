@@ -1,8 +1,8 @@
 This collection of plugins (and loader) make up what I started calling the DAK (Duck Admin Kit?)
 
 With 221, this has changed somewhat.  This mod can be downloaded via SteamWorkshop, and will autodownload on all clients on connect.
-The ModID for DAK is 5f4f178, with the current version being 1349590654
-You will want to name the folder m5f4f178_1349590654
+The ModID for DAK is 5f4f178, with the current version being 1350026884
+You will want to name the folder m5f4f178_1350026884
 
 Since B220, server admin files are loaded all from the same directory - YAY - makes this alot easier.
 
