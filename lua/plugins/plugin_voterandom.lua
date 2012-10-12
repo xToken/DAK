@@ -117,7 +117,7 @@ if kDAKConfig and kDAKConfig.VoteRandom and kDAKConfig.VoteRandom.kEnabled then
 	
 	table.insert(kDAKOnClientDelayedConnect, function(client) return VoteRandomClientConnect(client) end)
 	
-	function VoteRandomJoinTeam(player, newTeamNumber, force)
+	local function VoteRandomJoinTeam(player, newTeamNumber, force)
 		if RandomRoundRecentlyEnded ~= nil and RandomRoundRecentlyEnded + RandomNewRoundDelay > Shared.GetTime() and (newTeamNumber == 1 or newTeamNumber == 2) then
 			chatMessage = string.sub(string.format("Random teams are enabled, you will be randomed to a team shortly."), 1, kMaxChatLength)
 			Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
@@ -128,8 +128,10 @@ if kDAKConfig and kDAKConfig.VoteRandom and kDAKConfig.VoteRandom.kEnabled then
 	
 	table.insert(kDAKOnTeamJoin, function(player, newTeamNumber, force) return VoteRandomJoinTeam(player, newTeamNumber, force) end)
 	
-	function VoteRandomEndGame(winningTeam)
-		RandomRoundRecentlyEnded = Shared.GetTime()
+	local function VoteRandomEndGame(winningTeam)
+		if kVoteRandomTeamsEnabled then
+			RandomRoundRecentlyEnded = Shared.GetTime()
+		end
 	end
 	
 	table.insert(kDAKOnGameEnd, function(winningTeam) return VoteRandomEndGame(winningTeam) end)

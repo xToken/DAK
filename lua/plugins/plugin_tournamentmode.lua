@@ -1,8 +1,6 @@
 //NS2 Tournament Mod Server side script
 
 local TournamentModeSettings = { countdownstarted = false, countdownstarttime = 0, countdownstartcount = 0, lastmessage = 0, official = false}
-TournamentModeSettings[1] = {ready = false, lastready = 0, captain = nil}
-TournamentModeSettings[2] = {ready = false, lastready = 0, captain = nil}
 
 if kDAKConfig and kDAKConfig.TournamentMode and kDAKConfig.TournamentMode.kEnabled then
 
@@ -61,6 +59,8 @@ if kDAKConfig and kDAKConfig.TournamentMode and kDAKConfig.TournamentMode.kEnabl
 		TournamentModeSettings.countdownstartcount = 0
 		TournamentModeSettings.lastmessage = 0
 	end
+	
+	ClearTournamentModeState()
 	
 	local function DisplayNotification(message)
 		Shared.Message(message)
