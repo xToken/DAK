@@ -4,11 +4,11 @@ if Server then
 
 	Script.Load("lua/dkjson.lua")
 
-	kDAKDefaultMods = "5f4f178"
 	kDAKConfig = nil 						//Global variable storing all configuration items for mods
 	kDAKSettings = nil 						//Global variable storing all settings for mods
 	kDAKRevisions = { }						//List used to track revisions of plugins
 	kDAKGameID = { }						//List of connected clients for GameID
+	kDAKMapCycle = { }						//MapCycle.json information
 	
 	//DAK Hookable Functions
 	kDAKOnClientConnect = { }				//Functions run on Client Connect
@@ -20,7 +20,8 @@ if Server then
 	kDAKOnEntityKilled = { }				//Functions run on EntityKilled from Gamerules
 	kDAKOnUpdatePregame = { }				//Functions run on UpdatePregame from Gamerules
 	kDAKOnClientChatMessage = { }			//Functions run on ChatMessages
-	kDAKOverrideMapChange = { }	    		//List of functions run to confirm if map should change
+	kDAKCheckMapChange = { }	    		//List of functions run to confirm if map should change
+	kDAKOverrideMapChange = { }	    		//Functions run before MapCycle
 	
 	//Other globals
 	kDAKServerAdminCommands = { }			//List of ServerAdmin Commands
@@ -33,11 +34,12 @@ if Server then
 	local DAKConfigFileName = "config://DAKConfig.json"
 	local DAKSettingsFileName = "config://DAKSettings.json"
 	local DAKServerAdminFileName = "config://ServerAdmin.json"
+	local mapCycleFileName = "config://MapCycle.json"
 	local DelayedClientConnect = { }
 	local DelayedServerAdminCommands = { }
 	local DelayedServerCommands = false
 	local serverupdatetime = 0
-	kDAKRevisions["DAKLoader"] = 1.7
+	kDAKRevisions["DAKLoader"] = 2.0
 		
     local function LoadServerAdminSettings()
     
@@ -73,6 +75,39 @@ if Server then
     end
 	
     LoadServerAdminSettings()
+	
+    local function LoadMapCycle()
+    
+        Shared.Message("Loading " .. mapCycleFileName)
+		
+		local configFile = io.open(mapCycleFileName, "r")
+        if configFile then
+            local fileContents = configFile:read("*all")
+            kDAKMapCycle = json.decode(fileContents) or { maps = { "ns2_docking", "ns2_summit", "ns2_tram", "ns2_veil" }, time = 30, mode = "order", mods = { "5f4f178" } }
+			io.close(configFile)
+		else
+		    local defaultConfig = { maps = { "ns2_docking", "ns2_summit", "ns2_tram", "ns2_veil" }, time = 30, mode = "order", mods = { "5f4f178" } }
+			kDAKMapCycle = defaultConfig
+        end
+		assert(type(kDAKMapCycle.time) == 'number')
+		assert(type(kDAKMapCycle.maps) == 'table')
+        
+    end
+	
+	LoadMapCycle()
+	
+	local function SaveMapCycle()
+		local configFile = io.open(mapCycleFileName, "w+")
+		configFile:write(json.encode(kDAKMapCycle, { indent = true, level = 1 }))
+		io.close(configFile)
+	end	
+	
+	local function GetMapName(map)
+		if type(map) == "table" and map.map ~= nil then
+			return map.map
+		end
+		return map
+	end
     
     function DAKGetGroupCanRunCommand(groupName, commandName)
     
@@ -132,15 +167,12 @@ if Server then
 		
 		//Base DAK Config
 		if Plugin == "DAKLoader" or Plugin == "ALL" then
-			local ModsTable = { }
-			table.insert(ModsTable, kDAKDefaultMods)
 			if kDAKConfig == nil then
 				kDAKConfig = { }
 			end
 			kDAKConfig.DAKLoader = { }
 			kDAKConfig.DAKLoader.kDelayedClientConnect = 2
 			kDAKConfig.DAKLoader.kDelayedServerUpdate = 1
-			kDAKConfig.DAKLoader.kModsReloadList = ModsTable
 			kDAKConfig.DAKLoader.GamerulesExtensions = true
 			kDAKConfig.DAKLoader.OverrideInterp = { }
 			kDAKConfig.DAKLoader.OverrideInterp.kEnabled = false
@@ -268,6 +300,104 @@ if Server then
 			end
 		end
 		return false
+	end
+	
+	function MapCycle_GetMapCycle()
+		return kDAKMapCycle
+	end
+	
+	function MapCycle_SetMapCycle(newCycle)
+		kDAKMapCycle = newCycle
+		SaveMapCycle()
+	end
+	
+	function MapCycle_CycleMap()
+	
+		if #kDAKOverrideMapChange > 0 then
+			for i = 1, #kDAKOverrideMapChange do
+				if kDAKOverrideMapChange[i]() then
+					return
+				end
+			end
+		end
+		
+		//Fall back on default mapcycle
+		local numMaps = #kDAKMapCycle.maps
+		
+		if numMaps == 0 then
+		
+			Shared.Message("No maps in the map cycle")
+			return
+			
+		end
+		
+		local currentMap = Shared.GetMapName()
+		local map = nil
+		
+		if kDAKMapCycle.mode == "random" then
+		
+			// Choose a random map to switch to.
+			local mapIndex = math.random(1, numMaps)
+			map = kDAKMapCycle.maps[mapIndex]
+			
+			// Don't change to the map we're currently playing.
+			if GetMapName(map) == currentMap then
+			
+				mapIndex = mapIndex + 1
+				if mapIndex > numMaps then
+					mapIndex = 1
+				end
+				map = kDAKMapCycle.maps[mapIndex]
+				
+			end
+			
+		else
+		
+			// Go to the next map in the cycle. We need to search backwards
+			// in case the same map has been specified multiple times.
+			local mapIndex = 0
+			
+			for i = #kDAKMapCycle.maps, 1, -1 do
+				if GetMapName(kDAKMapCycle.maps[i]) == currentMap then
+					mapIndex = i
+					break
+				end
+			end
+			
+			mapIndex = mapIndex + 1
+			if mapIndex > numMaps then
+				mapIndex = 1
+			end
+			
+			map = kDAKMapCycle.maps[mapIndex]
+			
+		end
+		
+		local mapName = GetMapName(map)
+		if mapName ~= currentMap and DAKVerifyMapName(mapName) then
+			Server.StartWorld(kDAKMapCycle.mods, mapName)
+		end
+		
+	end
+
+	function MapCycle_TestCycleMap()
+			
+		if #kDAKCheckMapChange > 0 then
+			for i = 1, #kDAKCheckMapChange do
+				if kDAKCheckMapChange[i]() then
+					return false
+				end
+			end
+		end
+
+		// time is stored as minutes so convert to seconds.
+		if Shared.GetTime() < (kDAKMapCycle.time * 60) then
+			// We haven't been on the current map for long enough.
+			return false
+		end
+		
+		return true
+		
 	end
 	
 	function DAKCreateGUIVoteBase(OnVoteFunction, OnVoteUpdateFunction, Relevancy)
@@ -662,6 +792,20 @@ if Server then
 
     DAKCreateServerAdminCommand("Console_sv_maps", OnCommandListMap, "Will list all the maps currently on the server.")
 	
+	local function OnCommandCheats(client, parm)
+		local num = tonumber(parm)
+		if client ~= nil and num ~= nil then
+			ServerAdminPrint(client, string.format("Command sv_cheats %s executed.", parm))
+			Shared.ConsoleCommand("cheats " .. parm)
+			local player = client:GetControllingPlayer()
+			if player ~= nil then
+				PrintToAllAdmins("sv_cheats", client, " " .. parm)
+			end
+		end
+	end
+
+    DAKCreateServerAdminCommand("Console_sv_cheats", OnCommandCheats, "<1/0> Will enable/disable cheats.")
+	
 	local function OnCommandDefaultPluginConfig(client, plugin)
 		if client ~= nil and plugin ~= nil then
 			ServerAdminPrint(client, string.format("Defaulting %s config", plugin))
@@ -729,5 +873,24 @@ if Server then
 	LoadPlugins()
 	
 	DAKCreateServerAdminCommand("Console_sv_reloadplugins", LoadPlugins, "Reloads all plugins.")
+	
+	local function OnCommandCycleMap(client)
+
+		if client == nil or client:GetIsLocalClient() then
+			MapCycle_CycleMap()
+		end
+		
+	end
+
+	local function OnCommandChangeMap(client, mapName)
+		
+		if client == nil or client:GetIsLocalClient() and DAKVerifyMapName(mapName) then
+			Server.StartWorld(kDAKMapCycle.mods, mapName)
+		end
+		
+	end
+
+	Event.Hook("Console_changemap", OnCommandChangeMap)
+	Event.Hook("Console_cyclemap", OnCommandCycleMap)
 	
 end

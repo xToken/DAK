@@ -2,7 +2,6 @@
 //Replaces current automatic map switching on round-end.
 
 local kMaxMapVoteChatLength = 74
-local cycle = { { maps = { }, time = 30, mode = "order" } }
 local TiedMaps = { }
 local VotingMaps = { }
 local MapVotes = { }
@@ -15,41 +14,18 @@ local mapvotecomplete = false
 local mapvotenotify = 0
 local mapvotedelay = 0
 local nextmap
-local mapCycleFileName = "config://MapCycle.json"
 
 if kDAKConfig and kDAKConfig.MapVote and kDAKConfig.MapVote.kEnabled then
 
 	if kDAKSettings.PreviousMaps == nil then
 		kDAKSettings.PreviousMaps = { }
 	end
-
-	/** 
-	 * Loads information from the mapcycle.txt file.
-	 */
-	local function LoadMapCycle()
-
-		Shared.Message("Loading " .. mapCycleFileName)
-		
-		cycle = { maps = { }, time = 30, mode = "order" }
-		
-		local cycleFile = io.open(mapCycleFileName, "r")
-		if cycleFile then
-			cycle = json.decode(cycleFile:read("*all")) or { }
-		end
-		
-		assert(type(cycle.time) == "number", "time number expected in " .. mapCycleFileName)
-		assert(type(cycle.mode) == "string", "mode string expected in " .. mapCycleFileName)
-		assert(type(cycle.maps) == "table", "maps list expected in " .. mapCycleFileName)
-		
-	end
-	
-	LoadMapCycle()
 	
 	local function VerifyMapInCycle(mapName)
 	
-		if cycle and cycle.maps and mapName then
-			for i = 1, #cycle.maps do
-				if cycle.maps[i]:upper() == mapName:upper() then
+		if kDAKMapCycle and kDAKMapCycle.maps and mapName then
+			for i = 1, #kDAKMapCycle.maps do
+				if kDAKMapCycle.maps[i]:upper() == mapName:upper() then
 					return true
 				end
 			end
@@ -57,23 +33,10 @@ if kDAKConfig and kDAKConfig.MapVote and kDAKConfig.MapVote.kEnabled then
 		return false
 	end
 	
-	function MapCycle_TestCycleMap()
+	table.insert(kDAKCheckMapChange, function() return mapvoterunning or mapvoteintiated or mapvotecomplete end)
+	
+	local function StartMapVote()
 
-		// time is stored as minutes so convert to seconds.
-		if Shared.GetTime() < (cycle.time * 60) then
-			// We haven't been on the current map for long enough.
-			return false
-			
-		end
-		
-		if #kDAKOverrideMapChange > 0 then
-			for i = 1, #kDAKOverrideMapChange do
-				if kDAKOverrideMapChange[i]() then
-					return false
-				end
-			end
-		end
-		
 		if mapvoterunning or mapvoteintiated or mapvotecomplete then
 			//Map vote already running, dont start another
 		else		
@@ -86,8 +49,11 @@ if kDAKConfig and kDAKConfig.MapVote and kDAKConfig.MapVote.kEnabled then
 			chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapHowToVote, kDAKConfig.MapVote.kVoteStartDelay), 1, kMaxChatLength)
 			Server.SendNetworkMessage("Chat", BuildChatMessage(false, "Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 		end
+		return true
 		
 	end
+	
+	table.insert(kDAKOverrideMapChange, function() return StartMapVote() end)
 
 	local function UpdateMapVoteCountDown()
 
@@ -121,17 +87,17 @@ if kDAKConfig and kDAKConfig.MapVote and kDAKConfig.MapVote.kEnabled then
 				end
 			end
 			
-			for i = 1, #cycle.maps do
+			for i = 1, #kDAKMapCycle.maps do
 			
 				recentlyplayed = false
 				for j = 1, #kDAKSettings.PreviousMaps do
-					if cycle.maps[i] == kDAKSettings.PreviousMaps[j] then
+					if kDAKMapCycle.maps[i] == kDAKSettings.PreviousMaps[j] then
 						recentlyplayed = true
 					end				
 				end
 
-				if cycle.maps[i] ~= tostring(Shared.GetMapName()) and not recentlyplayed then	
-					table.insert(tempMaps, cycle.maps[i])
+				if kDAKMapCycle.maps[i] ~= tostring(Shared.GetMapName()) and not recentlyplayed then	
+					table.insert(tempMaps, kDAKMapCycle.maps[i])
 				end
 				
 			end
@@ -281,8 +247,8 @@ if kDAKConfig and kDAKConfig.MapVote and kDAKConfig.MapVote.kEnabled then
 				SaveDAKSettings()
 				if nextmap ~= nil then
 					local ServerMods = { }
-					if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.kModsReloadList then
-						ServerMods = kDAKConfig.DAKLoader.kModsReloadList
+					if kDAKMapCycle and kDAKMapCycle.mods then
+						ServerMods = kDAKMapCycle.mods
 					end
 					if DAKVerifyMapName(nextmap) then
 						Server.StartWorld( ServerMods, nextmap )
@@ -444,7 +410,7 @@ if kDAKConfig and kDAKConfig.MapVote and kDAKConfig.MapVote.kEnabled then
 		
 			local player = client:GetControllingPlayer()
 			if player ~= nil then
-				chatMessage = string.sub(string.format("%.1f Minutes Remaining.", math.max(0,((cycle.time * 60) - Shared.GetTime())/60)), 1, kMaxChatLength)
+				chatMessage = string.sub(string.format("%.1f Minutes Remaining.", math.max(0,((kDAKMapCycle.time * 60) - Shared.GetTime())/60)), 1, kMaxChatLength)
 				Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 			end
 			

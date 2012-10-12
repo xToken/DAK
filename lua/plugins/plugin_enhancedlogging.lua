@@ -412,7 +412,9 @@ if kDAKConfig and kDAKConfig.EnhancedLogging and kDAKConfig.EnhancedLogging.kEna
 
 			if state ~= self.gameState then
 				if state == kGameState.Started then
-					PrintToEnhancedLog(GetTimeStamp() .. string.format("Game started."))
+					local version = ToString(Shared.GetBuildNumber())
+					local map = Shared.GetMapName()
+					PrintToEnhancedLog(GetTimeStamp() .. "game_started" .. " build " .. version .. " map " .. map)
 				end			
 			end
 			kDAKBaseGamerules.SetGameState( self, state )
@@ -466,16 +468,14 @@ if kDAKConfig and kDAKConfig.EnhancedLogging and kDAKConfig.EnhancedLogging.kEna
 	
 		local gamerules = GetGamerules()
 		if gamerules then
-			if gamerules:GetGameState() == kGameState.Started then
-			    local version = ToString(Shared.GetBuildNumber())
-                local winner = ToString(winningTeam:GetTeamType())
-                local length = string.format("%.2f", Shared.GetTime() - gamerules.gameStartTime)
-                local map = Shared.GetMapName()
-                local start_location1 = gamerules.startingLocationNameTeam1
-                local start_location2 = gamerules.startingLocationNameTeam2
-				PrintToEnhancedLog(GetTimeStamp() .. "build " .. version .. " winning_team " .. winner .. " game_length " .. length .. 
-					" map " .. map .. " marine_start_loc " .. start_location1 .. " alien_start_loc " .. start_location2)
-			end
+			local version = ToString(Shared.GetBuildNumber())
+			local winner = ToString(winningTeam:GetTeamType())
+			local length = string.format("%.2f", Shared.GetTime() - gamerules.gameStartTime)
+			local map = Shared.GetMapName()
+			local start_location1 = gamerules.startingLocationNameTeam1
+			local start_location2 = gamerules.startingLocationNameTeam2
+			PrintToEnhancedLog(GetTimeStamp() .. "game_ended" .. " build " .. version .. " winning_team " .. winner .. " game_length " .. length .. 
+				" map " .. map .. " marine_start_loc " .. start_location1 .. " alien_start_loc " .. start_location2)
 		end
 		
 	end

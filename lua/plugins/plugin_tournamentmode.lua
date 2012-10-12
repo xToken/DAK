@@ -35,7 +35,7 @@ if kDAKConfig and kDAKConfig.TournamentMode and kDAKConfig.TournamentMode.kEnabl
 		return kDAKSettings.TournamentMode
 	end
 	
-	table.insert(kDAKOverrideMapChange, function() return GetTournamentMode() end)
+	table.insert(kDAKCheckMapChange, function() return GetTournamentMode() end)
 
 	function GetFriendlyFire()
 		return kDAKSettings.FriendlyFire

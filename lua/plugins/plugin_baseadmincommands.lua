@@ -166,8 +166,8 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands and kDAKConfig.BaseAdminCommands.
 		end
 		
 		local ServerMods = { }
-		if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.kModsReloadList then
-			ServerMods = kDAKConfig.DAKLoader.kModsReloadList
+		if kDAKMapCycle and kDAKMapCycle.mods then
+			ServerMods = kDAKMapCycle.mods
 		end
 		if DAKVerifyMapName(mapName) then
 			Server.StartWorld( ServerMods, mapName )
