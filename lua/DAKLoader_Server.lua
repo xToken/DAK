@@ -375,7 +375,11 @@ if Server then
 		
 		local mapName = GetMapName(map)
 		if mapName ~= currentMap and DAKVerifyMapName(mapName) then
-			Server.StartWorld(kDAKMapCycle.mods, mapName)
+			local ServerMods = { }
+			if kDAKMapCycle and kDAKMapCycle.mods then
+				ServerMods = kDAKMapCycle.mods
+			end
+			Server.StartWorld(ServerMods, mapName)
 		end
 		
 	end
@@ -885,7 +889,11 @@ if Server then
 	local function OnCommandChangeMap(client, mapName)
 		
 		if client == nil or client:GetIsLocalClient() and DAKVerifyMapName(mapName) then
-			Server.StartWorld(kDAKMapCycle.mods, mapName)
+			local ServerMods = { }
+			if kDAKMapCycle and kDAKMapCycle.mods then
+				ServerMods = kDAKMapCycle.mods
+			end
+			Server.StartWorld(ServerMods.mods, mapName)
 		end
 		
 	end
