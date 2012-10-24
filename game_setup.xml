@@ -1,0 +1,6 @@
+<game>
+	<name>DAK</name>
+	<description>DAK Admin Kit</description>
+	<client>lua/DAKLoader_Client.lua</client>
+	<server>lua/Server.lua</server>
+</game>

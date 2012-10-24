@@ -17,6 +17,11 @@ local function SetupDefaultConfig()
 	kDAKConfig.MOTD.kMOTDMessageDelay = 6
 	kDAKConfig.MOTD.kMOTDMessageRevision = 1
 	kDAKConfig.MOTD.kMOTDMessagesPerTick = 5
+	SaveDAKConfig()
 end
 
 table.insert(kDAKPluginDefaultConfigs, {PluginName = "MOTD", DefaultConfig = function() SetupDefaultConfig() end })
+
+if kDAKConfig.MOTD == nil then
+	SetupDefaultConfig()
+end
