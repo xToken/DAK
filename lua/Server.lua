@@ -22,6 +22,7 @@ Script.Load("lua/Bot.lua")
 Script.Load("lua/VoteManager.lua")
 
 Script.Load("lua/ServerConfig.lua")
+Script.Load("lua/DAKLoader_Server.lua")
 
 if kDAKConfig and kDAKConfig.BaseAdminCommands and kDAKConfig.BaseAdminCommands.kEnabled then
 else
@@ -96,7 +97,7 @@ function GetLoadEntity(mapName, groupName, values)
     return values.onlyexplore ~= true
 end
 
-function GetCreateEntityOnStart(mapName, groupName, values)
+local function GetCreateEntityOnStart(mapName, groupName, values)
 
     return mapName ~= "prop_static"
        and mapName ~= "light_point"
@@ -112,18 +113,19 @@ function GetCreateEntityOnStart(mapName, groupName, values)
        and mapName ~= Hive.kMapName
        and mapName ~= CommandStation.kMapName
        and mapName ~= Cyst.kMapName
-       and mapName ~= Particles.kMapName
        and mapName ~= InfantryPortal.kMapName
-
+    
 end
 
-function GetLoadSpecial(mapName, groupName, values)
+local function GetLoadSpecial(mapName, groupName, values)
 
     local success = false
-
+    
     if mapName == Hive.kMapName or mapName == CommandStation.kMapName then
+    
        table.insert(Server.mapLoadLiveEntityValues, { mapName, groupName, values })
        success = true
+       
     elseif mapName == ReadyRoomSpawn.kMapName then
     
         local entity = ReadyRoomSpawn()
@@ -132,28 +134,44 @@ function GetLoadSpecial(mapName, groupName, values)
         table.insert(Server.readyRoomSpawnList, entity)
         success = true
         
-    elseif (mapName == AmbientSound.kMapName) then
+    elseif mapName == AmbientSound.kMapName then
     
-        // Make sure sound index is precached but only create ambient sound object on client
+        // Make sure sound index is precached but only create ambient sound object on client.
         Shared.PrecacheSound(values.eventName)
         success = true
         
-    elseif mapName == Particles.kMapName then
-        Shared.PrecacheCinematic(values.cinematicName)
-        success = true
     elseif mapName == InfantryPortal.kMapName then
+    
         table.insert(Server.infantryPortalSpawnPoints, values.origin)
         success = true
+        
     elseif mapName == Cyst.kMapName then
+    
         table.insert(Server.cystSpawnPoints, values.origin)
         success = true
+        
     elseif mapName == "pathing_settings" then
+    
         ParsePathingSettings(values)
         success = true
+        
+    elseif mapName == "cinematic" then
+    
+        success = values.startsOnMessage ~= nil and values.startsOnMessage ~= ""
+        if success then
+        
+            PrecacheAsset(values.cinematicName)
+            local entity = Server.CreateEntity(ServerParticleEmitter.kMapName, values)
+            if entity then
+                entity:SetMapEntity()
+            end
+            
+        end
+        
     end
-
-    return success    
-
+    
+    return success
+    
 end
 
 local function DumpServerEntity(mapName, groupName, values)
@@ -214,8 +232,8 @@ local function LoadServerMapEntity(mapName, groupName, values)
         
         //DumpServerEntity(mapName, groupName, values)
         
-    end  
-        
+    end
+    
     if not GetLoadSpecial(mapName, groupName, values) then
     
         // Allow the MapEntityLoader to load it if all else fails.

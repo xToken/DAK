@@ -5,7 +5,9 @@
 //Would allow help menus and such to be generated.
 
 //Script.Load("lua/gui/GUIVoteBase.lua")
+Script.Load("lua/Client.lua")
 
+/*
 local function OnCommandVoteUpdate(VoteBaseUpdateMessage)
 	Print(ToString(VoteBaseUpdateMessage))
 end
@@ -20,3 +22,4 @@ local function OnCommandVoteBase(client, parm1)
 end
 
 Event.Hook("console_votebase", OnCommandVoteBase)
+*/
