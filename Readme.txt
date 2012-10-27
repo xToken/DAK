@@ -1,10 +1,7 @@
 This collection of plugins (and loader) make up what I started calling the DAK (Duck Admin Kit?)
 
-With 221, this has changed somewhat.  This mod can be downloaded via SteamWorkshop, and will autodownload on all clients on connect.
-The ModID for DAK is 5f4f178, with the current version being 1350026884
-You will want to name the folder m5f4f178_1350026884
-
-Since B220, server admin files are loaded all from the same directory - YAY - makes this alot easier.
+With 223, this has changed somewhat.  This mod can be downloaded via SteamWorkshop, and will autodownload on all clients on connect.
+The ModID for DAK is 5f4f178, which you will want to set in the server command line, and in MapCycle.json.  The server will automatically download the mod once set.
 
 A DAKConfig.json file will be automatically created in the config_path from the server command line, or in %AppData%\Natural Selection 2 if not specified.
 The DAKSettings.json file will also be created here as necessary.
