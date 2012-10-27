@@ -1,5 +1,7 @@
 //NS2 EnhancedLogging and Tracking of events
 
+Script.Load("lua/DAKLoader_Class.lua")
+
 local EnhancedLoggingFile = nil
 local EnhancedLog = { }
 	
@@ -408,37 +410,47 @@ if kDAKConfig and kDAKConfig.EnhancedLogging and kDAKConfig.EnhancedLogging.kEna
 		
 	if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.GamerulesExtensions then
 	
-		function NS2DAKGamerules:SetGameState(state)
-
-			if state ~= self.gameState then
-				if state == kGameState.Started then
-					PrintToEnhancedLog(GetTimeStamp() .. string.format("Game started."))
-				end			
-			end
-			kDAKBaseGamerules.SetGameState( self, state )
-			
-		end
+		local originalNS2GRSetGameState
 		
-		function NS2DAKGamerules:CastVoteByPlayer( voteTechId, player )
+		originalNS2GRSetGameState = Class_ReplaceMethod(kDAKConfig.DAKLoader.GamerulesClassName, "SetGameState", 
+			function(self, state)
 
-			if voteTechId == kTechId.VoteDownCommander1 or voteTechId == kTechId.VoteDownCommander2 or voteTechId == kTechId.VoteDownCommander3 then 
-				local playerIndex = (voteTechId - kTechId.VoteDownCommander1 + 1)        
-				local commanders = GetEntitiesForTeam("Commander", player:GetTeamNumber())
-				
-				if playerIndex <= table.count(commanders) then
-					local targetCommander = commanders[playerIndex]
-					if targetCommander ~= nil then
-						local targetClient = Server.GetOwner(targetCommander)
-						local Client = Server.GetOwner(player)
-						if targetClient and Client then
-							PrintToEnhancedLog(GetTimeStamp() .. GetClientUIDString(Client) .. " voted to eject " .. GetClientUIDString(targetClient))
+				if state ~= self.gameState then
+					if state == kGameState.Started then
+						local version = ToString(Shared.GetBuildNumber())
+						local map = Shared.GetMapName()
+						PrintToEnhancedLog(GetTimeStamp() .. "game_started" .. " build " .. version .. " map " .. map)
+					end
+				end
+				originalNS2GRSetGameState( self, state )
+			
+			end
+		)
+		
+		local originalNS2GRCastVoteByPlayer
+		
+		originalNS2GRCastVoteByPlayer = Class_ReplaceMethod(kDAKConfig.DAKLoader.GamerulesClassName, "CastVoteByPlayer", 
+			function(self, voteTechId, player)
+
+				if voteTechId == kTechId.VoteDownCommander1 or voteTechId == kTechId.VoteDownCommander2 or voteTechId == kTechId.VoteDownCommander3 then 
+					local playerIndex = (voteTechId - kTechId.VoteDownCommander1 + 1)        
+					local commanders = GetEntitiesForTeam("Commander", player:GetTeamNumber())
+					
+					if playerIndex <= table.count(commanders) then
+						local targetCommander = commanders[playerIndex]
+						if targetCommander ~= nil then
+							local targetClient = Server.GetOwner(targetCommander)
+							local Client = Server.GetOwner(player)
+							if targetClient and Client then
+								PrintToEnhancedLog(GetTimeStamp() .. GetClientUIDString(Client) .. " voted to eject " .. GetClientUIDString(targetClient))
+							end
 						end
 					end
 				end
+				originalNS2GRCastVoteByPlayer(self, voteTechId, player)
+
 			end
-			kDAKBaseGamerules.CastVoteByPlayer( self, voteTechId, player )
-			
-		end
+		)
 		
 	end
 	
@@ -466,16 +478,14 @@ if kDAKConfig and kDAKConfig.EnhancedLogging and kDAKConfig.EnhancedLogging.kEna
 	
 		local gamerules = GetGamerules()
 		if gamerules then
-			if gamerules:GetGameState() == kGameState.Started then
-			    local version = ToString(Shared.GetBuildNumber())
-                local winner = ToString(winningTeam:GetTeamType())
-                local length = string.format("%.2f", Shared.GetTime() - gamerules.gameStartTime)
-                local map = Shared.GetMapName()
-                local start_location1 = gamerules.startingLocationNameTeam1
-                local start_location2 = gamerules.startingLocationNameTeam2
-				PrintToEnhancedLog(GetTimeStamp() .. "build " .. version .. " winning_team " .. winner .. " game_length " .. length .. 
-					" map " .. map .. " marine_start_loc " .. start_location1 .. " alien_start_loc " .. start_location2)
-			end
+			local version = ToString(Shared.GetBuildNumber())
+			local winner = ToString(winningTeam:GetTeamType())
+			local length = string.format("%.2f", Shared.GetTime() - gamerules.gameStartTime)
+			local map = Shared.GetMapName()
+			local start_location1 = gamerules.startingLocationNameTeam1
+			local start_location2 = gamerules.startingLocationNameTeam2
+			PrintToEnhancedLog(GetTimeStamp() .. "game_ended" .. " build " .. version .. " winning_team " .. winner .. " game_length " .. length .. 
+				" map " .. map .. " marine_start_loc " .. start_location1 .. " alien_start_loc " .. start_location2)
 		end
 		
 	end

@@ -3,6 +3,12 @@
 //Shared Defs
 //Seperate file for these?
 
+if Server then
+	Script.Load("lua/DAKLoader_Server.lua")
+elseif Client then
+	Script.Load("lua/DAKLoader_Client.lua")
+end
+
 local kMaxVoteStringLength = 35
 
 local kVoteBaseUpdateMessage = 
@@ -43,9 +49,3 @@ local kVoteBaseMessage =
 }
 
 Shared.RegisterNetworkMessage("GUIVoteBaseRecieved", kVoteBaseMessage)
-
-if Server then
-	Script.Load("lua/DAKLoader_Server.lua")	
-else
-    Script.Load("lua/DAKLoader_Client.lua")
-end
