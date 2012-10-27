@@ -17,6 +17,21 @@ GUIVoteBase.kBgPosition = Vector(GUIVoteBase.kBgSize.x * -.5, GUIScale(-150) * k
 
 local kScale = 1.2
 
+local function OnCommandVoteUpdate(VoteBaseUpdateMessage)
+	Print(ToString(VoteBaseUpdateMessage))
+end
+
+Client.HookNetworkMessage("GUIVoteBase", OnCommandVoteUpdate)
+
+local function OnCommandVoteBase(parm1)
+	local idNum = tonumber(parm1)
+	if idNum ~= nil then
+		Client.SendNetworkMessage("GUIVoteBaseRecieved", { key = 0, optionselected = idNum }, true)
+	end
+end
+
+Event.Hook("Console_votebase", OnCommandVoteBase)
+
 function GUIVoteBase:Initialize()
     self.votemenu = GUIManager:CreateGraphicItem()
     self.votemenu:SetSize(GUIVoteBase.kBgSize)
@@ -49,6 +64,39 @@ end
 
 function GUIVoteBase:Update(deltaTime)
 
+end
+
+function GUIVoteBase:SendKeyEvent(key, down)
+
+    local closeMenu = false
+    local inputHandled = false
+    
+	local hotkeyGroup = 0
+	if key == InputKey.Num1 then
+		hotkeyGroup = 1
+	elseif key == InputKey.Num2 then
+		hotkeyGroup = 2
+	elseif key == InputKey.Num3 then
+		hotkeyGroup = 3
+	elseif key == InputKey.Num4 then
+		hotkeyGroup = 4
+	elseif key == InputKey.Num5 then
+		hotkeyGroup = 5
+	end
+    
+    if InputKey.Escape == key and not down then
+        closeMenu = true
+        inputHandled = true
+        MarineBuy_OnClose()
+    end
+
+    if closeMenu then
+        self.closingMenu = true
+        MarineBuy_Close()
+    end
+    
+    return inputHandled
+    
 end
     
 
