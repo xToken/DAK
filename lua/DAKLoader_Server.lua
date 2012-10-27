@@ -30,9 +30,9 @@ if Server then
 	Script.Load("lua/DAKLoader_ServerAdmin.lua")
 	Script.Load("lua/DAKLoader_Config.lua")
 	Script.Load("lua/DAKLoader_Settings.lua")
-	Script.Load("lua/DAKLoader_MapCycle.lua")
 	Script.Load("lua/Server.lua")
 	Script.Load("lua/DAKLoader_EventHooks.lua")
+	Script.Load("lua/DAKLoader_MapCycle.lua")
 	Script.Load("lua/DAKLoader_ServerAdminCommands.lua")
 	
 	kDAKRevisions["DAKLoader"] = 2.1

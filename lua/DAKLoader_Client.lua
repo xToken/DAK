@@ -6,18 +6,3 @@
 
 Script.Load("lua/Client.lua")
 //Script.Load("lua/gui/gui_votebase.lua")
-
-local function OnCommandVoteUpdate(VoteBaseUpdateMessage)
-	Print(ToString(VoteBaseUpdateMessage))
-end
-
-Client.HookNetworkMessage("GUIVoteBase", OnCommandVoteUpdate)
-
-local function OnCommandVoteBase(client, parm1)
-	local idNum = tonumber(parm1)
-	if idNum then
-		Client.SendNetworkMessage("GUIVoteBaseRecieved", { key = 0, optionselected = idNum }, true)
-	end
-end
-
-Event.Hook("Console_votebase", OnCommandVoteBase)
