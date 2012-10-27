@@ -126,35 +126,26 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands and kDAKConfig.BaseAdminCommands.
 		if not playerClient then
 			Shared.Message("playerClient is nil in PrintStatus, alert Brian")
 		else
-		
-			local playerAddressString = IPAddressToString(Server.GetClientAddress(playerClient))
-			ServerAdminPrint(client, player:GetName() .. " : Game Id = " 
-			.. ToString(GetGameIdMatchingClient(playerClient))
-			.. " : Steam Id = " .. playerClient:GetUserId()
-			.. " : Team = " .. player:GetTeamNumber()
-			.. " : Address = " .. playerAddressString)
 			
+			if DAKGetClientCanRunCommand(playerClient, "sv_status") then
+				local playerAddressString = IPAddressToString(Server.GetClientAddress(playerClient))
+				ServerAdminPrint(client, player:GetName() .. " : Game Id = " 
+				.. ToString(GetGameIdMatchingClient(playerClient))
+				.. " : Steam Id = " .. playerClient:GetUserId()
+				.. " : Team = " .. player:GetTeamNumber()
+				.. " : Address = " .. playerAddressString)
+			else
+				ServerAdminPrint(client, player:GetName() .. " : Game Id = " 
+				.. ToString(GetGameIdMatchingClient(playerClient))
+				.. " : Steam Id = " .. playerClient:GetUserId()
+				.. " : Team = " .. player:GetTeamNumber())
+			end
+
 		end
 		
 	end
 
 	DAKCreateServerAdminCommand("Console_sv_status", AllPlayers(PrintStatus), "Lists player Ids and names for use in sv commands", true)
-
-	local function PrintStatusIP(player, client, index)
-
-		local playerClient = Server.GetOwner(player)
-		if not playerClient then
-			Shared.Message("playerClient is nil in PrintStatus, alert Brian")
-		else
-		
-			local playerAddressString = IPAddressToString(Server.GetClientAddress(playerClient))
-			ServerAdminPrint(client, player:GetName() .. " : Steam Id = " .. playerClient:GetUserId() .. " : Address = " .. playerAddressString)
-			
-		end
-		
-	end
-
-	DAKCreateServerAdminCommand("Console_sv_statusip", AllPlayers(PrintStatusIP), "Lists player Ids and names for use in sv commands")
 
 	local function OnCommandChangeMap(client, mapName)
 
@@ -576,6 +567,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands and kDAKConfig.BaseAdminCommands.
 		ServerAdminPrint(client, "Performance logging disabled")
 		
 	end
+	
 	DAKCreateServerAdminCommand("Console_sv_p_endlog", PEndLog, "Ends performance logging")
 
 	local function AutoBalance(client, enabled, playerCount, seconds)
@@ -594,60 +586,10 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands and kDAKConfig.BaseAdminCommands.
 			
 		end
 		
-		if client ~= nil and playerId ~= nil then 
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				PrintToAllAdmins("sv_autobalance", client, ToString(enabled).. ToString(playerCount) .. ToString(seconds))
-			end
-		end
-		
-	end
-	DAKCreateServerAdminCommand("Console_sv_autobalance", AutoBalance, "<true/false> <player count> <seconds>, Toggles auto team balance. The player count and seconds are optional. Count defaults to 2 over balance to enable. Defaults to 10 second wait to enable.")
-
-	local kMaxPrintLength = 128
-	local kServerAdminMessage =
-	{
-		message = string.format("string (%d)", kMaxPrintLength),
-	}
-	Shared.RegisterNetworkMessage("ServerAdminPrint", kServerAdminMessage)
-
-	if Server then
-
-		function ServerAdminPrint(client, message)
-		
-			if client then
-			
-				// First we must split up the message into a list of messages no bigger than kMaxPrintLength each.
-				local messageList = { }
-				while string.len(message) > kMaxPrintLength do
-				
-					local messagePart = string.sub(message, 0, kMaxPrintLength)
-					table.insert(messageList, messagePart)
-					message = string.sub(message, kMaxPrintLength + 1)
-					
-				end
-				table.insert(messageList, message)
-				
-				for m = 1, #messageList do
-					Server.SendNetworkMessage(client:GetControllingPlayer(), "ServerAdminPrint", { message = messageList[m] }, true)
-				end
-				
-			end
-			
-			// Display message in the server console.
-			Shared.Message(message)
-			
-		end
-		
-	else
-
-		local function OnServerAdminPrint(messageTable)
-			Shared.Message(messageTable.message)
-		end
-		Client.HookNetworkMessage("ServerAdminPrint", OnServerAdminPrint)
-		
 	end
 	
+	DAKCreateServerAdminCommand("Console_sv_autobalance", AutoBalance, "<true/false> <player count> <seconds>, Toggles auto team balance. The player count and seconds are optional. Count defaults to 2 over balance to enable. Defaults to 10 second wait to enable.")
+
 elseif kDAKConfig and not kDAKConfig.BaseAdminCommands then
 	
 	DAKGenerateDefaultDAKConfig("BaseAdminCommands")

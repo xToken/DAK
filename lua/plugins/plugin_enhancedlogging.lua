@@ -1,6 +1,6 @@
 //NS2 EnhancedLogging and Tracking of events
 
-Script.Load("lua/Class.lua")
+Script.Load("lua/DAKLoader_Class.lua")
 
 local EnhancedLoggingFile = nil
 local EnhancedLog = { }

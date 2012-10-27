@@ -33,8 +33,8 @@ if Server then
 			kDAKConfig.DAKLoader = { }
 			kDAKConfig.DAKLoader.kDelayedClientConnect = 2
 			kDAKConfig.DAKLoader.kDelayedServerUpdate = 1
-			kDAKConfig.DAKLoader.kPluginsList = { "afkkick", "baseadmincommands", "enhancedlogging", "mapvote", "motd", "reservedslots",
-													"tournamentmode", "unstuck", "voterandom", "votesurrender" }
+			kDAKConfig.DAKLoader.kPluginsList = { "afkkick", "baseadmincommands", "enhancedlogging", "mapvote", "motd",
+													 "unstuck", "voterandom", "votesurrender" }
 			kDAKConfig.DAKLoader.GamerulesExtensions = true
 			kDAKConfig.DAKLoader.GamerulesClassName = "NS2Gamerules"
 			kDAKConfig.DAKLoader.OverrideInterp = { }
@@ -78,7 +78,7 @@ if Server then
 	function DAKGenerateDefaultDAKConfig(Plugin)
 		GenerateDefaultDAKConfig(Plugin)
 	end
-	
+				
 	local function OnCommandLoadDAKConfig(client)
 	
 		if client ~= nil then

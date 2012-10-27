@@ -251,4 +251,26 @@ if Server then
 
     DAKCreateServerAdminCommand("Console_sv_listadmins", OnCommandListAdmins, "Will list all groups and admins.")
 	
+	//This is so derp, but re-registering function to override builtin admin system without having to modify core NS2 files
+	//Using registration of ServerAdminPrint network message for the correct timing
+	local originalNS2CreateServerAdminCommand
+	
+	originalNS2CreateServerAdminCommand = Class_ReplaceMethod("Shared", "RegisterNetworkMessage", 
+		function(parm1, parm2)
+		
+			if parm1 == "ServerAdminPrint" then
+				if kDAKConfig and kDAKConfig.BaseAdminCommands and kDAKConfig.BaseAdminCommands.kEnabled then
+					function CreateServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
+					end
+				end
+			end
+			if parm2 == nil then
+				originalNS2CreateServerAdminCommand(parm1)
+			else
+				originalNS2CreateServerAdminCommand(parm1, parm2)
+			end
+
+		end
+	)
+	
 end

@@ -4,10 +4,9 @@
 //Used to load client side scripts, may be expanded if plugin sync seems useful.
 //Would allow help menus and such to be generated.
 
-//Script.Load("lua/gui/GUIVoteBase.lua")
 Script.Load("lua/Client.lua")
+//Script.Load("lua/gui/gui_votebase.lua")
 
-/*
 local function OnCommandVoteUpdate(VoteBaseUpdateMessage)
 	Print(ToString(VoteBaseUpdateMessage))
 end
@@ -21,5 +20,4 @@ local function OnCommandVoteBase(client, parm1)
 	end
 end
 
-Event.Hook("console_votebase", OnCommandVoteBase)
-*/
+Event.Hook("Console_votebase", OnCommandVoteBase)

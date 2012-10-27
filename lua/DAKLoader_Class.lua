@@ -7,12 +7,13 @@ local function ReplaceMethodInDerivedClasses(className, methodName, method, orig
 	_G[className][methodName] = method
 
 	local classes = Script.GetDerivedClasses(className)
-	assert(classes ~= nil)
-	
-	for i, c in ipairs(classes) do
-		ReplaceMethodInDerivedClasses(c, methodName, method, original)
-	end
 
+	if classes ~= nil then
+		for i, c in ipairs(classes) do
+			ReplaceMethodInDerivedClasses(c, methodName, method, original)
+		end
+	end
+	
 end
 
 function Class_ReplaceMethod(className, methodName, method)
