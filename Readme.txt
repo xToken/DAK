@@ -19,14 +19,14 @@ Generally the default configuration should work for most instances, if you do cu
  sv_randomon - will turn on random teams
  sv_randomoff - will turn off random teams
  sv_tournamentmode - takes 3 possible parameters, 1/true, 0/false for tournamentmode, friendlyfire and official mode respectively.
-	sv_tournamentmode 1 1 0 would enable tournamentmode and friendlyfire, put stay in PCW mode.  Official mode requires team captains to ready.
+	sv_tournamentmode 1 1 0 would enable tournamentmode and friendlyfire, but stay in PCW mode.  Official mode requires team captains to ready.
  sv_setcaptain - Can be used to set a captain for a team, is required for official mode.
  sv_forceroundstart - Used in tournamentmode to force the round start as an Admin.
  sv_cancelroundstart - Used in tournamentmode to cancel the round start as an Admin.
  sv_votemap - starts a mapvote at anytime
  sv_cancelmapvote - cancels any in progress map votes.
  sv_listadmins - will list all groups and admins configured in the ServerAdmin.json file
- sv_killserver - Does exactly what it says - This is not a clean closing of the server, it uses a bug which causes a crash.
+ sv_killserver - Does exactly what it says - This is not a clean closing of the server, it uses a bug which causes a crash. (This no longer works as of B225)
  sv_hasreserve - Will grant this admin a reserve slot that does not expire.
  sv_surrendervote - Will start a surrender vote for the team provided.
  sv_cancelsurrendervote - Will cancel a in progress surrender vote for the team provided.
