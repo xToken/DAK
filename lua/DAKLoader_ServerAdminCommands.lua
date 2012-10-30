@@ -75,6 +75,7 @@ end
 DAKCreateServerAdminCommand("Console_sv_cheats", OnCommandCheats, "<1/0> Will enable/disable cheats.")
 
 local function OnCommandKillServer(client)
+
 	if client ~= nil then 
 		ServerAdminPrint(client, string.format("Command sv_killserver executed."))
 		local player = client:GetControllingPlayer()
@@ -82,17 +83,12 @@ local function OnCommandKillServer(client)
 			PrintToAllAdmins("sv_killserver", client)
 		end
 	end
-	//No need for this durrrrr, server supports exit
-	//Shared.ConsoleCommand("exit") I wish :<
-	CRASHFILE = io.open("config://CRASHFILE", "w")
-	if CRASHFILE then
-		CRASHFILE:seek("end")
-		CRASHFILE:write("\n CRASH")
-		CRASHFILE:close()
-	end
+	
+	//Shared.ConsoleCommand("exit")
+	//They finally fixed seek crash bug :<
 end
 
-DAKCreateServerAdminCommand("Console_sv_killserver", OnCommandKillServer, "Will crash the server (lol).")
+//DAKCreateServerAdminCommand("Console_sv_killserver", OnCommandKillServer, "Will crash the server (lol).")
 
 //Load Plugins
 local function LoadPlugins()
