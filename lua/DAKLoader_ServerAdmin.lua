@@ -219,7 +219,7 @@ if Server then
 					RegisterServerAdminCommand(ServerAdminCmd.cmdName, ServerAdminCmd.cmdFunction, ServerAdminCmd.helpT, ServerAdminCmd.opt)
 				end
 			end
-			Shared.Message("Server Commands Registered")
+			Shared.Message("Server Commands Registered.")
 			DelayedServerAdminCommands = nil
 			DelayedServerCommands = false
 		end
