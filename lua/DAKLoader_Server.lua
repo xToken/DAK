@@ -30,9 +30,41 @@ if Server then
 	Script.Load("lua/DAKLoader_ServerAdmin.lua")
 	Script.Load("lua/DAKLoader_Config.lua")
 	Script.Load("lua/DAKLoader_Settings.lua")
-	Script.Load("lua/Server.lua")
+	
+	if kDAKConfig and kDAKConfig.DAKLoader and not kDAKConfig.DAKLoader.LoadFromServerLUA then
+		Script.Load("lua/Server.lua")
+		Script.Load("lua/DAKLoader_MapCycle.lua")
+	end
+	
+	if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.LoadFromServerLUA then
+		local DelayedEventOverrides = true
+		local function DelayedEventOverride()	
+			if DelayedEventOverrides then
+				local chatMessageCount = 0
+
+				function Server.AddChatToHistory(message, playerName, steamId, teamNumber, teamOnly)
+
+					chatMessageCount = chatMessageCount + 1
+					Server.recentChatMessages:Insert({ id = chatMessageCount, message = message, player = playerName,
+													   steamId = steamId, team = teamNumber, teamOnly = teamOnly })
+
+					local client = GetClientMatchingSteamId(steamId)
+					if #kDAKOnClientChatMessage > 0 then
+						for i = 1, #kDAKOnClientChatMessage do
+							kDAKOnClientChatMessage[i](message, playerName, steamId, teamNumber, teamOnly, client)
+						end
+					end
+
+				end
+				Script.Load("lua/DAKLoader_MapCycle.lua")
+				Shared.Message("Loading Event Overrides.")
+				DelayedEventOverrides = false
+			end
+		end
+		table.insert(kDAKOnServerUpdate, function(deltatime) return DelayedEventOverride() end)
+	end
+	
 	Script.Load("lua/DAKLoader_EventHooks.lua")
-	Script.Load("lua/DAKLoader_MapCycle.lua")
 	Script.Load("lua/DAKLoader_ServerAdminCommands.lua")
 	
 	kDAKRevisions["DAKLoader"] = 2.1
