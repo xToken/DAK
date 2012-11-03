@@ -37,6 +37,7 @@ if Server then
 													 "unstuck", "voterandom", "votesurrender" }
 			kDAKConfig.DAKLoader.GamerulesExtensions = true
 			kDAKConfig.DAKLoader.GamerulesClassName = "NS2Gamerules"
+			kDAKConfig.DAKLoader.LoadFromServerLUA = false
 			kDAKConfig.DAKLoader.OverrideInterp = { }
 			kDAKConfig.DAKLoader.OverrideInterp.kEnabled = false
 			kDAKConfig.DAKLoader.OverrideInterp.kInterp = 100
