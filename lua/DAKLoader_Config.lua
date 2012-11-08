@@ -104,6 +104,6 @@ if Server then
 		end
 	end
 
-    DAKCreateServerAdminCommand("Console_sv_defaultconfig", OnCommandDefaultPluginConfig, "<Plugin Name> Will list all the maps currently on the server.")
+    DAKCreateServerAdminCommand("Console_sv_defaultconfig", OnCommandDefaultPluginConfig, "<Plugin Name> will default the config for the plugin passed, or ALL")
 	
 end
