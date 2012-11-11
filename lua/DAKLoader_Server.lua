@@ -100,7 +100,11 @@ if Server then
 	function ShufflePlayerList()
 	
 		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
-		local gamerules = GetGamerules()
+		for i = #playerList, 1, -1 do
+			if playerList[i]:GetTeamNumber() ~= 0 then
+				table.remove(playerList, i)
+			end
+		end
 		for i = 1, (#playerList) do
 			r = math.random(1, #playerList)
 			local iplayer = playerList[i]

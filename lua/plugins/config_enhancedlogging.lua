@@ -5,6 +5,7 @@ local function SetupDefaultConfig()
 	kDAKConfig.EnhancedLogging = { }
 	kDAKConfig.EnhancedLogging.kEnabled = true
 	kDAKConfig.EnhancedLogging.kEnhancedLoggingSubDir = "Logs"
+	kDAKConfig.EnhancedLogging.kServerTimeZoneAdjustment = 0
 	SaveDAKConfig()
 end
 

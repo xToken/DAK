@@ -13,7 +13,7 @@ if kDAKConfig and kDAKConfig.MOTD and kDAKConfig.MOTD.kEnabled then
 
 		local player = client:GetControllingPlayer()
 		chatMessage = string.sub(string.format(message), 1, kMaxChatLength)
-		Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+		Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 
 	end
 	

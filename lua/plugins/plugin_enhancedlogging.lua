@@ -43,17 +43,28 @@ if kDAKConfig and kDAKConfig.EnhancedLogging and kDAKConfig.EnhancedLogging.kEna
 
 	local function GetDateTimeString(logfile)
 	
-		local totalseconds = Shared.GetSystemTime()
-		local Year = 1970 + math.floor(((((totalseconds / 60) / 60) / 24) / 365.25))
-		totalseconds = totalseconds - ((Year - 1970) * 365.25 * 24 * 60 * 60)
-		local Day = 1 + math.floor((((totalseconds / 60) / 60) / 24))
-		totalseconds = totalseconds - ((Day - 1) * 24 * 60 * 60)
+		local st = Shared.GetSystemTime()
+		local DST = 0
+		local TIMEZONE = 0
+		if kDAKConfig.EnhancedLogging.kServerTimeZoneAdjustment then
+			TIMEZONE = kDAKConfig.EnhancedLogging.kServerTimeZoneAdjustment
+		end
+		local Days = math.floor(st / 86400)
+		st = st - (Days * 86400)
 		local Month = 1
-		Month, Day = GetMonthDaysString(Year, Day)
-		local Hours = 0 + math.floor(((totalseconds / 60) / 60))
-		totalseconds = totalseconds - ((Hours) * 60 * 60)
-		local Minutes = 0 + math.floor((totalseconds / 60))
-		totalseconds = totalseconds - ((Minutes) * 60)
+		local Year = math.floor(Days / 365)
+		Days = Days - (Year * 365)
+		Year = Year + 1970
+		Days = Days - math.floor((Year - 1972) / 4) + 1
+		Month, Day = GetMonthDaysString(Year, Days)
+		if Month == 11 and Day <= 2 or Month < 11 and Month > 3 or Month == 3 and Day >= 10 then
+			DST = 1		
+		end
+		local Hours = math.floor(st / 3600)
+		st = st - (Hours * 3600)
+		Hours = Hours + DST + TIMEZONE
+		local Minutes = math.floor(st / 60)
+		st = st - (Minutes * 60)
 		local DateTime 
 		if logfile then
 			DateTime = string.format("%s-%s-%s - ", Month, Day, Year)
@@ -80,10 +91,10 @@ if kDAKConfig and kDAKConfig.EnhancedLogging and kDAKConfig.EnhancedLogging.kEna
 		else
 			DateTime = DateTime .. string.format(":%s:", Minutes)
 		end
-		if totalseconds < 10 then
-			DateTime = DateTime .. string.format("0%s", totalseconds)
+		if st < 10 then
+			DateTime = DateTime .. string.format("0%s", st)
 		else
-			DateTime = DateTime .. string.format("%s", totalseconds)
+			DateTime = DateTime .. string.format("%s", st)
 		end
 		return DateTime
 		

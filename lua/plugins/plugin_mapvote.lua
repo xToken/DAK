@@ -13,6 +13,7 @@ local mapvoterunning = false
 local mapvotecomplete = false
 local mapvotenotify = 0
 local mapvotedelay = 0
+local mapvoteextend = 0
 local nextmap
 
 if kDAKConfig and kDAKConfig.MapVote and kDAKConfig.MapVote.kEnabled then
@@ -33,7 +34,20 @@ if kDAKConfig and kDAKConfig.MapVote and kDAKConfig.MapVote.kEnabled then
 		return false
 	end
 	
-	table.insert(kDAKCheckMapChange, function() return mapvoterunning or mapvoteintiated or mapvotecomplete end)
+	local function CheckMapVote()
+	
+		if mapvoterunning or mapvoteintiated or mapvotecomplete then
+			return true
+		end
+		if Shared.GetTime() < ((kDAKMapCycle.time * 60) + (mapvoteextend * 60)) then
+			// We haven't been on the current map for long enough.
+			return true
+		end
+		return false
+		
+	end
+	
+	table.insert(kDAKCheckMapChange, function() return CheckMapVote() end)
 	
 	local function StartMapVote()
 
@@ -112,6 +126,11 @@ if kDAKConfig and kDAKConfig.MapVote and kDAKConfig.MapVote.kEnabled then
 			
 			end
 			
+			//Add in Extend Vote
+			if mapvoteextend < (kDAKConfig.MapVote.kExtendDuration * kDAKConfig.MapVote.kMaximumExtends) then
+				table.insert(tempMaps, string.format("Extend %s", tostring(Shared.GetMapName())))
+			end
+			
 			if #tempMaps > 0 then
 				for i = 1, 100 do //After 100 tries just give up, you failed.
 				
@@ -155,6 +174,7 @@ if kDAKConfig and kDAKConfig.MapVote and kDAKConfig.MapVote.kEnabled then
 
 		local playerRecords = Shared.GetEntitiesWithClassname("Player")
 		local mapname
+		local votepassed = false
 		local totalvotes = 0
 		
 		// This is cleared so that only valid players votes still in the game will count.
@@ -210,10 +230,17 @@ if kDAKConfig and kDAKConfig.MapVote and kDAKConfig.MapVote.kEnabled then
 				
 		elseif totalvotes >= math.ceil(playerRecords:GetSize() * (kDAKConfig.MapVote.kVoteMinimumPercentage / 100)) then
 		
-			chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapWinner, mapname, ToString(totalvotes)), 1, kMaxMapVoteChatLength) .. "******"
+			if mapname == string.format("Extend %s", tostring(Shared.GetMapName())) then
+				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapExtended, kDAKConfig.MapVote.kExtendDuration), 1, kMaxMapVoteChatLength) .. "******"
+				mapvotedelay = 0
+			else
+				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapWinner, mapname, ToString(totalvotes)), 1, kMaxMapVoteChatLength) .. "******"
+				nextmap = mapname
+				mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteChangeDelay
+			end
+			
 			Server.SendNetworkMessage("Chat", BuildChatMessage(false, "Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
-			nextmap = mapname
-			mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteChangeDelay
+			votepassed = true
 			mapvotecomplete = true	
 					
 		elseif totalvotes < math.ceil(playerRecords:GetSize() * (kDAKConfig.MapVote.kVoteMinimumPercentage / 100)) then
@@ -230,7 +257,12 @@ if kDAKConfig and kDAKConfig.MapVote and kDAKConfig.MapVote.kEnabled then
 		if mapvotecomplete then
 			mapvoterunning = false
 			mapvoteintiated = false
-			
+			if not votepassed then
+				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapAutomaticChange), 1, kMaxMapVoteChatLength) .. "******"
+				Server.SendNetworkMessage("Chat", BuildChatMessage(false, "Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+				nextmap = MapCycle_GetNextMapInCycle()
+				mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteChangeDelay
+			end
 		end
 
 	end
