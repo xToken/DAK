@@ -212,7 +212,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands and kDAKConfig.BaseAdminCommands.
 		end
 		local playerList = ShufflePlayerList()
 		for i = 1, (#playerList) do
-			if ShuffleAllPlayers or playerList[i]:GetTeamNumber() == 0 then
+			if playerList[i]:GetTeamNumber() == 0 then
 				local teamnum = math.fmod(i,2) + 1
 				//Trying just making team decision based on position in array.. two randoms seems to somehow result in similar teams..
 				local gamerules = GetGamerules()

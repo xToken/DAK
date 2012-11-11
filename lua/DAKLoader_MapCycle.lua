@@ -61,28 +61,14 @@ if Server then
 		SaveMapCycle()
 	end
 	
-	function MapCycle_CycleMap()
-	
-		if #kDAKOverrideMapChange > 0 then
-			for i = 1, #kDAKOverrideMapChange do
-				if kDAKOverrideMapChange[i]() then
-					return
-				end
-			end
-		end
-		
-		//Fall back on default mapcycle
+	function MapCycle_GetNextMapInCycle()
+		local currentMap = Shared.GetMapName()
 		local numMaps = #kDAKMapCycle.maps
+		local map = nil
 		
 		if numMaps == 0 then
-		
-			Shared.Message("No maps in the map cycle")
-			return
-			
+			return map
 		end
-		
-		local currentMap = Shared.GetMapName()
-		local map = nil
 		
 		if kDAKMapCycle.mode == "random" then
 		
@@ -123,7 +109,27 @@ if Server then
 			
 		end
 		
-		local mapName = GetMapName(map)
+		return map
+	end
+	
+	function MapCycle_CycleMap()
+	
+		if #kDAKOverrideMapChange > 0 then
+			for i = 1, #kDAKOverrideMapChange do
+				if kDAKOverrideMapChange[i]() then
+					return
+				end
+			end
+		end
+		
+		local currentMap = Shared.GetMapName()
+		local mapName = GetMapName(MapCycle_GetNextMapInCycle())
+		
+		if mapName == nil then
+			Shared.Message("No maps in the map cycle")
+			return
+		end
+		
 		if mapName ~= currentMap and DAKVerifyMapName(mapName) then
 			local ServerMods = { }
 			if kDAKMapCycle and kDAKMapCycle.mods then
