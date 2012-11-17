@@ -1,7 +1,7 @@
 //motd config
 
 kDAKRevisions["MOTD"] = 1.6
-local function SetupDefaultConfig()
+local function SetupDefaultConfig(Save)
 	local MOTDTable = { }
 	table.insert(MOTDTable, "********************************************************************")
 	table.insert(MOTDTable, "* Commands: These can be entered via chat or the console (~)        ")
@@ -12,16 +12,20 @@ local function SetupDefaultConfig()
 	table.insert(MOTDTable, "* acceptmotd: To accept and suppress this message                   ")
 	table.insert(MOTDTable, "* stuck: To have your player teleported to be unstuck.              ")
 	table.insert(MOTDTable, "********************************************************************")
-	kDAKConfig.MOTD = { }
+	if kDAKConfig.MOTD == nil then
+		kDAKConfig.MOTD = { }
+	end
 	kDAKConfig.MOTD.kEnabled = true
 	kDAKConfig.MOTD.kMOTDMessage = MOTDTable
 	kDAKConfig.MOTD.kMOTDMessageDelay = 6
 	kDAKConfig.MOTD.kMOTDMessageRevision = 1
 	kDAKConfig.MOTD.kMOTDMessagesPerTick = 5
-	SaveDAKConfig()
+	if Save then
+		SaveDAKConfig()
+	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "MOTD", DefaultConfig = function() SetupDefaultConfig() end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "MOTD", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
 
 if kDAKConfig.MOTD == nil then
 	SetupDefaultConfig()

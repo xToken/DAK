@@ -2,7 +2,9 @@
 
 kDAKRevisions["AFKKicker"] = 1.6
 local function SetupDefaultConfig()
-	kDAKConfig.AFKKicker = { }
+	if kDAKConfig.AFKKicker == nil then
+		kDAKConfig.AFKKicker = { }
+	end
 	kDAKConfig.AFKKicker.kEnabled = true
 	kDAKConfig.AFKKicker.kAFKKickDelay = 150
 	kDAKConfig.AFKKicker.kAFKKickCheckDelay = 5
@@ -15,10 +17,12 @@ local function SetupDefaultConfig()
 	kDAKConfig.AFKKicker.kAFKKickWarningMessage1 = "You will be kicked in %d seconds for idling."
 	kDAKConfig.AFKKicker.kAFKKickWarning2 = 10
 	kDAKConfig.AFKKicker.kAFKKickWarningMessage2 = "You will be kicked in %d seconds for idling."
-	SaveDAKConfig()
+	if Save then
+		SaveDAKConfig()
+	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "AFKKicker", DefaultConfig = function() SetupDefaultConfig() end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "AFKKicker", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
 
 if kDAKConfig.AFKKicker == nil then
 	SetupDefaultConfig()

@@ -155,13 +155,9 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands and kDAKConfig.BaseAdminCommands.
 				PrintToAllAdmins("sv_changemap", client, mapName)
 			end
 		end
-		
-		local ServerMods = { }
-		if kDAKMapCycle and kDAKMapCycle.mods then
-			ServerMods = kDAKMapCycle.mods
-		end
+
 		if DAKVerifyMapName(mapName) then
-			Server.StartWorld( ServerMods, mapName )
+			MapCycle_ChangeToMap(mapName)
 		else
 			chatMessage = string.format("Invalid Map Provided.")
 			Server.SendNetworkMessage("Chat", BuildChatMessage(false, "Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)

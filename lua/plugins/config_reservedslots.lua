@@ -1,8 +1,10 @@
 //reservedslots config
 
 kDAKRevisions["ReservedSlots"] = 1.6
-local function SetupDefaultConfig()
-	kDAKConfig.ReservedSlots = { }
+local function SetupDefaultConfig(Save)
+	if kDAKConfig.ReservedSlots == nil then
+		kDAKConfig.ReservedSlots = { }
+	end
 	kDAKConfig.ReservedSlots.kEnabled = false
 	kDAKConfig.ReservedSlots.kMaximumSlots = 19
 	kDAKConfig.ReservedSlots.kReservedSlots = 3
@@ -14,10 +16,12 @@ local function SetupDefaultConfig()
 	kDAKConfig.ReservedSlots.kReserveSlotServerFullDisconnectReason = "Server is full."
 	kDAKConfig.ReservedSlots.kReserveSlotKickedForRoom = "**You're being kicked due to a reserved slot, this is automatically determined**"
 	kDAKConfig.ReservedSlots.kReserveSlotKickedDisconnectReason = "Kicked due to a reserved slot."
-	SaveDAKConfig()
+	if Save then
+		SaveDAKConfig()
+	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "ReservedSlots", DefaultConfig = function() SetupDefaultConfig() end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "ReservedSlots", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
 
 if kDAKConfig.ReservedSlots == nil then
 	SetupDefaultConfig()

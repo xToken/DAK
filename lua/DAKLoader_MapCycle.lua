@@ -43,10 +43,12 @@ if Server then
 		local matchingFiles = { }
 		Shared.GetMatchingFileNames("maps/*.level", false, matchingFiles)
 
-		for _, mapFile in pairs(matchingFiles) do
-			local _, _, filename = string.find(mapFile, "maps/(.*).level")
-			if mapName:upper() == string.format(filename):upper() then
-				return true
+		if mapName ~= nil then
+			for _, mapFile in pairs(matchingFiles) do
+				local _, _, filename = string.find(mapFile, "maps/(.*).level")
+				if mapName:upper() == string.format(filename):upper() then
+					return true
+				end
 			end
 		end
 		return false
@@ -59,6 +61,37 @@ if Server then
 	function MapCycle_SetMapCycle(newCycle)
 		kDAKMapCycle = newCycle
 		SaveMapCycle()
+	end
+	
+	function MapCycle_ChangeToMap(mapName)
+		local mods = { }
+		
+		// Copy the global defined mods.
+		if type(kDAKMapCycle.mods) == "table" then
+			table.copy(kDAKMapCycle.mods, mods, true)
+		end
+		
+		local map = nil
+			
+		for i = #kDAKMapCycle.maps, 1, -1 do
+			if GetMapName(kDAKMapCycle.maps[i]) == mapName then
+				map = kDAKMapCycle.maps[i]
+				break
+			end
+		end
+	
+		if map ~= nil then //Lookup map mods if applic
+			if type(map) == "table" and type(map.mods) == "table" then
+				table.copy(map.mods, mods, true)
+			end
+		end
+		
+		// Verify the map exists on the file system.
+		local found = DAKVerifyMapName(mapName)
+		
+		if found then
+			Server.StartWorld(mods, mapName)
+		end
 	end
 	
 	function MapCycle_GetNextMapInCycle()
@@ -130,12 +163,8 @@ if Server then
 			return
 		end
 		
-		if mapName ~= currentMap and DAKVerifyMapName(mapName) then
-			local ServerMods = { }
-			if kDAKMapCycle and kDAKMapCycle.mods then
-				ServerMods = kDAKMapCycle.mods
-			end
-			Server.StartWorld(ServerMods, mapName)
+		if mapName ~= currentMap then
+			MapCycle_ChangeToMap(mapName)
 		end
 		
 	end
@@ -170,12 +199,8 @@ if Server then
 
 	local function OnCommandChangeMap(client, mapName)
 		
-		if client == nil or client:GetIsLocalClient() and DAKVerifyMapName(mapName) then
-			local ServerMods = { }
-			if kDAKMapCycle and kDAKMapCycle.mods then
-				ServerMods = kDAKMapCycle.mods
-			end
-			Server.StartWorld(ServerMods, mapName)
+		if client == nil or client:GetIsLocalClient() then
+			MapCycle_ChangeToMap(mapName)
 		end
 		
 	end

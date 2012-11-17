@@ -2,7 +2,9 @@
 
 kDAKRevisions["VoteRandom"] = 1.6
 local function SetupDefaultConfig()
-	kDAKConfig.VoteRandom = { }
+	if kDAKConfig.VoteRandom == nil then
+		kDAKConfig.VoteRandom = { }
+	end
 	kDAKConfig.VoteRandom.kEnabled = true
 	kDAKConfig.VoteRandom.kVoteRandomInstantly = false
 	kDAKConfig.VoteRandom.kVoteRandomDuration = 30
@@ -11,10 +13,12 @@ local function SetupDefaultConfig()
 	kDAKConfig.VoteRandom.kVoteRandomEnabledDuration = "Random teams have been enabled for the next %s Minutes"
 	kDAKConfig.VoteRandom.kVoteRandomConnectAlert = "Random teams are enabled, you are being randomed to a team."
 	kDAKConfig.VoteRandom.kVoteRandomVoteCountAlert = "%s voted for random teams. (%s votes, needed %s)."
-	SaveDAKConfig()
+	if Save then
+		SaveDAKConfig()
+	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "VoteRandom", DefaultConfig = function() SetupDefaultConfig() end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "VoteRandom", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
 
 if kDAKConfig.VoteRandom == nil then
 	SetupDefaultConfig()

@@ -2,14 +2,18 @@
 
 kDAKRevisions["Unstuck"] = 1.0
 local function SetupDefaultConfig()
-	kDAKConfig.Unstuck = { }
+	if kDAKConfig.Unstuck == nil then
+		kDAKConfig.Unstuck = { }
+	end
 	kDAKConfig.Unstuck.kEnabled = true
 	kDAKConfig.Unstuck.kMinimumWaitTime = 5
 	kDAKConfig.Unstuck.kTimeBetweenUntucks = 30
-	SaveDAKConfig()
+	if Save then
+		SaveDAKConfig()
+	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "Unstuck", DefaultConfig = function() SetupDefaultConfig() end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "Unstuck", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
 
 if kDAKConfig.Unstuck == nil then
 	SetupDefaultConfig()

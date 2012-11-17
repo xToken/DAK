@@ -278,12 +278,8 @@ if kDAKConfig and kDAKConfig.MapVote and kDAKConfig.MapVote.kEnabled then
 				table.insert(kDAKSettings.PreviousMaps, nextmap)
 				SaveDAKSettings()
 				if nextmap ~= nil then
-					local ServerMods = { }
-					if kDAKMapCycle and kDAKMapCycle.mods then
-						ServerMods = kDAKMapCycle.mods
-					end
 					if DAKVerifyMapName(nextmap) then
-						Server.StartWorld( ServerMods, nextmap )
+						MapCycle_ChangeToMap(nextmap)
 					else
 						chatMessage = string.format("Invalid Map Provided.")
 						Server.SendNetworkMessage("Chat", BuildChatMessage(false, "Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)

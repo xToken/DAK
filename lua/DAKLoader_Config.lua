@@ -4,11 +4,27 @@ if Server then
 
 	local DAKConfigFileName = "config://DAKConfig.json"
 	
+	local function tablemerge(tab1, tab2)
+		for k, v in pairs(tab2) do
+			if (type(v) == "table") and (type(tab1[k] or false) == "table") then
+				tablemerge(tab1[k], tab2[k])
+			else
+				tab1[k] = v
+			end
+		end
+		return tab1
+	end
+	
 	local function LoadDAKConfig()
 		local DAKConfigFile = io.open(DAKConfigFileName, "r")
 		if DAKConfigFile then
 			Shared.Message("Loading DAK configuration.")
-			kDAKConfig = json.decode(DAKConfigFile:read("*all"))
+			if kDAKConfig ~= nil then
+				local config = json.decode(DAKConfigFile:read("*all"))
+				kDAKConfig = tablemerge(kDAKConfig, config)
+			else
+				kDAKConfig = json.decode(DAKConfigFile:read("*all"))
+			end
 			DAKConfigFile:close()
 		end
 	end
@@ -19,10 +35,11 @@ if Server then
 		//Write config to file
 		local configFile = io.open(DAKConfigFileName, "w+")
 		configFile:write(json.encode(kDAKConfig, { indent = true, level = 1 }))
+		Shared.Message("Saving DAK configuration.")
 		io.close(configFile)
 	end
 	
-	local function GenerateDefaultDAKConfig(Plugin)
+	local function GenerateDefaultDAKConfig(Plugin, Save)
 	
 		if kDAKConfig == nil then
 			kDAKConfig = { }
@@ -30,6 +47,9 @@ if Server then
 		
 		if Plugin == "DAKLoader" or Plugin == "ALL" then
 			//Base DAK Config
+			if kDAKConfig.DAKLoader == nil then
+				kDAKConfig.DAKLoader = { }
+			end
 			kDAKConfig.DAKLoader = { }
 			kDAKConfig.DAKLoader.kDelayedClientConnect = 2
 			kDAKConfig.DAKLoader.kDelayedServerUpdate = 1
@@ -50,18 +70,20 @@ if Server then
 		for i = 1, #kDAKPluginDefaultConfigs do
 			PluginDefaultConfig = kDAKPluginDefaultConfigs[i]
 			if Plugin == PluginDefaultConfig.PluginName or Plugin == "ALL" then
-				kDAKPluginDefaultConfigs[i].DefaultConfig()
+				kDAKPluginDefaultConfigs[i].DefaultConfig(Save)
 			end
 		end
 		
-		SaveDAKConfig()
+		if Save then
+			SaveDAKConfig()
+		end
 		
 	end
 	
 	local function LoadDAKPluginConfigs()
 	
 		if kDAKConfig == nil or kDAKConfig == { } then
-			GenerateDefaultDAKConfig("DAKLoader")
+			GenerateDefaultDAKConfig("DAKLoader", true)
 		end
 		
 		if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.kPluginsList then
@@ -72,12 +94,18 @@ if Server then
 			end
 		end
 		
+		//Generate Default Config, then reload active config
+		//Seems confusing, but should insure any new vars are added to existing configs.
+		GenerateDefaultDAKConfig("ALL", false)
+		LoadDAKConfig()
+		SaveDAKConfig()
+		
 	end
 	
 	LoadDAKPluginConfigs()
 	
 	function DAKGenerateDefaultDAKConfig(Plugin)
-		GenerateDefaultDAKConfig(Plugin)
+		GenerateDefaultDAKConfig(Plugin, true)
 	end
 				
 	local function OnCommandLoadDAKConfig(client)
@@ -96,7 +124,7 @@ if Server then
 	local function OnCommandDefaultPluginConfig(client, plugin)
 		if client ~= nil and plugin ~= nil then
 			ServerAdminPrint(client, string.format("Defaulting %s config", plugin))
-			GenerateDefaultDAKConfig(plugin)
+			GenerateDefaultDAKConfig(plugin, true)
 			local player = client:GetControllingPlayer()
 			if player ~= nil then
 				PrintToAllAdmins("sv_defaultconfig", client, plugin)

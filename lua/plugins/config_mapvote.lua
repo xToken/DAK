@@ -2,7 +2,9 @@
 
 kDAKRevisions["MapVote"] = 1.8
 local function SetupDefaultConfig()
-	kDAKConfig.MapVote = { }
+	if kDAKConfig.MapVote == nil then
+		kDAKConfig.MapVote = { }
+	end
 	kDAKConfig.MapVote.kEnabled = true
 	kDAKConfig.MapVote.kVoteStartDelay = 8
 	kDAKConfig.MapVote.kVotingDuration = 30
@@ -29,10 +31,12 @@ local function SetupDefaultConfig()
 	kDAKConfig.MapVote.kVoteMapRockTheVote = "%s rock'd the vote. (%s votes, needed %s)."
 	kDAKConfig.MapVote.kVoteMapCancelled = "******           Map vote has been cancelled.         ******"
 	kDAKConfig.MapVote.kVoteMapInsufficientMaps = "******           Not enough maps for a vote.         ******"
-	SaveDAKConfig()
+	if Save then
+		SaveDAKConfig()
+	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "MapVote", DefaultConfig = function() SetupDefaultConfig() end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "MapVote", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
 
 if kDAKConfig.MapVote == nil then
 	SetupDefaultConfig()
