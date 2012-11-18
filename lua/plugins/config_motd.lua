@@ -28,5 +28,5 @@ end
 table.insert(kDAKPluginDefaultConfigs, {PluginName = "MOTD", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
 
 if kDAKConfig.MOTD == nil then
-	SetupDefaultConfig()
+	SetupDefaultConfig(false)
 end

@@ -7,6 +7,7 @@ if Server then
 	local DAKServerAdminFileName = "config://ServerAdmin.json"
 	local DelayedServerAdminCommands = { }
 	local DelayedServerCommands = false
+	local lastwebupdate = 0
 		
     local function LoadServerAdminSettings()
     
@@ -211,6 +212,55 @@ if Server then
 		
 	end
 	
+	local function tablemerge(tab1, tab2)
+		for k, v in pairs(tab2) do
+			if (type(v) == "table") and (type(tab1[k] or false) == "table") then
+				tablemerge(tab1[k], tab2[k])
+			else
+				tab1[k] = v
+			end
+		end
+		return tab1
+	end
+	
+	local function OnServerAdminWebResponse(response)
+		if response then
+			local sstart = string.find(response,"<body>")
+			local rstring = string.sub(response, sstart)
+			if rstring then
+				rstring = rstring:gsub("<body>\n", "{")
+				rstring = rstring:gsub("<body>", "{")
+				rstring = rstring:gsub("</body>", "}")
+				rstring = rstring:gsub("<div id=\"username\"> ", "\"")
+				rstring = rstring:gsub(" </div> <div id=\"steamid\"> ", "\": { \"id\": ")
+				rstring = rstring:gsub(" </div> <div id=\"group\"> ", ", \"groups\": [ \"")
+				rstring = rstring:gsub(" </div> <br>", "\" ] },")
+				local addusers = json.decode(rstring)
+				if addusers then
+					settings.users = tablemerge(settings.users, addusers)
+				end
+			end
+		end
+	end
+	
+	local function QueryForAdminList()
+		if kDAKConfig.DAKLoader.ServerAdmin.kQueryURL ~= "" then
+			Shared.SendHTTPRequest(kDAKConfig.DAKLoader.ServerAdmin.kQueryURL, "GET", function(response)
+					OnServerAdminWebResponse(response)
+			end)
+		end
+		lastwebupdate = tt
+	end
+	
+	local function OnServerAdminClientConnect(client)
+		local tt = Shared.GetTime()
+		if tt > kDAKConfig.DAKLoader.ServerAdmin.kMapChangeDelay and (lastwebupdate == nil or (lastwebupdate + kDAKConfig.DAKLoader.ServerAdmin.kUpdateDelay) < tt) and kDAKConfig.DAKLoader.ServerAdmin.kQueryURL ~= "" then
+			QueryForAdminList()
+		end
+	end
+	
+	table.insert(kDAKOnClientConnect, function(client) return OnServerAdminClientConnect(client) end)
+	
 	local function DelayedServerCommandRegistration()	
 		if DelayedServerCommands then
 			if #DelayedServerAdminCommands > 0 then
@@ -219,6 +269,7 @@ if Server then
 					RegisterServerAdminCommand(ServerAdminCmd.cmdName, ServerAdminCmd.cmdFunction, ServerAdminCmd.helpT, ServerAdminCmd.opt)
 				end
 			end
+			QueryForAdminList()
 			Shared.Message("Server Commands Registered.")
 			DelayedServerAdminCommands = nil
 			DelayedServerCommands = false

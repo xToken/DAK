@@ -35,6 +35,7 @@ Generally the default configuration should work for most instances, if you do cu
  sv_surrendervote - Will start a surrender vote for the team provided.
  sv_cancelsurrendervote - Will cancel a in progress surrender vote for the team provided.
  sv_afkimmune - Can be granted to users to prevent them from being AFKkicked.
+ sv_alltalk - Used to toggle alltalk on or off.
 
  Below is a sample of the default plugins and their config options, with an explanation of each option.
  {
@@ -44,6 +45,11 @@ Generally the default configuration should work for most instances, if you do cu
       "OverrideInterp": {
         "kInterp": This is the amount of MS the interpolation will be set to on client connect. (default 100)
         "kEnabled": This is a boolean for if the Interpolation override should be enabled.
+      },
+	  "ServerAdmin": {
+        "kQueryURL": This is the URL that DAK will query for a list of admins.
+        "kMapChangeDelay": This is the number of minutes after a map change that a new query will not run during.
+        "kUpdateDelay": This is the number of seconds after a client connect that a new query will not run.
       },
       "LoadFromServerLUA": This boolean changes the load order and adds an additional delayed load if DAK is loaded from Server.lua instead of from Game_Setup.xml.
       "GamerulesExtensions": This is used to enable/disable certain functions of DAK that are overrides of GamerulesClassName functions (many logging functions and a couple others)
@@ -80,12 +86,19 @@ Generally the default configuration should work for most instances, if you do cu
       "kImbalanceDuration": Time before round will end due to imbalanced teams.
       "kWarningMessage": Message shown when autoconcede detects team inbalance and starts countdown.
     },
+	"Messages": {
+      "kMessageInterval": Amount of minutes between broadcast message.
+      "kMessagesPerTick": Number of messages sent per block.
+      "kMessage": [ Messages displayed every kMessageInterval minutes. ]
+      "kEnabled": This boolean controls if the MOTD plugin is enabled.
+      "kMessageTickDelay": Delay in seconds between blocks of messages.
+    },
     "MOTD": {
       "kMOTDMessageDelay": Delay in seconds between blocks of messages sent to client.
       "kMOTDMessage": [ Messages displayed on player connect. ]
       "kMOTDMessagesPerTick": How many messages to send per block.
       "kMOTDMessageRevision": The revision of the MOTD used to track accepted clients.
-      "kEnabled": This boolean controls if the MOTD plugin is loaded.
+      "kEnabled": This boolean controls if the MOTD plugin is enabled.
     },
     "MapVote": {
       "kVoteMapRockTheVote": Message displayed when player rocks the vote.
@@ -117,7 +130,7 @@ Generally the default configuration should work for most instances, if you do cu
     },
     "ReservedSlots": {
       "kReserveSlotServerFullDisconnectReason": Message logged when client is kicked because server is full.
-      "kReservedSlots": This is the amount of slots that will be reserved for reserve slot players.  This should be kMinimumSlots more than the amount of slots you wish to have.
+      "kReservedSlots": This is the amount of slots that will be reserved for reserve slot players.  Note, setting this to 0 does not disable reserve slots, it will only make it so that no slots are left open for reserveslot players.
       "kMaximumSlots": This is the server's maximum number of slots.
       "kReserveSlotKickedDisconnectReason": Message logged when client is kicked to make room for reserve slot player.
       "kDelayedSyncTime": Delay in which the server will wait after most recent connect/disconnect to update cached player list against server list.
@@ -271,7 +284,7 @@ Generally the default configuration should work for most instances, if you do cu
  
  //Config
  
- Reserve Slot config
+ Reserve Slot config - ReservedPlayers.json
 
  -Name is just a friendly name for the user, is not checked in game.
  -ID is the steamID for the user, which is what is used to authenticate them in game.
@@ -284,7 +297,7 @@ Generally the default configuration should work for most instances, if you do cu
  	{ "name": "dragon", "id": 5176141, "reason": "meh", "time": 0 }
  }
  
- ServerAdmin config
+ ServerAdmin config - ServerAdmin.json
  
  This files works identically to the base admin system's configuration file.
  

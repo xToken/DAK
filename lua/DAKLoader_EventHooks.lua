@@ -169,6 +169,42 @@ if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.GamerulesExtensi
 		
 		end
 	)
+	
+	local originalNS2GRGetCanPlayerHearPlayer
+	
+	originalNS2GRGetCanPlayerHearPlayer = Class_ReplaceMethod(kDAKConfig.DAKLoader.GamerulesClassName, "GetCanPlayerHearPlayer", 
+		function(self, listenerPlayer, speakerPlayer)
+
+			local canHear = false
+			
+			// Check if the listerner has the speaker muted.
+			if listenerPlayer:GetClientMuted(speakerPlayer:GetClientIndex()) then
+				return false
+			end
+			
+			// If both players have the same team number, they can hear each other
+			if(listenerPlayer:GetTeamNumber() == speakerPlayer:GetTeamNumber()) then
+				canHear = true
+			end
+				
+			// Or if cheats or dev mode is on, they can hear each other
+			if(Shared.GetCheatsEnabled() or Shared.GetDevMode()) then
+				canHear = true
+			end
+			
+			if kDAKSettings and kDAKSettings.AllTalk then
+				canHear = true
+			end
+			
+			// If we're spectating a player, we can hear their team (but not in tournamentmode, once that's in)
+			if self:GetIsPlayerFollowingTeamNumber(listenerPlayer, speakerPlayer:GetTeamNumber()) then
+				canHear = true
+			end
+			
+			return canHear
+			
+		end
+	)
 		
 	// Recent chat messages are stored on the server.
 	//Server.recentChatMessages = CreateRingBuffer(20)

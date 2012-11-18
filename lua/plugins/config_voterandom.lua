@@ -1,7 +1,7 @@
 //reservedslots config
 
 kDAKRevisions["VoteRandom"] = 1.6
-local function SetupDefaultConfig()
+local function SetupDefaultConfig(Save)
 	if kDAKConfig.VoteRandom == nil then
 		kDAKConfig.VoteRandom = { }
 	end
@@ -21,5 +21,5 @@ end
 table.insert(kDAKPluginDefaultConfigs, {PluginName = "VoteRandom", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
 
 if kDAKConfig.VoteRandom == nil then
-	SetupDefaultConfig()
+	SetupDefaultConfig(false)
 end

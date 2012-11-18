@@ -1,7 +1,7 @@
 //mapvote config
 
 kDAKRevisions["MapVote"] = 1.8
-local function SetupDefaultConfig()
+local function SetupDefaultConfig(Save)
 	if kDAKConfig.MapVote == nil then
 		kDAKConfig.MapVote = { }
 	end
@@ -39,5 +39,5 @@ end
 table.insert(kDAKPluginDefaultConfigs, {PluginName = "MapVote", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
 
 if kDAKConfig.MapVote == nil then
-	SetupDefaultConfig()
+	SetupDefaultConfig(false)
 end

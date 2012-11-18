@@ -23,6 +23,26 @@ end
 
 DAKCreateServerAdminCommand("Console_sv_rcon", OnCommandRCON, "<command>, Will execute specified command on server.")
 
+local function OnCommandAllTalk(client)
+
+	if client ~= nil then
+		if kDAKSettings then
+			kDAKSettings.AllTalk = not kDAKSettings.AllTalk
+		else
+			kDAKSettings = { }
+			kDAKSettings.AllTalk = true
+		end
+		ServerAdminPrint(client, string.format("AllTalk has been %s.", ConditionalValue(kDAKSettings.AllTalk,"enabled", "disabled")))
+		local player = client:GetControllingPlayer()
+		if player ~= nil then
+			PrintToAllAdmins("sv_alltalk", client)
+		end
+	end
+
+end
+
+DAKCreateServerAdminCommand("Console_sv_alltalk", OnCommandAllTalk, "Will toggle the alltalk setting on server.")
+
 local function OnCommandListPlugins(client)
 
 	if client ~= nil and kDAKConfig then

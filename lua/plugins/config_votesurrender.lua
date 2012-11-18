@@ -1,7 +1,7 @@
 //votesurrender config
 
 kDAKRevisions["VoteSurrender"] = 1.2
-local function SetupDefaultConfig()
+local function SetupDefaultConfig(Save)
 	if kDAKConfig.VoteSurrender == nil then
 		kDAKConfig.VoteSurrender = { }
 	end
@@ -17,5 +17,5 @@ end
 table.insert(kDAKPluginDefaultConfigs, {PluginName = "VoteSurrender", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
 
 if kDAKConfig.VoteSurrender == nil then
-	SetupDefaultConfig()
+	SetupDefaultConfig(false)
 end

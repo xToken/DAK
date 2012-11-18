@@ -21,5 +21,5 @@ end
 table.insert(kDAKPluginDefaultConfigs, {PluginName = "TournamentMode", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
 
 if kDAKConfig.TournamentMode == nil then
-	SetupDefaultConfig()
+	SetupDefaultConfig(false)
 end

@@ -7,7 +7,7 @@ local function SetupDefaultConfig(Save)
 	end
 	kDAKConfig.ReservedSlots.kEnabled = false
 	kDAKConfig.ReservedSlots.kMaximumSlots = 19
-	kDAKConfig.ReservedSlots.kReservedSlots = 3
+	kDAKConfig.ReservedSlots.kReservedSlots = 2
 	kDAKConfig.ReservedSlots.kMinimumSlots = 1
 	kDAKConfig.ReservedSlots.kDelayedSyncTime = 3
 	kDAKConfig.ReservedSlots.kDelayedKickTime = 2
@@ -24,5 +24,5 @@ end
 table.insert(kDAKPluginDefaultConfigs, {PluginName = "ReservedSlots", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
 
 if kDAKConfig.ReservedSlots == nil then
-	SetupDefaultConfig()
+	SetupDefaultConfig(false)
 end

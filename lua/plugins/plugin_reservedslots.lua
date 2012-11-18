@@ -75,9 +75,30 @@ if kDAKConfig and kDAKConfig.ReservedSlots and kDAKConfig.ReservedSlots.kEnabled
 		end
 	end
 	
+	local function CheckOccupiedReserveSlots()
+		//check for current number of occupied reserveslots
+		local reserveCount = 0
+		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
+		for r = #playerList, 1, -1 do
+			if playerList[r] ~= nil then
+				local plyr = playerList[r]
+				local clnt = playerList[r]:GetClient()
+				if reserveCount >= kDAKConfig.ReservedSlots.kReservedSlots then
+					break
+				end
+				if plyr ~= nil and clnt ~= nil then
+					if CheckReserveStatus(clnt, true) then
+						reserveCount = reserveCount + 1
+					end
+				end
+			end
+		end
+		return reserveCount
+	end
+	
 	local function UpdateServerLockStatus()
 		local playerCount = #cachedPlayersList
-		if kDAKConfig.ReservedSlots.kMaximumSlots - playerCount <= kDAKConfig.ReservedSlots.kReservedSlots then
+		if kDAKConfig.ReservedSlots.kMaximumSlots - (playerCount - CheckOccupiedReserveSlots()) <= (kDAKConfig.ReservedSlots.kReservedSlots + kDAKConfig.ReservedSlots.kMinimumSlots) then
 			Server.SetPassword(kDAKConfig.ReservedSlots.kReservePassword)
 		else
 			Server.SetPassword("")
@@ -86,7 +107,7 @@ if kDAKConfig and kDAKConfig.ReservedSlots and kDAKConfig.ReservedSlots.kEnabled
 
 	local function OnReserveSlotClientConnected(client)
 		local playerCount = #cachedPlayersList
-		local serverFull = kDAKConfig.ReservedSlots.kMaximumSlots - playerCount <= kDAKConfig.ReservedSlots.kReservedSlots
+		local serverFull = kDAKConfig.ReservedSlots.kMaximumSlots - (playerCount - CheckOccupiedReserveSlots()) <= (kDAKConfig.ReservedSlots.kReservedSlots + kDAKConfig.ReservedSlots.kMinimumSlots)
 		local serverReallyFull = kDAKConfig.ReservedSlots.kMaximumSlots - playerCount <= kDAKConfig.ReservedSlots.kMinimumSlots
 
 		local reserved = CheckReserveStatus(client, false)

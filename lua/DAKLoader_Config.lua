@@ -61,6 +61,10 @@ if Server then
 			kDAKConfig.DAKLoader.OverrideInterp = { }
 			kDAKConfig.DAKLoader.OverrideInterp.kEnabled = false
 			kDAKConfig.DAKLoader.OverrideInterp.kInterp = 100
+			kDAKConfig.DAKLoader.ServerAdmin = { }
+			kDAKConfig.DAKLoader.ServerAdmin.kMapChangeDelay = 5
+			kDAKConfig.DAKLoader.ServerAdmin.kUpdateDelay = 60
+			kDAKConfig.DAKLoader.ServerAdmin.kQueryURL = ""
 			kDAKConfig.DAKLoader.kEnabled = true
 			//Base DAK Config
 		end
