@@ -1,6 +1,6 @@
 //NS2 Client Messages
 
-if kDAKConfig and kDAKConfig.Messages and kDAKConfig.Messages.kEnabled then
+if kDAKConfig and kDAKConfig.Messages then
       
 	local lastMessageTime = 0
 	local messageline = 0

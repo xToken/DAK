@@ -5,7 +5,6 @@ local function SetupDefaultConfig(Save)
 	if kDAKConfig.MapVote == nil then
 		kDAKConfig.MapVote = { }
 	end
-	kDAKConfig.MapVote.kEnabled = true
 	kDAKConfig.MapVote.kVoteStartDelay = 8
 	kDAKConfig.MapVote.kVotingDuration = 30
 	kDAKConfig.MapVote.kMapsToSelect = 7

@@ -5,7 +5,6 @@ local function SetupDefaultConfig(Save)
 	if kDAKConfig.ReservedSlots == nil then
 		kDAKConfig.ReservedSlots = { }
 	end
-	kDAKConfig.ReservedSlots.kEnabled = false
 	kDAKConfig.ReservedSlots.kMaximumSlots = 19
 	kDAKConfig.ReservedSlots.kReservedSlots = 2
 	kDAKConfig.ReservedSlots.kMinimumSlots = 1

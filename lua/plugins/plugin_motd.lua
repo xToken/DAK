@@ -3,7 +3,7 @@
 local MOTDClientTracker = { }
 local MOTDAcceptedClients = { }
 
-if kDAKConfig and kDAKConfig.MOTD and kDAKConfig.MOTD.kEnabled then
+if kDAKConfig and kDAKConfig.MOTD then
 
 	if kDAKSettings.MOTDAcceptedClients == nil then
 		kDAKSettings.MOTDAcceptedClients = { }

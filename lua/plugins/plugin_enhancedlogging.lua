@@ -3,9 +3,11 @@
 Script.Load("lua/DAKLoader_Class.lua")
 
 local EnhancedLoggingFile = nil
+local lastlogupdate = 0
+local pendinglogsave = false
 local EnhancedLog = { }
 	
-if kDAKConfig and kDAKConfig.EnhancedLogging and kDAKConfig.EnhancedLogging.kEnabled then
+if kDAKConfig and kDAKConfig.EnhancedLogging then
 
 	//*******************************************************************************************************************************
 	//Formatting Functions
@@ -234,6 +236,19 @@ if kDAKConfig and kDAKConfig.EnhancedLogging and kDAKConfig.EnhancedLogging.kEna
 	//Logging Functions
 	//*******************************************************************************************************************************
 	
+	local function SaveEnhancedLog()
+
+		local ELogFile = assert(io.open("config://" .. kDAKConfig.EnhancedLogging.kEnhancedLoggingSubDir .. "\\" .. EnhancedLoggingFile, "w"))
+		if ELogFile then
+			for i = 1, #EnhancedLog do
+				ELogFile:write(EnhancedLog[i] .. "\n")
+			end
+			ELogFile:close()
+		end		
+		lastlogupdate = Shared.GetTime()
+		pendinglogsave = false
+		
+	end
 	
 	local function PrintToEnhancedLog(logstring)
 
@@ -244,15 +259,13 @@ if kDAKConfig and kDAKConfig.EnhancedLogging and kDAKConfig.EnhancedLogging.kEna
 		if EnhancedLoggingFile == nil then
 			return
 		end
-		local ELogFile = assert(io.open("config://" .. kDAKConfig.EnhancedLogging.kEnhancedLoggingSubDir .. "\\" .. EnhancedLoggingFile, "w"))
-		if ELogFile then
-			for i = 1, #EnhancedLog do
-				ELogFile:write(EnhancedLog[i] .. "\n")
-			end
-			ELogFile:close()
+		if lastlogupdate + kDAKConfig.EnhancedLogging.kLogWriteDelay < Shared.GetTime() then
+			SaveEnhancedLog()
+		else
+			pendinglogsave = true
 		end
 		
-		//Append still causes crashes sooo yea pretty dumb...
+		//Append doesnt crash atleast now, still doesnt work tho which is prettty meh.
 		/*local ELogFile = io.open("config://" .. kDAKConfig.EnhancedLogging.kEnhancedLoggingSubDir .. "\\" .. EnhancedLoggingFile, "a+")
 		if ELogFile then
 			ELogFile:seek("end")
@@ -390,6 +403,16 @@ if kDAKConfig and kDAKConfig.EnhancedLogging and kDAKConfig.EnhancedLogging.kEna
 	end
 
 	table.insert(kDAKOnClientDisconnect, function(client) return LogOnClientDisconnect(client) end)
+	
+	local function UpdateServerEnhancedLogging()
+		if pendinglogsave then
+			if lastlogupdate + kDAKConfig.EnhancedLogging.kLogWriteDelay < Shared.GetTime() then
+				SaveEnhancedLog()
+			end
+		end
+	end
+
+	table.insert(kDAKOnServerUpdate, function() return UpdateServerEnhancedLogging() end)
 	
 	function OnCommandSetName(client, name)
 

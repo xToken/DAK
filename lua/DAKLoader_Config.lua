@@ -29,8 +29,6 @@ if Server then
 		end
 	end
 	
-	LoadDAKConfig()
-	
 	function SaveDAKConfig()
 		//Write config to file
 		local configFile = io.open(DAKConfigFileName, "w+")
@@ -65,7 +63,6 @@ if Server then
 			kDAKConfig.DAKLoader.ServerAdmin.kMapChangeDelay = 5
 			kDAKConfig.DAKLoader.ServerAdmin.kUpdateDelay = 60
 			kDAKConfig.DAKLoader.ServerAdmin.kQueryURL = ""
-			kDAKConfig.DAKLoader.kEnabled = true
 			//Base DAK Config
 		end
 		
@@ -86,8 +83,10 @@ if Server then
 	
 	local function LoadDAKPluginConfigs()
 	
+		LoadDAKConfig()
+		
 		if kDAKConfig == nil or kDAKConfig == { } then
-			GenerateDefaultDAKConfig("DAKLoader", true)
+			GenerateDefaultDAKConfig("DAKLoader", false)
 		end
 		
 		if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.kPluginsList then

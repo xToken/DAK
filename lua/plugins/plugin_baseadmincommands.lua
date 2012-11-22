@@ -1,7 +1,7 @@
 //Base Admin Commands
 //This is designed to replace the base admin system.
 
-if kDAKConfig and kDAKConfig.BaseAdminCommands and kDAKConfig.BaseAdminCommands.kEnabled then
+if kDAKConfig and kDAKConfig.BaseAdminCommands then
 
 	function CreateBaseServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
 

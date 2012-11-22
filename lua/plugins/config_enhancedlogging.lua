@@ -5,9 +5,9 @@ local function SetupDefaultConfig(Save)
 	if kDAKConfig.EnhancedLogging == nil then
 		kDAKConfig.EnhancedLogging = { }
 	end
-	kDAKConfig.EnhancedLogging.kEnabled = true
 	kDAKConfig.EnhancedLogging.kEnhancedLoggingSubDir = "Logs"
 	kDAKConfig.EnhancedLogging.kServerTimeZoneAdjustment = 0
+	kDAKConfig.EnhancedLogging.kLogWriteDelay = 1
 	if Save then
 		SaveDAKConfig()
 	end

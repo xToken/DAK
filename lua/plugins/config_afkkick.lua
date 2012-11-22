@@ -5,7 +5,6 @@ local function SetupDefaultConfig(Save)
 	if kDAKConfig.AFKKicker == nil then
 		kDAKConfig.AFKKicker = { }
 	end
-	kDAKConfig.AFKKicker.kEnabled = true
 	kDAKConfig.AFKKicker.kAFKKickDelay = 150
 	kDAKConfig.AFKKicker.kAFKKickCheckDelay = 5
 	kDAKConfig.AFKKicker.kAFKKickMinimumPlayers = 5

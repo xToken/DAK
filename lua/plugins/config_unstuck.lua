@@ -5,7 +5,6 @@ local function SetupDefaultConfig(Save)
 	if kDAKConfig.Unstuck == nil then
 		kDAKConfig.Unstuck = { }
 	end
-	kDAKConfig.Unstuck.kEnabled = true
 	kDAKConfig.Unstuck.kMinimumWaitTime = 5
 	kDAKConfig.Unstuck.kTimeBetweenUntucks = 30
 	if Save then

@@ -6,7 +6,7 @@ local RandomVotes = { }
 local RandomDuration = 0
 local RandomRoundRecentlyEnded = nil
 
-if kDAKConfig and kDAKConfig.VoteRandom and kDAKConfig.VoteRandom.kEnabled then
+if kDAKConfig and kDAKConfig.VoteRandom then
 
 	local function LoadVoteRandom()
 

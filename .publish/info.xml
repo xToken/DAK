@@ -1,6 +1,6 @@
 <options>
     <build></build>
-    <description>This collection of plugins (and loader) make up what I started calling the DAK (Duck Admin Kit?)&#x0A;&#x0A;With 223, this has changed somewhat. This mod can be downloaded via SteamWorkshop, and will autodownload on all clients on connect.&#x0A;The ModID for DAK is 5f4f178, which you will want to set in the server command line, and in MapCycle.json. The server will automatically download the mod once set.&#x0A;&#x0A;More information or questions should be handled via the NS2 forum, http://www.unknownworlds.com/ns2/forums/index.php?showtopic=120542&#x0A;You can also check the readme provided with the workshop files (or on github - https://github.com/xToken/DAK)</description>
+    <description>This collection of plugins (and loader) make up what I started calling the DAK&#x0A;&#x0A;This mod can be downloaded via SteamWorkshop, and will autodownload on all clients on connect.&#x0A;The ModID for DAK is 5f4f178, which you will want to set in the server command line, and in MapCycle.json. The server will automatically download the mod once set.&#x0A;&#x0A;More information or questions should be handled via the NS2 forum, http://www.unknownworlds.com/ns2/forums/index.php?showtopic=120542&#x0A;You can also check the readme provided with the workshop files (or on github - https://github.com/xToken/DAK)</description>
     <id>99938680</id>
     <kind>Game</kind>
     <title>DAK Admin Kit</title>

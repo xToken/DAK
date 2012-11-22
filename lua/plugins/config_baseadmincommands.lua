@@ -5,7 +5,6 @@ local function SetupDefaultConfig(Save)
 	if kDAKConfig.BaseAdminCommands == nil then
 		kDAKConfig.BaseAdminCommands = { }
 	end
-	kDAKConfig.BaseAdminCommands.kEnabled = true
 	if Save then
 		SaveDAKConfig()
 	end

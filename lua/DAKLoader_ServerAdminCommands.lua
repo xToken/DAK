@@ -49,9 +49,8 @@ local function OnCommandListPlugins(client)
 		for k,v in pairs(kDAKConfig) do
 			local plugin = k
 			local version = kDAKRevisions[plugin]
-			if version == nil then version = 1 end
 			if plugin ~= nil then
-				if v.kEnabled then
+				if version ~= nil then
 					ServerAdminPrint(client, string.format("Plugin %s v%.1f is enabled.", plugin, version))
 					//Shared.Message(string.format("Plugin %s v%.1f is enabled.", plugin, version))
 				else

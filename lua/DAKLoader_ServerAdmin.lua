@@ -106,7 +106,7 @@ if Server then
 	end
 	
 	function RegisterServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
-		if kDAKConfig and kDAKConfig.BaseAdminCommands and kDAKConfig.BaseAdminCommands.kEnabled then
+		if kDAKConfig and kDAKConfig.BaseAdminCommands and CreateBaseServerAdminCommand then
 			CreateBaseServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
 		else
 			CreateServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
@@ -310,7 +310,7 @@ if Server then
 		function(parm1, parm2)
 		
 			if parm1 == "ServerAdminPrint" then
-				if kDAKConfig and kDAKConfig.BaseAdminCommands and kDAKConfig.BaseAdminCommands.kEnabled then
+				if kDAKConfig and kDAKConfig.BaseAdminCommands and CreateBaseServerAdminCommand then
 					function CreateServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
 					end
 				end

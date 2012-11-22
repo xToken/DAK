@@ -5,7 +5,6 @@ local function SetupDefaultConfig(Save)
 	if kDAKConfig.VoteSurrender == nil then
 		kDAKConfig.VoteSurrender = { }
 	end
-	kDAKConfig.VoteSurrender.kEnabled = true
 	kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage = 60
 	kDAKConfig.VoteSurrender.kVoteSurrenderVotingTime = 120
 	kDAKConfig.VoteSurrender.kVoteSurrenderAlertDelay = 20

@@ -10,7 +10,7 @@ local reserveslotactionslog = { }
 
 local ReservedPlayersFileName = "config://ReservedPlayers.json"
 
-if kDAKConfig and kDAKConfig.ReservedSlots and kDAKConfig.ReservedSlots.kEnabled then
+if kDAKConfig and kDAKConfig.ReservedSlots then
 
 	local function LoadReservedPlayers()
 		local ReservedPlayersFile = io.open(ReservedPlayersFileName, "r")

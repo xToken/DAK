@@ -76,7 +76,7 @@ if Server then
 	//Hooks for logging functions
 	function EnhancedLog(message)
 	
-		if kDAKConfig and kDAKConfig.EnhancedLogging and kDAKConfig.EnhancedLogging.kEnabled then
+		if kDAKConfig and kDAKConfig.EnhancedLogging and EnhancedLogMessage then
 			EnhancedLogMessage(message)
 		end
 	
@@ -84,7 +84,7 @@ if Server then
 		
 	function PrintToAllAdmins(commandname, client, parm1)
 	
-		if kDAKConfig and kDAKConfig.EnhancedLogging and kDAKConfig.EnhancedLogging.kEnabled then
+		if kDAKConfig and kDAKConfig.EnhancedLogging and EnhancedLoggingAllAdmins then
 			EnhancedLoggingAllAdmins(commandname, client, parm1)
 		end
 	

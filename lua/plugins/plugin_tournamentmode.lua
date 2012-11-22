@@ -2,7 +2,7 @@
 
 local TournamentModeSettings = { countdownstarted = false, countdownstarttime = 0, countdownstartcount = 0, lastmessage = 0, official = false}
 
-if kDAKConfig and kDAKConfig.TournamentMode and kDAKConfig.TournamentMode.kEnabled then
+if kDAKConfig and kDAKConfig.TournamentMode then
 
 	if kDAKSettings.TournamentMode == nil then
 		local TournamentMode = false

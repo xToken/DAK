@@ -3,7 +3,7 @@
 local UnstuckClientTracker = { }
 local LastUnstuckTracker = { }
 
-if kDAKConfig and kDAKConfig.Unstuck and kDAKConfig.Unstuck.kEnabled then
+if kDAKConfig and kDAKConfig.Unstuck then
 
 	local function DisplayMessage(client, message)
 

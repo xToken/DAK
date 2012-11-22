@@ -5,7 +5,6 @@ local function SetupDefaultConfig(Save)
 	if kDAKConfig.TournamentMode == nil then
 		kDAKConfig.TournamentMode = { }
 	end
-	kDAKConfig.TournamentMode.kEnabled = false
 	kDAKConfig.TournamentMode.kTournamentModePubMode = false
 	kDAKConfig.TournamentMode.kTournamentModePubMinPlayers = 3
 	kDAKConfig.TournamentMode.kTournamentModePubPlayerWarning = "Game will start once each team has %s players."

@@ -9,7 +9,7 @@ local serverupdatetime = 0
 	
 local function DAKOnClientConnected(client)
 
-	if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.kEnabled then
+	if kDAKConfig and kDAKConfig.DAKLoader then
 		if client ~= nil and VerifyClient(client) ~= nil then
 			table.insert(kDAKGameID, client)
 			if #kDAKOnClientConnect > 0 then
@@ -29,7 +29,7 @@ Event.Hook("ClientConnect", DAKOnClientConnected)
 
 local function DAKOnClientDisconnected(client)
 
-	if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.kEnabled then
+	if kDAKConfig and kDAKConfig.DAKLoader then
 		if client ~= nil and VerifyClient(client) ~= nil then
 			if #DelayedClientConnect > 0 then
 				for i = 1, #DelayedClientConnect do
@@ -58,7 +58,7 @@ local function DAKUpdateServer(deltaTime)
 
 	PROFILE("DAKLoader:DAKUpdateServer")
 	
-	if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.kEnabled then
+	if kDAKConfig and kDAKConfig.DAKLoader then
 		serverupdatetime = serverupdatetime + deltaTime
 		if kDAKConfig.DAKLoader.kDelayedServerUpdate and serverupdatetime > kDAKConfig.DAKLoader.kDelayedServerUpdate then
 		

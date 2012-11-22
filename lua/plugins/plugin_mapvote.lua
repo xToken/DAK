@@ -16,7 +16,7 @@ local mapvotedelay = 0
 local mapvoteextend = 0
 local nextmap
 
-if kDAKConfig and kDAKConfig.MapVote and kDAKConfig.MapVote.kEnabled then
+if kDAKConfig and kDAKConfig.MapVote then
 
 	if kDAKSettings.PreviousMaps == nil then
 		kDAKSettings.PreviousMaps = { }

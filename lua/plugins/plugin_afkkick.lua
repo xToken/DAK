@@ -3,7 +3,7 @@
 local AFKClientTracker = { }
 local lastAFKUpdate = 0
 
-if kDAKConfig and kDAKConfig.AFKKicker and kDAKConfig.AFKKicker.kEnabled then
+if kDAKConfig and kDAKConfig.AFKKicker then
 
 	local function DisplayMessage(client, message)
 

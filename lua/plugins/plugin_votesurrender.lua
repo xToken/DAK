@@ -3,7 +3,7 @@
 local kSurrenderVoteArray = { }
 local kSurrenderTeamCount = 2
 
-if kDAKConfig and kDAKConfig.VoteSurrender and kDAKConfig.VoteSurrender.kEnabled then
+if kDAKConfig and kDAKConfig.VoteSurrender then
 
 	local function SetupSurrenderVars()
 		for i = 1, kSurrenderTeamCount do

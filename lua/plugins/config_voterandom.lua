@@ -5,7 +5,6 @@ local function SetupDefaultConfig(Save)
 	if kDAKConfig.VoteRandom == nil then
 		kDAKConfig.VoteRandom = { }
 	end
-	kDAKConfig.VoteRandom.kEnabled = true
 	kDAKConfig.VoteRandom.kVoteRandomInstantly = false
 	kDAKConfig.VoteRandom.kVoteRandomDuration = 30
 	kDAKConfig.VoteRandom.kVoteRandomMinimumPercentage = 60

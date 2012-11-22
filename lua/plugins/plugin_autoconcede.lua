@@ -5,7 +5,7 @@ local kConcedeTeam = 0
 local kConcedeCheck = 0
 local kConcedeCheckInt = 1
 
-if kDAKConfig and kDAKConfig.AutoConcede and kDAKConfig.AutoConcede.kEnabled then
+if kDAKConfig and kDAKConfig.AutoConcede then
 
 	local function DisplayMessage(message)
 
