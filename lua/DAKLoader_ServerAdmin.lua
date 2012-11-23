@@ -257,6 +257,7 @@ if Server then
 		if tt > kDAKConfig.DAKLoader.ServerAdmin.kMapChangeDelay and (lastwebupdate == nil or (lastwebupdate + kDAKConfig.DAKLoader.ServerAdmin.kUpdateDelay) < tt) and kDAKConfig.DAKLoader.ServerAdmin.kQueryURL ~= "" then
 			QueryForAdminList()
 		end
+		return true
 	end
 	
 	table.insert(kDAKOnClientConnect, function(client) return OnServerAdminClientConnect(client) end)
