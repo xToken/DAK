@@ -26,7 +26,11 @@ if kDAKConfig and kDAKConfig.MapVote then
 	
 		if kDAKMapCycle and kDAKMapCycle.maps and mapName then
 			for i = 1, #kDAKMapCycle.maps do
-				if kDAKMapCycle.maps[i]:upper() == mapName:upper() then
+				if type(kDAKMapCycle.maps[i]) == "table" then
+					if kDAKMapCycle.maps[i].map and kDAKMapCycle.maps[i].map:upper() == mapName:upper() then
+						return true
+					end
+				elseif kDAKMapCycle.maps[i]:upper() == mapName:upper() then
 					return true
 				end
 			end
@@ -105,12 +109,20 @@ if kDAKConfig and kDAKConfig.MapVote then
 			
 				recentlyplayed = false
 				for j = 1, #kDAKSettings.PreviousMaps do
-					if kDAKMapCycle.maps[i] == kDAKSettings.PreviousMaps[j] then
+					if type(kDAKMapCycle.maps[i]) == "table" then
+						if kDAKMapCycle.maps[i].map and kDAKMapCycle.maps[i].map == kDAKSettings.PreviousMaps[j] then
+							recentlyplayed = true
+						end	
+					elseif kDAKMapCycle.maps[i] == kDAKSettings.PreviousMaps[j] then
 						recentlyplayed = true
 					end				
 				end
 
-				if kDAKMapCycle.maps[i] ~= tostring(Shared.GetMapName()) and not recentlyplayed then	
+				if type(kDAKMapCycle.maps[i]) == "table" then
+					if kDAKMapCycle.maps[i].map and kDAKMapCycle.maps[i].map ~= tostring(Shared.GetMapName()) and not recentlyplayed then	
+						table.insert(tempMaps, kDAKMapCycle.maps[i].map)
+					end
+				elseif kDAKMapCycle.maps[i] ~= tostring(Shared.GetMapName()) and not recentlyplayed then	
 					table.insert(tempMaps, kDAKMapCycle.maps[i])
 				end
 				
@@ -278,12 +290,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 				table.insert(kDAKSettings.PreviousMaps, nextmap)
 				SaveDAKSettings()
 				if nextmap ~= nil then
-					if DAKVerifyMapName(nextmap) then
-						MapCycle_ChangeToMap(nextmap)
-					else
-						chatMessage = string.format("Invalid Map Provided.")
-						Server.SendNetworkMessage("Chat", BuildChatMessage(false, "Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
-					end
+					MapCycle_ChangeToMap(nextmap)
 				end
 				nextmap = nil
 				mapvotecomplete = false

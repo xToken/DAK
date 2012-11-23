@@ -87,11 +87,12 @@ if Server then
 		end
 		
 		// Verify the map exists on the file system.
-		local found = DAKVerifyMapName(mapName)
+		// Need to disable this because of map mods, meh
+		// local found = DAKVerifyMapName(mapName)
 		
-		if found then
-			Server.StartWorld(mods, mapName)
-		end
+		//if found then
+		Server.StartWorld(mods, mapName)
+		//end
 	end
 	
 	function MapCycle_GetNextMapInCycle()

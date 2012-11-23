@@ -132,7 +132,7 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 		if serverReallyFull and reserved then
 
 			local playertokick
-			local lowestscore = 0
+			local lowestscore = 9999
 
 			for r = #playerList, 1, -1 do
 				if playerList[r] ~= nil then
