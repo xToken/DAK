@@ -51,7 +51,7 @@ if Server then
 			kDAKConfig.DAKLoader = { }
 			kDAKConfig.DAKLoader.kDelayedClientConnect = 2
 			kDAKConfig.DAKLoader.kDelayedServerUpdate = 1
-			kDAKConfig.DAKLoader.kPluginsList = { "afkkick", "baseadmincommands", "enhancedlogging", "mapvote", "motd",
+			kDAKConfig.DAKLoader.kPluginsList = { "afkkick", "baseadmincommands", "mapvote", "motd",
 													 "unstuck", "voterandom", "votesurrender" }
 			kDAKConfig.DAKLoader.GamerulesExtensions = true
 			kDAKConfig.DAKLoader.GamerulesClassName = "NS2Gamerules"
