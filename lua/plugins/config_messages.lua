@@ -10,7 +10,9 @@ local function SetupDefaultConfig(Save)
 	if kDAKConfig.Messages == nil then
 		kDAKConfig.Messages = { }
 	end
-	kDAKConfig.Messages.kMessage = MessageTable
+	if kDAKConfig.Messages.kMessage == nil then
+		kDAKConfig.Messages.kMessage = MessageTable
+	end
 	kDAKConfig.Messages.kMessagesPerTick = 5
 	kDAKConfig.Messages.kMessageTickDelay = 6
 	kDAKConfig.Messages.kMessageInterval = 10

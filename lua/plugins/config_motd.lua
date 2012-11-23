@@ -15,7 +15,9 @@ local function SetupDefaultConfig(Save)
 	if kDAKConfig.MOTD == nil then
 		kDAKConfig.MOTD = { }
 	end
-	kDAKConfig.MOTD.kMOTDMessage = MOTDTable
+	if kDAKConfig.MOTD.kMOTDMessage == nil then
+		kDAKConfig.MOTD.kMOTDMessage = MOTDTable
+	end
 	kDAKConfig.MOTD.kMOTDMessageDelay = 6
 	kDAKConfig.MOTD.kMOTDMessageRevision = 1
 	kDAKConfig.MOTD.kMOTDMessagesPerTick = 5

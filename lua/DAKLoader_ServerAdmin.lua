@@ -249,7 +249,7 @@ if Server then
 					OnServerAdminWebResponse(response)
 			end)
 		end
-		lastwebupdate = tt
+		lastwebupdate = Shared.GetTime()
 	end
 	
 	local function OnServerAdminClientConnect(client)
