@@ -79,7 +79,16 @@ if Server then
 				break
 			end
 		end
-	
+		
+		if map == nil and kDAKMapCycle.votemaps ~= nil and #kDAKMapCycle.votemaps > 0 then
+			for i = #kDAKMapCycle.votemaps, 1, -1 do
+				if GetMapName(kDAKMapCycle.votemaps[i]) == mapName then
+					map = kDAKMapCycle.votemaps[i]
+					break
+				end
+			end
+		end
+		
 		if map ~= nil then //Lookup map mods if applic
 			if type(map) == "table" and type(map.mods) == "table" then
 				table.copy(map.mods, mods, true)
@@ -155,7 +164,7 @@ if Server then
 				end
 			end
 		end
-		
+
 		local currentMap = Shared.GetMapName()
 		local mapName = GetMapName(MapCycle_GetNextMapInCycle())
 		

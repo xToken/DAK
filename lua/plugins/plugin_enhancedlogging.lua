@@ -461,6 +461,98 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 			end
 		)
 		
+		local originalNS2CommandStructureLoginPlayer
+		
+		originalNS2CommandStructureLoginPlayer = Class_ReplaceMethod("CommandStructure", "LoginPlayer", 
+			function(self, player)
+			
+				if player then
+					local Client = Server.GetOwner(player)
+					local teamNum = self:GetTeamNumber()
+					if Client and teamNum then
+						PrintToEnhancedLog(GetTimeStamp() .. GetClientUIDString(Client) .. " logged into commander for team " .. ToString(teamNum))
+					end
+				end
+				originalNS2CommandStructureLoginPlayer( self, player )
+			end
+		)
+		
+		local originalNS2CommandStructureLogout
+		
+		originalNS2CommandStructureLogout = Class_ReplaceMethod("CommandStructure", "Logout", 
+			function(self)
+			
+				local commander = self:GetCommander()
+				if commander then
+					local Client = Server.GetOwner(commander)
+					local teamNum = self:GetTeamNumber()
+					if Client and teamNum then
+						PrintToEnhancedLog(GetTimeStamp() .. GetClientUIDString(Client) .. " logged out of commander for team " .. ToString(teamNum))
+					end
+				end
+				originalNS2CommandStructureLogout( self )
+			end
+		)
+		
+		local originalNS2RecycleMixinOnResearchComplete
+		
+		originalNS2RecycleMixinOnResearchComplete = Class_ReplaceMethod("RecycleMixin", "OnResearchComplete", 
+			function(self, researchId)
+			
+				local buildingID = self:GetId()
+				local buildingname = self:GetClassName()
+				if researchId == kTechId.Recycle then        
+					PrintToEnhancedLog(GetTimeStamp() .. buildingname .. " id: " .. ToString(buildingID) .. " was recycled.")
+				end
+				originalNS2RecycleMixinOnResearchComplete( self, researchId )
+			end
+		)
+		
+		local originalNS2RecycleMixinOnResearch
+		
+		originalNS2RecycleMixinOnResearch = Class_ReplaceMethod("RecycleMixin", "OnResearch", 
+			function(self, researchId)
+			
+				local buildingID = self:GetId()
+				local buildingname = self:GetClassName()
+				local team = self:GetTeam()
+				if team then
+					local commander = team:GetCommander()
+					if commander then
+						local Client = Server.GetOwner(commander)
+						if researchId == kTechId.Recycle and Client then        
+							PrintToEnhancedLog(GetTimeStamp() .. GetClientUIDString(Client) .. " started recycle of " .. buildingname .. " id: " .. ToString(buildingID))
+						end
+					end
+				end
+				originalNS2RecycleMixinOnResearch( self, researchId )
+			end
+		)
+		
+		local originalNS2ConstructMixinOnInitialized
+		
+		originalNS2ConstructMixinOnInitialized = Class_ReplaceMethod("ConstructMixin", "OnInitialized", 
+			function(self)
+			
+				local buildingID = self:GetId()
+				local buildingname = self:GetClassName()
+				local team = self:GetTeam()
+				if team then
+					local owner = self:GetOwner()
+					if owner == nil then
+						owner = team:GetCommander()
+					end
+					if owner then
+						local Client = Server.GetOwner(owner)
+						if researchId == kTechId.Recycle and Client then        
+							PrintToEnhancedLog(GetTimeStamp() .. GetClientUIDString(Client) .. " started construction of " .. buildingname .. " id: " .. ToString(buildingID))
+						end
+					end
+				end
+				originalNS2ConstructMixinOnInitialized( self )
+			end
+		)
+		
 		local originalNS2GRCastVoteByPlayer
 		
 		originalNS2GRCastVoteByPlayer = Class_ReplaceMethod(kDAKConfig.DAKLoader.GamerulesClassName, "CastVoteByPlayer", 
@@ -547,10 +639,6 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
     end
 	
 	table.insert(kDAKOnEntityKilled, function(targetEntity, attacker, doer, point, direction) return EnhancedLoggingOnEntityKilled(targetEntity, attacker, doer, point, direction) end)
-	
-elseif kDAKConfig and not kDAKConfig.EnhancedLogging then
-	
-	DAKGenerateDefaultDAKConfig("EnhancedLogging")
 	
 end
 

@@ -22,15 +22,25 @@ if kDAKConfig and kDAKConfig.MapVote then
 		kDAKSettings.PreviousMaps = { }
 	end
 	
+	local function GetMapName(map)
+		if type(map) == "table" and map.map ~= nil then
+			return map.map
+		end
+		return map
+	end
+	
 	local function VerifyMapInCycle(mapName)
 	
 		if kDAKMapCycle and kDAKMapCycle.maps and mapName then
 			for i = 1, #kDAKMapCycle.maps do
-				if type(kDAKMapCycle.maps[i]) == "table" then
-					if kDAKMapCycle.maps[i].map and kDAKMapCycle.maps[i].map:upper() == mapName:upper() then
-						return true
-					end
-				elseif kDAKMapCycle.maps[i]:upper() == mapName:upper() then
+				if GetMapName(kDAKMapCycle.maps[i]):upper() == mapName:upper() then
+					return true
+				end
+			end
+		end
+		if kDAKMapCycle and kDAKMapCycle.votemaps and mapName then
+			for i = 1, #kDAKMapCycle.votemaps do
+				if GetMapName(kDAKMapCycle.votemaps[i]):upper() == mapName:upper() then
 					return true
 				end
 			end
@@ -56,7 +66,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 	local function StartMapVote()
 
 		if mapvoterunning or mapvoteintiated or mapvotecomplete then
-			//Map vote already running, dont start another
+			return false
 		else		
 			mapvoteintiated = true
 			mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteStartDelay
@@ -108,24 +118,39 @@ if kDAKConfig and kDAKConfig.MapVote then
 			for i = 1, #kDAKMapCycle.maps do
 			
 				recentlyplayed = false
+				local mapName = GetMapName(kDAKMapCycle.maps[i])
 				for j = 1, #kDAKSettings.PreviousMaps do
-					if type(kDAKMapCycle.maps[i]) == "table" then
-						if kDAKMapCycle.maps[i].map and kDAKMapCycle.maps[i].map == kDAKSettings.PreviousMaps[j] then
-							recentlyplayed = true
-						end	
-					elseif kDAKMapCycle.maps[i] == kDAKSettings.PreviousMaps[j] then
+				
+					if mapName == kDAKSettings.PreviousMaps[j] then
 						recentlyplayed = true
-					end				
+					end
+					
 				end
 
-				if type(kDAKMapCycle.maps[i]) == "table" then
-					if kDAKMapCycle.maps[i].map and kDAKMapCycle.maps[i].map ~= tostring(Shared.GetMapName()) and not recentlyplayed then	
-						table.insert(tempMaps, kDAKMapCycle.maps[i].map)
-					end
-				elseif kDAKMapCycle.maps[i] ~= tostring(Shared.GetMapName()) and not recentlyplayed then	
-					table.insert(tempMaps, kDAKMapCycle.maps[i])
+				if mapName ~= tostring(Shared.GetMapName()) and not recentlyplayed then	
+					table.insert(tempMaps, mapName)
 				end
 				
+			end
+			
+			if kDAKMapCycle.votemaps ~= nil and #kDAKMapCycle.votemaps > 0 then
+				for i = 1, #kDAKMapCycle.votemaps do
+				
+					recentlyplayed = false
+					local mapName = GetMapName(kDAKMapCycle.votemaps[i])
+					for j = 1, #kDAKSettings.PreviousMaps do
+					
+						if mapName == kDAKSettings.PreviousMaps[j] then
+							recentlyplayed = true
+						end
+						
+					end
+
+					if mapName ~= tostring(Shared.GetMapName()) and not recentlyplayed then	
+						table.insert(tempMaps, mapName)
+					end
+					
+				end
 			end
 			
 			if #tempMaps < kDAKConfig.MapVote.kMapsToSelect then
@@ -272,7 +297,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 			if not votepassed then
 				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapAutomaticChange), 1, kMaxMapVoteChatLength) .. "******"
 				Server.SendNetworkMessage("Chat", BuildChatMessage(false, "Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
-				nextmap = MapCycle_GetNextMapInCycle()
+				nextmap = nil
 				mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteChangeDelay
 			end
 		end
@@ -287,10 +312,12 @@ if kDAKConfig and kDAKConfig.MapVote then
 			
 			if Shared.GetTime() > mapvotedelay then
 			
-				table.insert(kDAKSettings.PreviousMaps, nextmap)
-				SaveDAKSettings()
 				if nextmap ~= nil then
+					table.insert(kDAKSettings.PreviousMaps, nextmap)
+					SaveDAKSettings()
 					MapCycle_ChangeToMap(nextmap)
+				else
+					MapCycle_CycleMap()
 				end
 				nextmap = nil
 				mapvotecomplete = false
@@ -326,6 +353,22 @@ if kDAKConfig and kDAKConfig.MapVote then
 
 		end
 		return true
+	end
+	
+	if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.GamerulesExtensions then
+	
+		local originalNS2GRSetGameState
+		originalNS2GRSetGameState = Class_ReplaceMethod(kDAKConfig.DAKLoader.GamerulesClassName, "SetGameState", 
+			function(self, state)
+
+				originalNS2GRSetGameState( self, state )
+				if MapCycle_TestCycleMap() then
+                    self.timeToCycleMap = Shared.GetTime() + kDAKConfig.MapVote.kRoundEndDelay
+                end
+			
+			end
+		)
+		
 	end
 
 	table.insert(kDAKOnServerUpdate, function(deltatime) return UpdateMapVotes(deltatime) end)

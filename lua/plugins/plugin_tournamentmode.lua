@@ -35,7 +35,7 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 		return kDAKSettings.TournamentMode
 	end
 	
-	table.insert(kDAKCheckMapChange, function() return GetTournamentMode() end)
+	table.insert(kDAKCheckMapChange, function() return (GetTournamentMode() and not kDAKConfig.TournamentMode.kTournamentModePubMode) end)
 
 	function GetFriendlyFire()
 		return kDAKSettings.FriendlyFire
