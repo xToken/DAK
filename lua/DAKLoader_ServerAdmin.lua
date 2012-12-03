@@ -292,8 +292,9 @@ if Server then
 	
 			if settings.users ~= nil then
 				for name, user in pairs(settings.users) do
+					local online = GetClientMatchingSteamId(user.id) ~= nil
 					if client ~= nil then
-						ServerAdminPrint(client, string.format(name .. " - " .. ToString(user)))
+						ServerAdminPrint(client, string.format(name .. " - " .. ToString(user) .. ConditionalValue(online, " - Online", " - Offline")))
 					end		
 				end
 			end
