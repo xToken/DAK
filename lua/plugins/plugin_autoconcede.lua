@@ -1,11 +1,11 @@
 //NS2 Automatic Concede
 
-local kConcedeTime = 0
-local kConcedeTeam = 0
-local kConcedeCheck = 0
-local kConcedeCheckInt = 1
-
 if kDAKConfig and kDAKConfig.AutoConcede then
+
+	local kConcedeTime = 0
+	local kConcedeTeam = 0
+	local kConcedeCheck = 0
+	local kConcedeCheckInt = 1
 
 	local function DisplayMessage(message)
 
@@ -67,10 +67,6 @@ if kDAKConfig and kDAKConfig.AutoConcede then
 		)
     
 	end
-	
-elseif kDAKConfig and not kDAKConfig.AutoConcede then
-	
-	DAKGenerateDefaultDAKConfig("AutoConcede")
 	
 end
 

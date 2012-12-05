@@ -1,9 +1,9 @@
 //NS2 Team Surrender Vote
 
-local kSurrenderVoteArray = { }
-local kSurrenderTeamCount = 2
-
 if kDAKConfig and kDAKConfig.VoteSurrender then
+
+	local kSurrenderVoteArray = { }
+	local kSurrenderTeamCount = 2
 
 	local function SetupSurrenderVars()
 		for i = 1, kSurrenderTeamCount do
@@ -195,10 +195,6 @@ if kDAKConfig and kDAKConfig.VoteSurrender then
 	end
 
 	DAKCreateServerAdminCommand("Console_sv_surrendervote", VoteSurrenderOn, "<teamnumber> Will start a surrender vote for that team.")
-	
-elseif kDAKConfig and not kDAKConfig.VoteSurrender then
-	
-	DAKGenerateDefaultDAKConfig("VoteSurrender")
 
 end
 

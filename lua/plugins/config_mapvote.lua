@@ -15,6 +15,7 @@ local function SetupDefaultConfig(Save)
 	kDAKConfig.MapVote.kVoteMinimumPercentage = 25
 	kDAKConfig.MapVote.kRTVMinimumPercentage = 50
 	kDAKConfig.MapVote.kExtendDuration = 15
+	kDAKConfig.MapVote.kPregameLength = 15
 	kDAKConfig.MapVote.kMaximumExtends = 3
 	kDAKConfig.MapVote.kVoteMapBeginning = "******                 Map vote will begin in %s seconds.                 ******"
 	kDAKConfig.MapVote.kVoteMapHowToVote = "******     You can vote for the map you want by typing vote #     ******"
@@ -37,7 +38,3 @@ local function SetupDefaultConfig(Save)
 end
 
 table.insert(kDAKPluginDefaultConfigs, {PluginName = "MapVote", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
-
-if kDAKConfig.MapVote == nil then
-	SetupDefaultConfig(false)
-end

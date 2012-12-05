@@ -2,7 +2,7 @@
 
 if kDAKConfig and kDAKConfig.Messages then
       
-	local lastMessageTime = 0
+	local lastMessageTime = kDAKConfig.Messages.kMessageStartDelay
 	local messageline = 0
 	local messagetick = 0
 	
@@ -59,10 +59,6 @@ if kDAKConfig and kDAKConfig.Messages then
 	end
 
 	table.insert(kDAKOnServerUpdate, function(deltatime) return ProcessMessageQueue(deltatime) end)
-	
-elseif kDAKConfig and not kDAKConfig.Messages then
-	
-	DAKGenerateDefaultDAKConfig("Messages")
 	
 end
 

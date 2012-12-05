@@ -1,6 +1,6 @@
 //tournamentmode config
 
-kDAKRevisions["TournamentMode"] = 2.6
+kDAKRevisions["TournamentMode"] = 1.8
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.TournamentMode == nil then
 		kDAKConfig.TournamentMode = { }
@@ -18,7 +18,3 @@ local function SetupDefaultConfig(Save)
 end
 
 table.insert(kDAKPluginDefaultConfigs, {PluginName = "TournamentMode", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
-
-if kDAKConfig.TournamentMode == nil then
-	SetupDefaultConfig(false)
-end

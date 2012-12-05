@@ -1,9 +1,9 @@
 //NS2 Automatic AFK Kicker
 
-local AFKClientTracker = { }
-local lastAFKUpdate = 0
-
 if kDAKConfig and kDAKConfig.AFKKicker then
+
+	local AFKClientTracker = { }
+	local lastAFKUpdate = 0
 
 	local function DisplayMessage(client, message)
 
@@ -137,10 +137,6 @@ if kDAKConfig and kDAKConfig.AFKKicker then
 	end
 
 	table.insert(kDAKOnServerUpdate, function(deltatime) return ProcessPlayingUsers(deltatime) end)
-	
-elseif kDAKConfig and not kDAKConfig.AFKKicker then
-	
-	DAKGenerateDefaultDAKConfig("AFKKicker")
 	
 end
 

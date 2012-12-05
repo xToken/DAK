@@ -164,7 +164,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		end
 		
 	end
-	DAKCreateServerAdminCommand("Console_sv_changemap", OnCommandChangeMap, "<map name>, Switches to the map specified")
+	DAKCreateServerAdminCommand("Console_sv_changemap", OnCommandChangeMap, "<map name> Switches to the map specified")
 
 	local function OnCommandSVReset(client)
 		if client ~= nil then 
@@ -225,7 +225,9 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 
 		local player = GetPlayerMatching(playerId)
 		local teamNumber = tonumber(team)
-		
+		if not DAKGetClientLevelSufficient(client,player) then
+			return
+		end
 		if type(teamNumber) ~= "number" or teamNumber < 0 or teamNumber > 3 then
 		
 			ServerAdminPrint(client, "Invalid team number")
@@ -244,11 +246,14 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		
 	end
 
-	DAKCreateServerAdminCommand("Console_sv_switchteam", SwitchTeam, "<player id> <team number>, 1 is Marine, 2 is Alien")
+	DAKCreateServerAdminCommand("Console_sv_switchteam", SwitchTeam, "<player id> <team number> 1 is Marine, 2 is Alien")
 
 	local function Eject(client, playerId)
 
 		local player = GetPlayerMatching(playerId)
+		if not DAKGetClientLevelSufficient(client, player) then
+			return
+		end
 		if player and player:isa("Commander") then
 			player:Eject()
 		else
@@ -257,11 +262,14 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		
 	end
 
-	DAKCreateServerAdminCommand("Console_sv_eject", Eject, "<player id>, Ejects Commander from the Command Structure")
+	DAKCreateServerAdminCommand("Console_sv_eject", Eject, "<player id> Ejects Commander from the Command Structure")
 
 	local function Kick(client, playerId)
 
 		local player = GetPlayerMatching(playerId)
+		if not DAKGetClientLevelSufficient(client, player) then
+			return
+		end
 		if player then
 			Server.DisconnectClient(Server.GetOwner(player))
 		else
@@ -270,7 +278,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		
 	end
 
-	DAKCreateServerAdminCommand("Console_sv_kick", Kick, "<player id>, Kicks the player from the server")
+	DAKCreateServerAdminCommand("Console_sv_kick", Kick, "<player id> Kicks the player from the server")
 
 	local function GetChatMessage(...)
 
@@ -303,7 +311,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		
 	end
 
-	DAKCreateServerAdminCommand("Console_sv_say", Say, "<message>, Sends a message to every player on the server")
+	DAKCreateServerAdminCommand("Console_sv_say", Say, "<message> Sends a message to every player on the server")
 
 	local function TeamSay(client, team, ...)
 
@@ -337,7 +345,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		
 	end
 
-	DAKCreateServerAdminCommand("Console_sv_tsay", TeamSay, "<team number> <message>, Sends a message to one team")
+	DAKCreateServerAdminCommand("Console_sv_tsay", TeamSay, "<team number> <message> Sends a message to one team")
 
 	local function PlayerSay(client, playerId, ...)
 
@@ -367,12 +375,14 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		
 	end
 
-	DAKCreateServerAdminCommand("Console_sv_psay", PlayerSay, "<player id> <message>, Sends a message to a single player")
+	DAKCreateServerAdminCommand("Console_sv_psay", PlayerSay, "<player id> <message> Sends a message to a single player")
 
 	local function Slay(client, playerId)
 
 		local player = GetPlayerMatching(playerId)
-		
+		if not DAKGetClientLevelSufficient(client, player) then
+			return
+		end
 		if player then
 			 player:Kill(nil, nil, player:GetOrigin())
 		else
@@ -395,7 +405,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		
 	end
 
-	DAKCreateServerAdminCommand("Console_sv_password", SetPassword, "<string>, Changes the password on the server")
+	DAKCreateServerAdminCommand("Console_sv_password", SetPassword, "<string> Changes the password on the server")
 
 	local bannedPlayers = { }
 	local bannedPlayersFileName = "config://BannedPlayers.json"
@@ -410,6 +420,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		local bannedPlayersFile = io.open(bannedPlayersFileName, "r")
 		if bannedPlayersFile then
 			bannedPlayers = json.decode(bannedPlayersFile:read("*all")) or { }
+			bannedPlayersFile:close()
 		end
 		
 	end
@@ -419,7 +430,10 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 	local function SaveBannedPlayers()
 
 		local bannedPlayersFile = io.open(bannedPlayersFileName, "w+")
-		bannedPlayersFile:write(json.encode(bannedPlayers))
+		if bannedPlayersFile then
+			bannedPlayersFile:write(json.encode(bannedPlayers))
+			bannedPlayersFile:close()
+		end
 		
 	end
 
@@ -468,7 +482,9 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		else
 			bannedUntilTime = bannedUntilTime + (duration * 60)
 		end
-		
+		if not DAKGetClientLevelSufficientID(client, playerId) then
+			return
+		end
 		if player then
 		
 			table.insert(bannedPlayers, { name = player:GetName(), id = Server.GetOwner(player):GetUserId(), reason = StringConcatArgs(...), time = bannedUntilTime })
@@ -488,7 +504,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		
 	end
 
-	DAKCreateServerAdminCommand("Console_sv_ban", Ban, "<player id> <duration in minutes> <reason text>, Bans the player from the server, pass in 0 for duration to ban forever")
+	DAKCreateServerAdminCommand("Console_sv_ban", Ban, "<player id> <duration in minutes> <reason text> Bans the player from the server, pass in 0 for duration to ban forever")
 
 	local function UnBan(client, steamId)
 
@@ -513,7 +529,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		
 	end
 
-	DAKCreateServerAdminCommand("Console_sv_unban", UnBan, "<steam id>, Removes the player matching the passed in Steam Id from the ban list")
+	DAKCreateServerAdminCommand("Console_sv_unban", UnBan, "<steam id> Removes the player matching the passed in Steam Id from the ban list")
 
 	function GetBannedPlayersList()
 
@@ -584,11 +600,17 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		
 	end
 	
-	DAKCreateServerAdminCommand("Console_sv_autobalance", AutoBalance, "<true/false> <player count> <seconds>, Toggles auto team balance. The player count and seconds are optional. Count defaults to 2 over balance to enable. Defaults to 10 second wait to enable.")
-
-elseif kDAKConfig and not kDAKConfig.BaseAdminCommands then
+	DAKCreateServerAdminCommand("Console_sv_autobalance", AutoBalance, "<true/false> <player count> <seconds> Toggles auto team balance. The player count and seconds are optional. Count defaults to 2 over balance to enable. Defaults to 10 second wait to enable.")
 	
-	DAKGenerateDefaultDAKConfig("BaseAdminCommands")
+	local function EnableEventTesting(client, enabled)
+
+		enabled = not (enabled == "false")
+		SetEventTestingEnabled(enabled)
+		ServerAdminPrint(client, "Event testing " .. (enabled and "enabled" or "disabled"))
+		
+	end
+	
+	CreateServerAdminCommand("Console_sv_test_events", EnableEventTesting, "<true/false> Toggles event testing mode")
 	
 end
 

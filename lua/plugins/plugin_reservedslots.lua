@@ -1,16 +1,16 @@
 //NS2 Reserved Slot
 
-local ReservedPlayers = { }
-local cachedPlayersList = { }
-local lastconnect = 0
-local lastdisconnect = 0
-local disconnectclients = { }
-local disconnectclienttime = 0
-local reserveslotactionslog = { }
-
-local ReservedPlayersFileName = "config://ReservedPlayers.json"
-
 if kDAKConfig and kDAKConfig.ReservedSlots then
+
+	local ReservedPlayers = { }
+	local cachedPlayersList = { }
+	local lastconnect = 0
+	local lastdisconnect = 0
+	local disconnectclients = { }
+	local disconnectclienttime = 0
+	local reserveslotactionslog = { }
+
+	local ReservedPlayersFileName = "config://ReservedPlayers.json"
 
 	local function LoadReservedPlayers()
 		local ReservedPlayersFile = io.open(ReservedPlayersFileName, "r")
@@ -267,10 +267,6 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 	end
 
 	DAKCreateServerAdminCommand("Console_sv_reservedebug", DebugReserveSlots, "Will print messages logged during actions taken by reserve slot plugin.")
-
-elseif kDAKConfig and not kDAKConfig.ReservedSlots then
-	
-	DAKGenerateDefaultDAKConfig("ReservedSlots")
 	
 end
 

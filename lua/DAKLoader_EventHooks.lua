@@ -160,12 +160,45 @@ if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.GamerulesExtensi
 
 			if #kDAKOnUpdatePregame > 0 then
 				for i = 1, #kDAKOnUpdatePregame do
-					if not kDAKOnUpdatePregame[i](timePassed) then
+					if not kDAKOnUpdatePregame[i](self, timePassed) then
 						return
 					end
 				end
 			end
 			originalNS2GRUpdatePregame(self, timePassed)
+		
+		end
+	)
+	
+	local originalNS2GRCastVoteByPlayer
+		
+	originalNS2GRCastVoteByPlayer = Class_ReplaceMethod(kDAKConfig.DAKLoader.GamerulesClassName, "CastVoteByPlayer", 
+		function(self, voteTechId, player)
+		
+			if #kDAKOnCastVoteByPlayer > 0 then
+				for i = 1, #kDAKOnCastVoteByPlayer do
+					if not kDAKOnCastVoteByPlayer[i](self, voteTechId, player) then
+						return
+					end
+				end
+			end
+			originalNS2GRCastVoteByPlayer(self, voteTechId, player)
+
+		end
+	)
+	
+	local originalNS2GRSetGameState
+	
+	originalNS2GRSetGameState = Class_ReplaceMethod(kDAKConfig.DAKLoader.GamerulesClassName, "SetGameState", 
+		function(self, state)
+
+			local currentstate = self.gameState
+			originalNS2GRSetGameState( self, state )
+			if #kDAKOnSetGameState > 0 then
+				for i = 1, #kDAKOnSetGameState do
+					kDAKOnSetGameState[i](self, state, currentstate)
+				end
+			end
 		
 		end
 	)

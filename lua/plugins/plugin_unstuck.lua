@@ -1,9 +1,9 @@
 //NS2 Unstuck Plugin
 
-local UnstuckClientTracker = { }
-local LastUnstuckTracker = { }
-
 if kDAKConfig and kDAKConfig.Unstuck then
+
+	local UnstuckClientTracker = { }
+	local LastUnstuckTracker = { }
 
 	local function DisplayMessage(client, message)
 
@@ -22,8 +22,8 @@ if kDAKConfig and kDAKConfig.Unstuck then
 			if player:GetIsAlive() then
 				TechID = player:GetTechId()
 			end
-			PEntry.Orig.x = PEntry.Orig.x + 0.5
-			PEntry.Orig.z = PEntry.Orig.z + 0.5
+			PEntry.Orig.x = PEntry.Orig.x + kDAKConfig.Unstuck.kUnstuckAmount
+			PEntry.Orig.z = PEntry.Orig.z + kDAKConfig.Unstuck.kUnstuckAmount
 			local extents = LookupTechData(TechID, kTechDataMaxExtents)
 			local capsuleHeight, capsuleRadius = GetTraceCapsuleFromExtents(extents)
 			local range = 6
@@ -110,10 +110,6 @@ if kDAKConfig and kDAKConfig.Unstuck then
 	end
 
 	table.insert(kDAKOnServerUpdate, function(deltatime) return ProcessStuckUsers(deltatime) end)
-	
-elseif kDAKConfig and not kDAKConfig.Unstuck then
-	
-	DAKGenerateDefaultDAKConfig("Unstuck")
 	
 end
 

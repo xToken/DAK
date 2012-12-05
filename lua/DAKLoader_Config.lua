@@ -31,10 +31,12 @@ if Server then
 	
 	function SaveDAKConfig()
 		//Write config to file
-		local configFile = io.open(DAKConfigFileName, "w+")
-		configFile:write(json.encode(kDAKConfig, { indent = true, level = 1 }))
-		Shared.Message("Saving DAK configuration.")
-		io.close(configFile)
+		local DAKConfigFile = io.open(DAKConfigFileName, "w+")
+		if DAKConfigFile then
+			DAKConfigFile:write(json.encode(kDAKConfig, { indent = true, level = 1 }))
+			Shared.Message("Saving DAK configuration.")
+			DAKConfigFile:close()
+		end
 	end
 	
 	local function GenerateDefaultDAKConfig(Plugin, Save)
@@ -109,6 +111,15 @@ if Server then
 	
 	function DAKGenerateDefaultDAKConfig(Plugin)
 		GenerateDefaultDAKConfig(Plugin, true)
+	end
+	
+	function DAKIsPluginEnabled(CheckPlugin)
+		for index, plugin in pairs(kDAKConfig.DAKLoader.kPluginsList) do
+			if CheckPlugin == plugin then
+				return true
+			end
+		end
+		return false
 	end
 				
 	local function OnCommandLoadDAKConfig(client)

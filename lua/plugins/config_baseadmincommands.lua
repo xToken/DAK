@@ -1,6 +1,6 @@
 //baseadmincommands default config
 
-kDAKRevisions["BaseAdminCommands"] = 1.1
+kDAKRevisions["BaseAdminCommands"] = 1.8
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.BaseAdminCommands == nil then
 		kDAKConfig.BaseAdminCommands = { }
@@ -11,7 +11,3 @@ local function SetupDefaultConfig(Save)
 end
 
 table.insert(kDAKPluginDefaultConfigs, {PluginName = "BaseAdminCommands", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
-
-if kDAKConfig.BaseAdminCommands == nil then
-	SetupDefaultConfig(false)
-end

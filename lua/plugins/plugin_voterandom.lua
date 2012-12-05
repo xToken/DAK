@@ -1,12 +1,12 @@
 //NS2 Vote Random Teams
 
-local kVoteRandomTeamsEnabled = false
-local RandomNewRoundDelay = 15
-local RandomVotes = { }
-local RandomDuration = 0
-local RandomRoundRecentlyEnded = nil
-
 if kDAKConfig and kDAKConfig.VoteRandom then
+
+	local kVoteRandomTeamsEnabled = false
+	local RandomNewRoundDelay = 15
+	local RandomVotes = { }
+	local RandomDuration = 0
+	local RandomRoundRecentlyEnded = nil
 
 	local function LoadVoteRandom()
 
@@ -252,10 +252,6 @@ if kDAKConfig and kDAKConfig.VoteRandom then
 	end
 
 	DAKCreateServerAdminCommand("Console_sv_randomon", VoteRandomOn, "Will enable random teams.")
-	
-elseif kDAKConfig and not kDAKConfig.VoteRandom then
-	
-	DAKGenerateDefaultDAKConfig("VoteRandom")
 
 end
 

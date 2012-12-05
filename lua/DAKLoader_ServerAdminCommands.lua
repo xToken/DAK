@@ -21,7 +21,7 @@ local function OnCommandRCON(client, ...)
 
 end
 
-DAKCreateServerAdminCommand("Console_sv_rcon", OnCommandRCON, "<command>, Will execute specified command on server.")
+DAKCreateServerAdminCommand("Console_sv_rcon", OnCommandRCON, "<command> Will execute specified command on server.")
 
 local function OnCommandAllTalk(client)
 
@@ -51,11 +51,8 @@ local function OnCommandListPlugins(client)
 			local version = kDAKRevisions[plugin]
 			if plugin ~= nil then
 				if version ~= nil then
-					ServerAdminPrint(client, string.format("Plugin %s v%.1f is enabled.", plugin, version))
-					//Shared.Message(string.format("Plugin %s v%.1f is enabled.", plugin, version))
-				else
-					ServerAdminPrint(client, string.format("Plugin %s is disabled.", plugin))
-					//Shared.Message(string.format("Plugin %s is disabled.", plugin))
+					ServerAdminPrint(client, string.format("Plugin %s v%.1f is loaded.", plugin, version))
+					//Shared.Message(string.format("Plugin %s v%.1f is loaded.", plugin, version))
 				end
 			end
 		end

@@ -17,6 +17,8 @@ if Server then
 	kDAKOnGameEnd = { }						//Functions run on GameEnd from Gamerules
 	kDAKOnEntityKilled = { }				//Functions run on EntityKilled from Gamerules
 	kDAKOnUpdatePregame = { }				//Functions run on UpdatePregame from Gamerules
+	kDAKOnCastVoteByPlayer = { }			//Functions run on CastVoteByPlayer from Gamerules
+	kDAKOnSetGameState = { }			    //Functions run on SetGameState from Gamerules
 	kDAKOnClientChatMessage = { }			//Functions run on ChatMessages
 	kDAKCheckMapChange = { }	    		//List of functions run to confirm if map should change
 	kDAKOverrideMapChange = { }	    		//Functions run before MapCycle
@@ -30,6 +32,7 @@ if Server then
 	Script.Load("lua/DAKLoader_ServerAdmin.lua")
 	Script.Load("lua/DAKLoader_Config.lua")
 	Script.Load("lua/DAKLoader_Settings.lua")
+	Script.Load("lua/DAKLoader_Shared.lua")
 	
 	if kDAKConfig and kDAKConfig.DAKLoader and not kDAKConfig.DAKLoader.LoadFromServerLUA then
 		Script.Load("lua/Server.lua")
@@ -67,7 +70,7 @@ if Server then
 	Script.Load("lua/DAKLoader_EventHooks.lua")
 	Script.Load("lua/DAKLoader_ServerAdminCommands.lua")
 	
-	kDAKRevisions["DAKLoader"] = 2.1
+	kDAKRevisions["DAKLoader"] = 2.5
 	
 	//*****************************************************************************************************************
 	//Globals
@@ -76,7 +79,7 @@ if Server then
 	//Hooks for logging functions
 	function EnhancedLog(message)
 	
-		if kDAKConfig and kDAKConfig.EnhancedLogging and EnhancedLogMessage then
+		if kDAKConfig and kDAKConfig.EnhancedLogging and DAKIsPluginEnabled("enhancedlogging") then
 			EnhancedLogMessage(message)
 		end
 	
@@ -84,7 +87,7 @@ if Server then
 		
 	function PrintToAllAdmins(commandname, client, parm1)
 	
-		if kDAKConfig and kDAKConfig.EnhancedLogging and EnhancedLoggingAllAdmins then
+		if kDAKConfig and kDAKConfig.EnhancedLogging and DAKIsPluginEnabled("enhancedlogging") then
 			EnhancedLoggingAllAdmins(commandname, client, parm1)
 		end
 	

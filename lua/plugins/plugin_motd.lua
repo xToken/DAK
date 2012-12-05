@@ -1,9 +1,9 @@
 //NS2 Client Message of the Day
 
-local MOTDClientTracker = { }
-local MOTDAcceptedClients = { }
-
 if kDAKConfig and kDAKConfig.MOTD then
+
+	local MOTDClientTracker = { }
+	local MOTDAcceptedClients = { }
 
 	if kDAKSettings.MOTDAcceptedClients == nil then
 		kDAKSettings.MOTDAcceptedClients = { }
@@ -178,10 +178,6 @@ if kDAKConfig and kDAKConfig.MOTD then
 	end
 	
 	table.insert(kDAKOnClientChatMessage, function(message, playerName, steamId, teamNumber, teamOnly, client) return OnMOTDChatMessage(message, playerName, steamId, teamNumber, teamOnly, client) end)
-	
-elseif kDAKConfig and not kDAKConfig.MOTD then
-	
-	DAKGenerateDefaultDAKConfig("MOTD")
 	
 end
 

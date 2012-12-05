@@ -1,6 +1,6 @@
 //motd config
 
-kDAKRevisions["MOTD"] = 1.6
+kDAKRevisions["MOTD"] = 1.8
 local function SetupDefaultConfig(Save)
 	local MOTDTable = { }
 	table.insert(MOTDTable, "********************************************************************")
@@ -27,7 +27,3 @@ local function SetupDefaultConfig(Save)
 end
 
 table.insert(kDAKPluginDefaultConfigs, {PluginName = "MOTD", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
-
-if kDAKConfig.MOTD == nil then
-	SetupDefaultConfig(false)
-end

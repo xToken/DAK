@@ -1,13 +1,13 @@
 //NS2 EnhancedLogging and Tracking of events
-
-Script.Load("lua/DAKLoader_Class.lua")
-
-local EnhancedLoggingFile = nil
-local lastlogupdate = 0
-local pendinglogsave = false
-local EnhancedLog = { }
 	
 if kDAKConfig and kDAKConfig.EnhancedLogging then
+
+	Script.Load("lua/DAKLoader_Class.lua")
+
+	local EnhancedLoggingFile = nil
+	local lastlogupdate = 0
+	local pendinglogsave = false
+	local EnhancedLog = { }
 
 	//*******************************************************************************************************************************
 	//Formatting Functions
@@ -443,24 +443,7 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 	Event.Hook("Console_name",               OnCommandSetName)
 		
 	if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.GamerulesExtensions then
-	
-		local originalNS2GRSetGameState
-		
-		originalNS2GRSetGameState = Class_ReplaceMethod(kDAKConfig.DAKLoader.GamerulesClassName, "SetGameState", 
-			function(self, state)
-
-				if state ~= self.gameState then
-					if state == kGameState.Started then
-						local version = ToString(Shared.GetBuildNumber())
-						local map = Shared.GetMapName()
-						PrintToEnhancedLog(GetTimeStamp() .. "game_started" .. " build " .. version .. " map " .. map)
-					end
-				end
-				originalNS2GRSetGameState( self, state )
 			
-			end
-		)
-		
 		local originalNS2CommandStructureLoginPlayer
 		
 		originalNS2CommandStructureLoginPlayer = Class_ReplaceMethod("CommandStructure", "LoginPlayer", 
@@ -553,31 +536,6 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 			end
 		)
 		
-		local originalNS2GRCastVoteByPlayer
-		
-		originalNS2GRCastVoteByPlayer = Class_ReplaceMethod(kDAKConfig.DAKLoader.GamerulesClassName, "CastVoteByPlayer", 
-			function(self, voteTechId, player)
-
-				if voteTechId == kTechId.VoteDownCommander1 or voteTechId == kTechId.VoteDownCommander2 or voteTechId == kTechId.VoteDownCommander3 then 
-					local playerIndex = (voteTechId - kTechId.VoteDownCommander1 + 1)        
-					local commanders = GetEntitiesForTeam("Commander", player:GetTeamNumber())
-					
-					if playerIndex <= table.count(commanders) then
-						local targetCommander = commanders[playerIndex]
-						if targetCommander ~= nil then
-							local targetClient = Server.GetOwner(targetCommander)
-							local Client = Server.GetOwner(player)
-							if targetClient and Client then
-								PrintToEnhancedLog(GetTimeStamp() .. GetClientUIDString(Client) .. " voted to eject " .. GetClientUIDString(targetClient))
-							end
-						end
-					end
-				end
-				originalNS2GRCastVoteByPlayer(self, voteTechId, player)
-
-			end
-		)
-		
 	end
 	
 	function EnhancedLoggingChatMessage(message, playerName, steamId, teamNumber, teamOnly, client)
@@ -589,6 +547,20 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 	end
 	
 	table.insert(kDAKOnClientChatMessage, function(message, playerName, steamId, teamNumber, teamOnly, client) return EnhancedLoggingChatMessage(message, playerName, steamId, teamNumber, teamOnly, client) end)
+	
+	local function EnhancedLoggingSetGameState(self, state, currentstate)
+
+		if state ~= currentstate then
+			if state == kGameState.Started then
+				local version = ToString(Shared.GetBuildNumber())
+				local map = Shared.GetMapName()
+				PrintToEnhancedLog(GetTimeStamp() .. "game_started" .. " build " .. version .. " map " .. map)
+			end
+		end
+		
+	end
+			
+	table.insert(kDAKOnSetGameState, function(self, state, currentstate) return EnhancedLoggingSetGameState(self, state, currentstate) end)
 	
 	function EnhancedLoggingJoinTeam(player, newTeamNumber, force)
 		local client = Server.GetOwner(player)
@@ -617,6 +589,27 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 	end
 	
 	table.insert(kDAKOnGameEnd, function(winningTeam) return EnhancedLoggingEndGame(winningTeam) end)
+
+	function EnhancedLoggingCastVoteByPlayer(gamerules, voteTechId, player)
+		if voteTechId == kTechId.VoteDownCommander1 or voteTechId == kTechId.VoteDownCommander2 or voteTechId == kTechId.VoteDownCommander3 then 
+			local playerIndex = (voteTechId - kTechId.VoteDownCommander1 + 1)        
+			local commanders = GetEntitiesForTeam("Commander", player:GetTeamNumber())
+			
+			if playerIndex <= table.count(commanders) then
+				local targetCommander = commanders[playerIndex]
+				if targetCommander ~= nil then
+					local targetClient = Server.GetOwner(targetCommander)
+					local Client = Server.GetOwner(targetClient)
+					if targetClient and Client then
+						PrintToEnhancedLog(GetTimeStamp() .. GetClientUIDString(Client) .. " voted to eject " .. GetClientUIDString(targetClient))
+					end
+				end
+			end
+		end
+		return true
+	end
+	
+	table.insert(kDAKOnCastVoteByPlayer, function(self, voteTechId, player) return EnhancedLoggingCastVoteByPlayer(self, voteTechId, player) end)
 	
 	function EnhancedLoggingOnEntityKilled(targetEntity, attacker, doer, point, direction)
      

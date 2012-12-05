@@ -1,22 +1,22 @@
 //NS2 End Round map vote.
 //Replaces current automatic map switching on round-end.
 
-local kMaxMapVoteChatLength = 74
-local TiedMaps = { }
-local VotingMaps = { }
-local MapVotes = { }
-local PlayerVotes = { }
-local RTVVotes = { }
-
-local mapvoteintiated = false
-local mapvoterunning = false
-local mapvotecomplete = false
-local mapvotenotify = 0
-local mapvotedelay = 0
-local mapvoteextend = 0
-local nextmap
-
 if kDAKConfig and kDAKConfig.MapVote then
+
+	local kMaxMapVoteChatLength = 74
+	local TiedMaps = { }
+	local VotingMaps = { }
+	local MapVotes = { }
+	local PlayerVotes = { }
+	local RTVVotes = { }
+
+	local mapvoteintiated = false
+	local mapvoterunning = false
+	local mapvotecomplete = false
+	local mapvotenotify = 0
+	local mapvotedelay = 0
+	local mapvoteextend = 0
+	local nextmap
 
 	if kDAKSettings.PreviousMaps == nil then
 		kDAKSettings.PreviousMaps = { }
@@ -60,6 +60,16 @@ if kDAKConfig and kDAKConfig.MapVote then
 		return false
 		
 	end
+	
+	local function StartCountdown(gamerules)
+		if gamerules then
+			gamerules:ResetGame() 
+			gamerules:ResetGame()
+			gamerules:SetGameState(kGameState.Countdown)      
+			gamerules.countdownTime = kCountDownLength     
+			gamerules.lastCountdownPlayed = nil 
+		end
+    end
 	
 	table.insert(kDAKCheckMapChange, function() return CheckMapVote() end)
 	
@@ -355,23 +365,38 @@ if kDAKConfig and kDAKConfig.MapVote then
 		return true
 	end
 	
-	if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.GamerulesExtensions then
+	table.insert(kDAKOnServerUpdate, function(deltatime) return UpdateMapVotes(deltatime) end)
 	
-		local originalNS2GRSetGameState
-		originalNS2GRSetGameState = Class_ReplaceMethod(kDAKConfig.DAKLoader.GamerulesClassName, "SetGameState", 
-			function(self, state)
-
-				originalNS2GRSetGameState( self, state )
-				if MapCycle_TestCycleMap() then
-                    self.timeToCycleMap = Shared.GetTime() + kDAKConfig.MapVote.kRoundEndDelay
+	local function MapVoteUpdatePregame(self, timePassed)
+	
+		if self:GetGameState() == kGameState.PreGame then
+		
+            local preGameTime = kDAKConfig.MapVote.kPregameLength
+            if self.timeSinceGameStateChanged > preGameTime then
+                StartCountdown(self)
+                if Shared.GetCheatsEnabled() then
+                    self.countdownTime = 1
                 end
+            end
+			return false
 			
-			end
-		)
+		end
+		
+		return true
 		
 	end
+		
+	table.insert(kDAKOnUpdatePregame, function(self, timePassed) return MapVoteUpdatePregame(self, timePassed) end)
+	
+	local function MapVoteSetGameState(self, state, currentstate)
 
-	table.insert(kDAKOnServerUpdate, function(deltatime) return UpdateMapVotes(deltatime) end)
+		if MapCycle_TestCycleMap() then
+			self.timeToCycleMap = Shared.GetTime() + kDAKConfig.MapVote.kRoundEndDelay
+		end
+		
+	end
+			
+	table.insert(kDAKOnSetGameState, function(self, state, currentstate) return MapVoteSetGameState(self, state, currentstate) end)
 
 	local function UpdateRTV(silent, playername)
 
@@ -582,10 +607,6 @@ if kDAKConfig and kDAKConfig.MapVote then
 	end
 
 	DAKCreateServerAdminCommand("Console_sv_cancelmapvote", CancelMapVote, "Will cancel a map vote.")
-	
-elseif kDAKConfig and not kDAKConfig.MapVote then
-	
-	DAKGenerateDefaultDAKConfig("MapVote")
 
 end
 	

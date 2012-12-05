@@ -1,6 +1,6 @@
 //Messages config
 
-kDAKRevisions["Messages"] = 1.0
+kDAKRevisions["Messages"] = 1.2
 local function SetupDefaultConfig(Save)
 	local MessageTable = { }
 	table.insert(MessageTable, "********************************************************************")
@@ -16,13 +16,10 @@ local function SetupDefaultConfig(Save)
 	kDAKConfig.Messages.kMessagesPerTick = 5
 	kDAKConfig.Messages.kMessageTickDelay = 6
 	kDAKConfig.Messages.kMessageInterval = 10
+	kDAKConfig.Messages.kMessageStartDelay = 1
 	if Save then
 		SaveDAKConfig()
 	end
 end
 
 table.insert(kDAKPluginDefaultConfigs, {PluginName = "Messages", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
-
-if kDAKConfig.Messages == nil then
-	SetupDefaultConfig(false)
-end

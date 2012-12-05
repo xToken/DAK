@@ -15,7 +15,3 @@ local function SetupDefaultConfig(Save)
 end
 
 table.insert(kDAKPluginDefaultConfigs, {PluginName = "AutoMapCycle", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
-
-if kDAKConfig.AutoMapCycle == nil then
-	SetupDefaultConfig(false)
-end

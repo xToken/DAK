@@ -25,12 +25,12 @@ if Server then
 		    local defaultConfig = {
 									groups =
 										{
-										  admin_group = { type = "disallowed", commands = { } },
-										  mod_group = { type = "allowed", commands = { "sv_reset", "sv_ban" } }
+										  admin_group = { type = "disallowed", commands = { }, level = 10 },
+										  mod_group = { type = "allowed", commands = { "sv_reset", "sv_ban" }, level = 5 }
 										},
 									users =
 										{
-										  NsPlayer = { id = 10000001, groups = { "admin_group" } }
+										  NsPlayer = { id = 10000001, groups = { "admin_group" }, level = 2 }
 										}
 								  }
 			local configFile = io.open(DAKServerAdminFileName, "w+")
@@ -97,6 +97,50 @@ if Server then
         return false
         
     end
+	
+	function DAKGetSteamIDLevel(steamId)
+    
+		local level = 0
+        for name, user in pairs(settings.users) do
+        
+            if user.id == steamId then
+				if user.level ~= nil then
+					level = user.level
+				else
+					for g = 1, #user.groups do
+						local groupName = user.groups[g]
+						local group = settings.groups[groupName]
+						if group and group.level ~= nil and group.level > level then
+							level = group.level							
+						end
+					end
+				end
+            end
+        end
+		if tonumber(level) == nil then
+			level = 0
+		end
+		
+        return level
+    end
+	
+	function DAKGetClientLevel(client)
+        local steamId = client:GetUserId()
+		if steamId == nil then return 0 end
+        return DAKGetSteamIDLevel(steamId)
+    end
+	
+	function DAKGetClientLevelSufficient(client, targetclient)
+		if client == nil then return true end
+		if targetclient == nil then return false end
+		return DAKGetClientLevel(client) >= DAKGetClientLevel(targetclient)		
+	end
+	
+	function DAKGetClientLevelSufficientID(client, targetID)
+		if client == nil then return true end
+		if targetID == nil then return false end
+		return DAKGetClientLevel(client) >= DAKGetSteamIDLevel(targetID)		
+	end
 	
 	//Internal Globals
 	function DAKCreateServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
@@ -235,6 +279,7 @@ if Server then
 				rstring = rstring:gsub(" </div> <div id=\"steamid\"> ", "\": { \"id\": ")
 				rstring = rstring:gsub(" </div> <div id=\"group\"> ", ", \"groups\": [ \"")
 				rstring = rstring:gsub(" </div> <br>", "\" ] },")
+				rstring = rstring:gsub("\n", "")
 				local addusers = json.decode(rstring)
 				if addusers then
 					settings.users = tablemerge(settings.users, addusers)
@@ -304,6 +349,28 @@ if Server then
 
     DAKCreateServerAdminCommand("Console_sv_listadmins", OnCommandListAdmins, "Will list all groups and admins.")
 	
+	local function OnCommandWho(client)
+	
+		if settings ~= nil then	
+			if settings.users ~= nil then
+				for name, user in pairs(settings.users) do
+					local uclient = GetClientMatchingSteamId(user.id)
+					local online = (uclient ~= nil)
+					if online then
+						local player = uclient:GetControllingPlayer()
+						if player ~= nil then
+							local pname = player:GetName()
+							ServerAdminPrint(client, string.format(pname .. " - " .. name .. " - " .. ToString(user)))
+						end	
+					end
+				end
+			end
+		end
+		
+	end
+
+    DAKCreateServerAdminCommand("Console_sv_who", OnCommandWho, "Will list all online admins.", true)
+	
 	//This is so derp, but re-registering function to override builtin admin system without having to modify core NS2 files
 	//Using registration of ServerAdminPrint network message for the correct timing
 	local originalNS2CreateServerAdminCommand
@@ -312,7 +379,7 @@ if Server then
 		function(parm1, parm2)
 		
 			if parm1 == "ServerAdminPrint" then
-				if kDAKConfig and kDAKConfig.BaseAdminCommands and CreateBaseServerAdminCommand then
+				if kDAKConfig and kDAKConfig.BaseAdminCommands and DAKIsPluginEnabled("baseadmincommands") then
 					function CreateServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
 					end
 				end

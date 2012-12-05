@@ -5,4 +5,5 @@
 //Would allow help menus and such to be generated.
 
 Script.Load("lua/Client.lua")
+Script.Load("lua/DAKLoader_Shared.lua")
 //Script.Load("lua/gui/gui_votebase.lua")

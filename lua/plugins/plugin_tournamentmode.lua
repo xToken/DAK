@@ -1,8 +1,8 @@
 //NS2 Tournament Mod Server side script
 
-local TournamentModeSettings = { countdownstarted = false, countdownstarttime = 0, countdownstartcount = 0, lastmessage = 0, official = false}
-
 if kDAKConfig and kDAKConfig.TournamentMode then
+
+	local TournamentModeSettings = { countdownstarted = false, countdownstarttime = 0, countdownstartcount = 0, lastmessage = 0, official = false}
 
 	if kDAKSettings.TournamentMode == nil then
 		local TournamentMode = false
@@ -127,12 +127,11 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 	
 	table.insert(kDAKOnClientDisconnect, function(client) return TournamentModeOnDisconnect(client) end)
 		
-	local function UpdatePregame(timePassed)
+	local function UpdatePregame(self, timePassed)
 	
-		local gamerules = GetGamerules()
-		if gamerules and GetTournamentMode() and not Shared.GetCheatsEnabled() and not Shared.GetDevMode() and gamerules:GetGameState() == kGameState.PreGame then
+		if self and GetTournamentMode() and not Shared.GetCheatsEnabled() and not Shared.GetDevMode() and self:GetGameState() == kGameState.PreGame then
 			if kDAKConfig.TournamentMode.kTournamentModePubMode then
-				MonitorPubMode(gamerules)
+				MonitorPubMode(self)
 			end
 			MonitorCountDown()
 			return false
@@ -141,7 +140,7 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 		
 	end
 		
-	table.insert(kDAKOnUpdatePregame, function(timePassed) return UpdatePregame(timePassed) end)
+	table.insert(kDAKOnUpdatePregame, function(self, timePassed) return UpdatePregame(self, timePassed) end)
 	
 	if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.GamerulesExtensions then
 	
@@ -350,10 +349,6 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 	end
 	
 	table.insert(kDAKOnClientChatMessage, function(message, playerName, steamId, teamNumber, teamOnly, client) return OnTournamentModeChatMessage(message, playerName, steamId, teamNumber, teamOnly, client) end)
-	
-elseif kDAKConfig and not kDAKConfig.TournamentMode then
-	
-	DAKGenerateDefaultDAKConfig("TournamentMode")
 		
 end
 
