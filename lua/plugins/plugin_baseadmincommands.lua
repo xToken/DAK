@@ -610,7 +610,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		
 	end
 	
-	CreateServerAdminCommand("Console_sv_test_events", EnableEventTesting, "<true/false> Toggles event testing mode")
+	DAKCreateServerAdminCommand("Console_sv_test_events", EnableEventTesting, "<true/false> Toggles event testing mode")
 	
 end
 
