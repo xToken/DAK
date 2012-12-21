@@ -98,7 +98,7 @@ if Server then
         
     end
 	
-	function DAKGetSteamIDLevel(steamId)
+	local function GetSteamIDLevel(steamId)
     
 		local level = 0
         for name, user in pairs(settings.users) do
@@ -124,22 +124,34 @@ if Server then
         return level
     end
 	
-	function DAKGetClientLevel(client)
+	local function GetClientLevel(client)
         local steamId = client:GetUserId()
 		if steamId == nil then return 0 end
         return DAKGetSteamIDLevel(steamId)
     end
 	
-	function DAKGetClientLevelSufficient(client, targetclient)
-		if client == nil then return true end
-		if targetclient == nil then return false end
-		return DAKGetClientLevel(client) >= DAKGetClientLevel(targetclient)		
+	local function GetPlayerLevel(player)
+		local client = Server.GetOwner(player)
+        local steamId = client:GetUserId()
+		if steamId == nil then return 0 end
+        return DAKGetSteamIDLevel(steamId)
+    end
+	
+	local function GetObjectLevel(target)
+		if tonumber(target) ~= nil then
+			return DAKGetSteamIDLevel(tonumber(target))
+		elseif Server.GetOwner(target) ~= nil then
+			return GetPlayerLevel(target)
+		elseif VerifyClient(target) ~= nil then
+			return GetClientLevel(target)
+		end
+		return 0
 	end
 	
-	function DAKGetClientLevelSufficientID(client, targetID)
+	function DAKGetLevelSufficient(client, targetclient)
 		if client == nil then return true end
-		if targetID == nil then return false end
-		return DAKGetClientLevel(client) >= DAKGetSteamIDLevel(targetID)		
+		if targetclient == nil then return false end
+		return GetObjectLevel(client) >= GetObjectLevel(targetclient)
 	end
 	
 	//Internal Globals
@@ -318,11 +330,12 @@ if Server then
 			QueryForAdminList()
 			Shared.Message("Server Commands Registered.")
 			DelayedServerAdminCommands = nil
-			DelayedServerCommands = false
+			//DelayedServerCommands = false
 		end
+		DAKDeregisterEventHook(kDAKOnServerUpdate, DelayedServerCommandRegistration)
 	end
 	
-	table.insert(kDAKOnServerUpdate, function(deltatime) return DelayedServerCommandRegistration() end)
+	DAKRegisterEventHook(kDAKOnServerUpdate, DelayedServerCommandRegistration, 5)
 	
 	local function OnCommandListAdmins(client)
 	

@@ -13,7 +13,7 @@ if kDAKConfig and kDAKConfig.MOTD then
 
 		local player = client:GetControllingPlayer()
 		chatMessage = string.sub(string.format(message), 1, kMaxChatLength)
-		Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+		Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 
 	end
 	
@@ -52,30 +52,6 @@ if kDAKConfig and kDAKConfig.MOTD then
 	
 		return PEntry
 	end
-
-	local function MOTDOnClientConnect(client)
-	
-		if client:GetIsVirtual() then
-			return true
-		end
-		
-		if VerifyClient(client) == nil then
-			return false
-		end
-		
-		if IsAcceptedClient(client) then
-			return true
-		end
-		
-		local PEntry = { ID = client:GetUserId(), Client = client, Message = 1, Time = 0 }
-		PEntry = ProcessMessagesforUser(PEntry)
-		if PEntry ~= nil then
-			table.insert(MOTDClientTracker, PEntry)
-		end
-		return true
-	end
-
-	table.insert(kDAKOnClientDelayedConnect, function(client) return MOTDOnClientConnect(client) end)
 
 	local function MOTDOnClientDisconnect(client)    
 
@@ -116,11 +92,39 @@ if kDAKConfig and kDAKConfig.MOTD then
 					MOTDClientTracker[i] = nil
 				end
 			end
+			if #MOTDClientTracker == 0 then
+				DAKDeregisterEventHook(kDAKOnServerUpdate, ProcessRemainingMOTDMessages)
+			end
 		end
 		return true	
 	end
 
-	table.insert(kDAKOnServerUpdate, function(deltatime) return ProcessRemainingMOTDMessages(deltatime) end)
+	local function MOTDOnClientConnect(client)
+	
+		if client:GetIsVirtual() then
+			return true
+		end
+		
+		if VerifyClient(client) == nil then
+			return false
+		end
+		
+		if IsAcceptedClient(client) then
+			return true
+		end
+		
+		local PEntry = { ID = client:GetUserId(), Client = client, Message = 1, Time = 0 }
+		PEntry = ProcessMessagesforUser(PEntry)
+		if PEntry ~= nil then
+			if #MOTDClientTracker == 0 then
+				DAKRegisterEventHook(kDAKOnServerUpdate, ProcessRemainingMOTDMessages, 5)
+			end
+			table.insert(MOTDClientTracker, PEntry)
+		end
+		return true
+	end
+
+	table.insert(kDAKOnClientDelayedConnect, function(client) return MOTDOnClientConnect(client) end)
 
 	local function OnCommandAcceptMOTD(client)
 	
@@ -130,7 +134,7 @@ if kDAKConfig and kDAKConfig.MOTD then
 		if player ~= nil then
 			if IsAcceptedClient(client) then
 				chatMessage = string.sub(string.format("You already accepted the MOTD"), 1, kMaxChatLength)
-				Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+				Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 				return
 			end
 			name = player:GetName()
@@ -143,7 +147,7 @@ if kDAKConfig and kDAKConfig.MOTD then
 		
 		local player = client:GetControllingPlayer()
 		chatMessage = string.sub(string.format("You accepted the MOTD"), 1, kMaxChatLength)
-		Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+		Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 
 		table.insert(kDAKSettings.MOTDAcceptedClients, NewClient)
 		
@@ -158,6 +162,9 @@ if kDAKConfig and kDAKConfig.MOTD then
 		local PEntry = { ID = client:GetUserId(), Client = client, Message = 1, Time = 0 }
 		PEntry = ProcessMessagesforUser(PEntry)
 		if PEntry ~= nil then
+			if #MOTDClientTracker == 0 then
+				DAKRegisterEventHook(kDAKOnServerUpdate, ProcessRemainingMOTDMessages, 5)
+			end
 			table.insert(MOTDClientTracker, PEntry)
 		end
 		
@@ -168,10 +175,19 @@ if kDAKConfig and kDAKConfig.MOTD then
 	local function OnMOTDChatMessage(message, playerName, steamId, teamNumber, teamOnly, client)
 	
 		if client and steamId and steamId ~= 0 then
-			if message == "acceptmotd" then
-				OnCommandAcceptMOTD(client)
-			elseif message == "printmotd" then
-				OnCommandPrintMOTD(client)
+			for c = 1, #kDAKConfig.MOTD.kAcceptMOTDChatCommands do
+				local chatcommand = kDAKConfig.MOTD.kAcceptMOTDChatCommands[c]
+				if message == chatcommand then
+					OnCommandAcceptMOTD(client)
+					return true
+				end
+			end
+			for c = 1, #kDAKConfig.MOTD.kPrintMOTDChatCommands do
+				local chatcommand = kDAKConfig.MOTD.kPrintMOTDChatCommands[c]
+				if message == chatcommand then
+					OnCommandPrintMOTD(client)
+					return true
+				end
 			end
 		end
 	

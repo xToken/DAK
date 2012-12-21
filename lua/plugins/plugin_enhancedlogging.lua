@@ -288,7 +288,12 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 	function EnhancedLoggingAllAdmins(commandname, client, parm1)
 	
 		local playerRecords = Shared.GetEntitiesWithClassname("Player")
-		local message = GetTimeStamp() .. GetClientUIDString(client) .. " executed " .. commandname
+		local message
+		if client ~= nil then
+			message = GetTimeStamp() .. GetClientUIDString(client) .. " executed " .. commandname
+		else
+			message = GetTimeStamp() .. "ServerConsole" .. " executed " .. commandname
+		end
 		if parm1 ~= nil then
 			message = message .. " " .. parm1
 		end
@@ -307,33 +312,30 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 	end
 	
 	local function OnCommandSVSwitchTeam(client, playerId, team)
-		if client ~= nil and playerId ~= nil and team ~= nil then 
-			local player = client:GetControllingPlayer()
+		if playerId ~= nil and team ~= nil then 
 			local switchedplayer = GetPlayerMatching(playerId)
 			local switchedclient = Server.GetOwner(switchedplayer)
-			if player ~= nil and switchedclient ~= nil then
+			if switchedclient ~= nil then
 				PrintToAllAdmins("sv_switchteam", client, string.format(" on %s to team %s.", GetClientUIDString(switchedclient), team))
 			end
 		end
 	end
 	
 	local function OnCommandSVKick(client, playerId)
-		if client ~= nil and playerId ~= nil then 
-			local player = client:GetControllingPlayer()
+		if playerId ~= nil then 
 			local kickedplayer = GetPlayerMatching(playerId)
 			local kickedclient = Server.GetOwner(kickedplayer)
-			if player ~= nil and kickedclient ~= nil then
+			if kickedclient ~= nil then
 				PrintToAllAdmins("sv_kick", client, string.format(" on %s.", GetClientUIDString(kickedclient)))
 			end
 		end
 	end
 	
-	local function OnCommandSVSlay(client, PlayerId)
-		if client ~= nil and playerId ~= nil then 
-			local player = client:GetControllingPlayer()
+	local function OnCommandSVSlay(client, playerId)
+		if playerId ~= nil then 
 			local slayedplayer = GetPlayerMatching(playerId)
 			local slayedclient = Server.GetOwner(slayedplayer)
-			if player ~= nil and slayedclient ~= nil then
+			if slayedclient ~= nil then
 				PrintToAllAdmins("sv_slay", client, string.format(" on %s.", GetClientUIDString(slayedclient)))
 			end
 		end
@@ -341,27 +343,25 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 	
 	local function OnCommandSVBan(client, playerId, duration, ...)
 	
-		if client ~= nil and playerId ~= nil then
+		if playerId ~= nil then
 			if duration == nil then duration = 0 end
 			local bannedplayer = GetPlayerMatching(playerId)
 			local bannedclient = Server.GetOwner(bannedplayer)
-			local player = client:GetControllingPlayer()
-			if player ~= nil and bannedclient ~= nil then
+			if bannedclient ~= nil then
 				PrintToAllAdmins("sv_ban", client, string.format(" on %s for %s for %s.", GetClientUIDString(bannedclient), duration, StringConcatArgs(...)))
-			elseif player ~= nil and playerId > 0 then
+			elseif tonumber(playerId) > 0 then
 				PrintToAllAdmins("sv_ban", client, string.format(" on SteamID:%s for %s for %s.", playerId, duration, StringConcatArgs(...)))
 			end
 		end
 	end
 	
 	local function OnCommandSVUnBan(client, playerId)
-		if client ~= nil and playerId ~= nil then
+		if playerId ~= nil then
 			local unbannedplayer = GetPlayerMatching(playerId)
 			local unbannedclient = Server.GetOwner(unbannedplayer)
-			local player = client:GetControllingPlayer()
-			if player ~= nil and unbannedclient ~= nil then
+			if unbannedclient ~= nil then
 				PrintToAllAdmins("sv_unban", client, string.format(" on %s.", GetClientUIDString(unbannedclient)))
-			elseif player ~= nil and playerId > 0 then
+			elseif playerId > 0 then
 				PrintToAllAdmins("sv_unban", client, string.format(" on SteamID:%s.", playerId))
 			end
 		end
@@ -412,7 +412,7 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 		end
 	end
 
-	table.insert(kDAKOnServerUpdate, function() return UpdateServerEnhancedLogging() end)
+	DAKRegisterEventHook(kDAKOnServerUpdate, function(deltatime) return UpdateServerEnhancedLogging() end, 5)
 	
 	function OnCommandSetName(client, name)
 

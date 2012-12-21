@@ -129,6 +129,7 @@ if kDAKConfig and kDAKConfig.CommBans then
 							banned = true
 						else
 							// No longer banned.
+							LoadCommanderBannedPlayers()
 							table.remove(CommBans, b)
 							SaveCommanderBannedPlayers()
 						end
@@ -147,7 +148,7 @@ if kDAKConfig and kDAKConfig.CommBans then
 			if targetCommander ~= nil then
 				local client = Server.GetOwner(targetCommander)
 				if client ~= nil then
-					if not DAKGetClientLevelSufficientID(client, playerId) and DAKGetClientCanRunCommand(client, "sv_ejectionprotection") then
+					if not DAKGetLevelSufficient(client, playerId) and DAKGetClientCanRunCommand(client, "sv_ejectionprotection") then
 						return false
 					end
 				end
@@ -168,18 +169,20 @@ if kDAKConfig and kDAKConfig.CommBans then
 		else
 			bannedUntilTime = bannedUntilTime + (duration * 60)
 		end
-		if not DAKGetClientLevelSufficientID(client, playerId) then
+		if not DAKGetLevelSufficient(client, playerId) then
 			return
 		end
 		if player then
 		
+			LoadCommanderBannedPlayers()
 			table.insert(CommBans, { name = player:GetName(), id = Server.GetOwner(player):GetUserId(), reason = StringConcatArgs(...), time = bannedUntilTime })
 			SaveCommanderBannedPlayers()
 			ServerAdminPrint(client, player:GetName() .. " has been banned from the command chair")
 			
 		elseif tonumber(playerId) > 0 then
 		
-			table.insert(CommBans, { name = "Unknown", id = playerId, reason = StringConcatArgs(...), time = bannedUntilTime })
+			LoadCommanderBannedPlayers()
+			table.insert(CommBans, { name = "Unknown", id = tonumber(playerId), reason = StringConcatArgs(...), time = bannedUntilTime })
 			SaveCommanderBannedPlayers()
 			ServerAdminPrint(client, "Player with SteamId " .. playerId .. " has been banned from the command chair")
 			
@@ -194,6 +197,7 @@ if kDAKConfig and kDAKConfig.CommBans then
 	local function OnCommandUnCommBan(client, steamId)
 
 		local found = false
+		LoadCommanderBannedPlayers()
 		for p = #CommBans, 1, -1 do
 		
 			if CommBans[p].id == steamId then

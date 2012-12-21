@@ -6,7 +6,7 @@
 
 local DelayedClientConnect = { }
 local serverupdatetime = 0
-	
+
 local function DAKOnClientConnected(client)
 
 	if kDAKConfig and kDAKConfig.DAKLoader then
@@ -63,8 +63,8 @@ local function DAKUpdateServer(deltaTime)
 		if kDAKConfig.DAKLoader.kDelayedServerUpdate and serverupdatetime > kDAKConfig.DAKLoader.kDelayedServerUpdate then
 		
 			if #kDAKOnServerUpdate > 0 then
-				for i = 1, #kDAKOnServerUpdate do
-					kDAKOnServerUpdate[i](deltaTime)
+				for i = #kDAKOnServerUpdate, 1, -1 do
+					kDAKOnServerUpdate[i].func(deltaTime)
 				end
 			end
 			

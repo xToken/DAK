@@ -10,7 +10,7 @@ if kDAKConfig and kDAKConfig.Messages then
 
 		local player = client:GetControllingPlayer()
 		chatMessage = string.sub(string.format(message), 1, kMaxChatLength)
-		Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+		Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 
 	end
 	
@@ -58,7 +58,7 @@ if kDAKConfig and kDAKConfig.Messages then
 		
 	end
 
-	table.insert(kDAKOnServerUpdate, function(deltatime) return ProcessMessageQueue(deltatime) end)
+	DAKRegisterEventHook(kDAKOnServerUpdate, function(deltatime) return ProcessMessageQueue() end, 5)
 	
 end
 

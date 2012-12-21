@@ -8,6 +8,7 @@ local function SetupDefaultConfig(Save)
 	kDAKConfig.Unstuck.kMinimumWaitTime = 5
 	kDAKConfig.Unstuck.kTimeBetweenUntucks = 30
 	kDAKConfig.Unstuck.kUnstuckAmount = 0.5
+	kDAKConfig.Unstuck.kUnstuckChatCommands = { "stuck", "unstuck", "/stuck", "/unstuck" }
 	if Save then
 		SaveDAKConfig()
 	end

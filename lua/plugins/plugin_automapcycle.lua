@@ -28,7 +28,7 @@ if kDAKConfig and kDAKConfig.AutoMapCycle then
 		
 	end
 	
-	table.insert(kDAKOnServerUpdate, function(deltatime) return UpdateMapCycle(deltatime) end)
+	DAKRegisterEventHook(kDAKOnServerUpdate, function(deltatime) return UpdateMapCycle(deltatime) end, 5)
 	
 end
 

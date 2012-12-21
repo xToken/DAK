@@ -51,6 +51,19 @@ if Server then
 				end
 			end
 		end
+		
+		//Map file not available currently, check mapcycle for map and corresponding mod.  If no mod, dont change
+		
+		for i = #kDAKMapCycle.maps, 1, -1 do
+			if GetMapName(kDAKMapCycle.maps[i]) == mapName then
+				if type(kDAKMapCycle.maps[i]) == "table" and type(kDAKMapCycle.maps[i].mods) == "table" then
+					//Mods table is set, map is probably valid
+					return true
+				end
+				break
+			end
+		end
+		
 		return false
 	end
 	

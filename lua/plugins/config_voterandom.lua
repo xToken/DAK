@@ -12,6 +12,7 @@ local function SetupDefaultConfig(Save)
 	kDAKConfig.VoteRandom.kVoteRandomEnabledDuration = "Random teams have been enabled for the next %s Minutes"
 	kDAKConfig.VoteRandom.kVoteRandomConnectAlert = "Random teams are enabled, you are being randomed to a team."
 	kDAKConfig.VoteRandom.kVoteRandomVoteCountAlert = "%s voted for random teams. (%s votes, needed %s)."
+	kDAKConfig.VoteRandom.kVoteRandomChatCommands = { "voterandom", "random" }
 	if Save then
 		SaveDAKConfig()
 	end

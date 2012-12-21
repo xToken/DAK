@@ -10,7 +10,7 @@ if kDAKConfig and kDAKConfig.AutoConcede then
 	local function DisplayMessage(message)
 
 		chatMessage = string.sub(string.format(message), 1, kMaxChatLength)
-		Server.SendNetworkMessage("Chat", BuildChatMessage(false, "Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+		Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 	end
 
 	if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.GamerulesExtensions then

@@ -51,7 +51,7 @@ if kDAKConfig and kDAKConfig.VoteSurrender then
 				if totalvotes >= math.ceil((#playerRecords * (kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage / 100))) then
 			
 					chatMessage = string.sub(string.format("Team %s has voted to surrender.", ToString(i)), 1, kMaxChatLength)
-					Server.SendNetworkMessage("Chat", BuildChatMessage(false, "Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+					Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 					for i = 1, #playerRecords do
 						if playerRecords[i] ~= nil then
 							local gamerules = GetGamerules()
@@ -85,7 +85,7 @@ if kDAKConfig and kDAKConfig.VoteSurrender then
 					for k = 1, #playerRecords do
 						local player = playerRecords[k]
 						if player ~= nil then
-							Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "Team - Admin", -1, i, kNeutralTeamType, chatMessage), true)
+							Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "Team - " .. kDAKConfig.DAKLoader.MessageSender, -1, i, kNeutralTeamType, chatMessage), true)
 						end
 					end
 				end
@@ -95,7 +95,7 @@ if kDAKConfig and kDAKConfig.VoteSurrender then
 		end
 	end
 	
-	table.insert(kDAKOnServerUpdate, function(deltatime) return UpdateSurrenderVotes() end)
+	DAKRegisterEventHook(kDAKOnServerUpdate, function(deltatime) return UpdateSurrenderVotes() end, 5)
 	
 	local function ClearSurrenderVotes()
 		for i = 1, kSurrenderTeamCount do
@@ -126,15 +126,15 @@ if kDAKConfig and kDAKConfig.VoteSurrender then
 						end
 						if alreadyvoted then
 							chatMessage = string.sub(string.format("You already voted for to surrender."), 1, kMaxChatLength)
-							Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+							Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 						else
 							chatMessage = string.sub(string.format("You have voted to surrender."), 1, kMaxChatLength)
-							Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+							Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 							table.insert(kSurrenderVoteArray[teamnumber].SurrenderVotes, clientID)
 						end						
 					else
 						chatMessage = string.sub(string.format("You have voted to surrender."), 1, kMaxChatLength)
-						Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+						Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 						kSurrenderVoteArray[teamnumber].VoteSurrenderRunning = Shared.GetTime()
 						table.insert(kSurrenderVoteArray[teamnumber].SurrenderVotes, clientID)
 					end
@@ -149,8 +149,11 @@ if kDAKConfig and kDAKConfig.VoteSurrender then
 	local function OnVoteSurrenderChatMessage(message, playerName, steamId, teamNumber, teamOnly, client)
 	
 		if client and steamId and steamId ~= 0 then
-			if message == "surrender" then
-				OnCommandVoteSurrender(client)	
+			for c = 1, #kDAKConfig.VoteSurrender.kSurrenderChatCommands do
+				local chatcommand = kDAKConfig.VoteSurrender.kSurrenderChatCommands[c]
+				if message == chatcommand then
+					OnCommandVoteSurrender(client)
+				end
 			end
 		end
 	
@@ -165,7 +168,7 @@ if kDAKConfig and kDAKConfig.VoteSurrender then
 			kSurrenderVoteArray[tmNum].VoteSurrenderRunning = 0
 			kSurrenderVoteArray[tmNum].SurrenderVotes = { }
 			chatMessage = string.sub(string.format("Surrender vote for team %s has been cancelled.", tmNum), 1, kMaxChatLength)
-			Server.SendNetworkMessage("Chat", BuildChatMessage(false, "Admin", -1, tmNum, kNeutralTeamType, chatMessage), true)
+			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, tmNum, kNeutralTeamType, chatMessage), true)
 			if client ~= nil then 
 				ServerAdminPrint(client, string.format("Surrender vote cancelled for team %s.", ToString(tmNum)))
 				local player = client:GetControllingPlayer()

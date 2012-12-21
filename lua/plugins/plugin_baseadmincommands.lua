@@ -148,31 +148,20 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 	DAKCreateServerAdminCommand("Console_sv_status", AllPlayers(PrintStatus), "Lists player Ids and names for use in sv commands", true)
 
 	local function OnCommandChangeMap(client, mapName)
-
-		if client ~= nil then 
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				PrintToAllAdmins("sv_changemap", client, mapName)
-			end
-		end
+		PrintToAllAdmins("sv_changemap", client, mapName)
 
 		if DAKVerifyMapName(mapName) then
 			MapCycle_ChangeToMap(mapName)
 		else
 			chatMessage = string.format("Invalid Map Provided.")
-			Server.SendNetworkMessage("Chat", BuildChatMessage(false, "Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 		end
 		
 	end
 	DAKCreateServerAdminCommand("Console_sv_changemap", OnCommandChangeMap, "<map name> Switches to the map specified")
 
 	local function OnCommandSVReset(client)
-		if client ~= nil then 
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				PrintToAllAdmins("sv_reset", client)
-			end
-		end
+		PrintToAllAdmins("sv_reset", client)
 		local gamerules = GetGamerules()
 		if gamerules then
 			gamerules:ResetGame()
@@ -182,12 +171,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 	DAKCreateServerAdminCommand("Console_sv_reset", OnCommandSVReset, "Resets the game round")
 
 	local function OnCommandSVrrall(client)
-		if client ~= nil then 
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				PrintToAllAdmins("sv_rrall", client)
-			end
-		end
+		PrintToAllAdmins("sv_rrall", client)
 		local playerList = GetPlayerList()
 		for i = 1, (#playerList) do
 			local gamerules = GetGamerules()
@@ -200,12 +184,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 	DAKCreateServerAdminCommand("Console_sv_rrall", OnCommandSVrrall, "Forces all players to go to the Ready Room")
 
 	local function OnCommandSVRandomall(client)
-		if client ~= nil then 
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				PrintToAllAdmins("sv_randomall", client)
-			end
-		end
+		PrintToAllAdmins("sv_randomall", client)
 		local playerList = ShufflePlayerList()
 		for i = 1, (#playerList) do
 			if playerList[i]:GetTeamNumber() == 0 then
@@ -225,7 +204,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 
 		local player = GetPlayerMatching(playerId)
 		local teamNumber = tonumber(team)
-		if not DAKGetClientLevelSufficient(client,player) then
+		if not DAKGetLevelSufficient(client,player) then
 			return
 		end
 		if type(teamNumber) ~= "number" or teamNumber < 0 or teamNumber > 3 then
@@ -251,7 +230,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 	local function Eject(client, playerId)
 
 		local player = GetPlayerMatching(playerId)
-		if not DAKGetClientLevelSufficient(client, player) then
+		if not DAKGetLevelSufficient(client, player) then
 			return
 		end
 		if player and player:isa("Commander") then
@@ -267,11 +246,13 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 	local function Kick(client, playerId)
 
 		local player = GetPlayerMatching(playerId)
-		if not DAKGetClientLevelSufficient(client, player) then
+		if not DAKGetLevelSufficient(client, player) then
 			return
 		end
 		if player then
-			Server.DisconnectClient(Server.GetOwner(player))
+			local client = Server.GetOwner(player)
+			client.disconnectreason = "Kicked"
+			Server.DisconnectClient(client)
 		else
 			ServerAdminPrint(client, "No matching player")
 		end
@@ -296,17 +277,14 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		local chatMessage = GetChatMessage(...)
 		if string.len(chatMessage) > 0 then
 		
-			Server.SendNetworkMessage("Chat", BuildChatMessage(false, "Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 			Shared.Message("Chat All - Admin: " .. chatMessage)
-			Server.AddChatToHistory(chatMessage, "Admin", 0, kTeamReadyRoom, false)
+			Server.AddChatToHistory(chatMessage, kDAKConfig.DAKLoader.MessageSender, 0, kTeamReadyRoom, false)
 			
 		end
 		
-		if client ~= nil and string.len(chatMessage) > 0 then 
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				PrintToAllAdmins("sv_say", client, chatMessage)
-			end
+		if string.len(chatMessage) > 0 then 
+			PrintToAllAdmins("sv_say", client, chatMessage)
 		end
 		
 	end
@@ -328,19 +306,16 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		
 			local players = GetEntitiesForTeam("Player", teamNumber)
 			for index, player in ipairs(players) do
-				Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "Team - Admin", -1, teamNumber, kNeutralTeamType, chatMessage), true)
+				Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "Team - " .. kDAKConfig.DAKLoader.MessageSender, -1, teamNumber, kNeutralTeamType, chatMessage), true)
 			end
 			
 			Shared.Message("Chat Team - Admin: " .. chatMessage)
-			Server.AddChatToHistory(chatMessage, "Admin", 0, teamNumber, true)
+			Server.AddChatToHistory(chatMessage, kDAKConfig.DAKLoader.MessageSender, 0, teamNumber, true)
 			
 		end
 		
-		if client ~= nil and string.len(chatMessage) > 0 then 
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				PrintToAllAdmins("sv_tsay", client, chatMessage)
-			end
+		if string.len(chatMessage) > 0 then 
+			PrintToAllAdmins("sv_tsay", client, chatMessage)
 		end
 		
 	end
@@ -357,7 +332,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 			chatMessage = string.sub(chatMessage, 1, kMaxChatLength)
 			if string.len(chatMessage) > 0 then
 			
-				Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - Admin", -1, teamNumber, kNeutralTeamType, chatMessage), true)
+				Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, teamNumber, kNeutralTeamType, chatMessage), true)
 				Shared.Message("Chat Player - Admin: " .. chatMessage)
 				
 			end
@@ -366,11 +341,8 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 			ServerAdminPrint(client, "No matching player")
 		end
 		
-		if client ~= nil and string.len(chatMessage) > 0 then 
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				PrintToAllAdmins("sv_psay", client, chatMessage)
-			end
+		if string.len(chatMessage) > 0 then 
+			PrintToAllAdmins("sv_psay", client, chatMessage)
 		end
 		
 	end
@@ -380,7 +352,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 	local function Slay(client, playerId)
 
 		local player = GetPlayerMatching(playerId)
-		if not DAKGetClientLevelSufficient(client, player) then
+		if not DAKGetLevelSufficient(client, player) then
 			return
 		end
 		if player then
@@ -395,14 +367,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 
 	local function SetPassword(client, newPassword)
 		Server.SetPassword(newPassword or "")
-		
-		if client ~= nil and playerId ~= nil then 
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				PrintToAllAdmins("sv_password", client, newPassword)
-			end
-		end
-		
+		PrintToAllAdmins("sv_password", client, newPassword)		
 	end
 
 	DAKCreateServerAdminCommand("Console_sv_password", SetPassword, "<string> Changes the password on the server")
@@ -449,12 +414,14 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 				local now = Shared.GetSystemTime()
 				if ban.time == 0 or now < ban.time then
 				
+					client.disconnectreason = "Banned"
 					Server.DisconnectClient(client)
 					break
 					
 				else
 				
 					// No longer banned.
+					LoadBannedPlayers()
 					table.remove(bannedPlayers, b)
 					SaveBannedPlayers()
 					
@@ -482,19 +449,23 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		else
 			bannedUntilTime = bannedUntilTime + (duration * 60)
 		end
-		if not DAKGetClientLevelSufficientID(client, playerId) then
+		if not DAKGetLevelSufficient(client, playerId) then
 			return
 		end
 		if player then
-		
+			
+			LoadBannedPlayers()
 			table.insert(bannedPlayers, { name = player:GetName(), id = Server.GetOwner(player):GetUserId(), reason = StringConcatArgs(...), time = bannedUntilTime })
 			SaveBannedPlayers()
 			ServerAdminPrint(client, player:GetName() .. " has been banned")
-			Server.DisconnectClient(Server.GetOwner(player))
+			local client = Server.GetOwner(player)
+			client.disconnectreason = "Banned"
+			Server.DisconnectClient(client)
 			
 		elseif tonumber(playerId) > 0 then
 		
-			table.insert(bannedPlayers, { name = "Unknown", id = playerId, reason = StringConcatArgs(...), time = bannedUntilTime })
+			LoadBannedPlayers()
+			table.insert(bannedPlayers, { name = "Unknown", id = tonumber(playerId), reason = StringConcatArgs(...), time = bannedUntilTime })
 			SaveBannedPlayers()
 			ServerAdminPrint(client, "Player with SteamId " .. playerId .. " has been banned")
 			
@@ -509,6 +480,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 	local function UnBan(client, steamId)
 
 		local found = false
+		LoadBannedPlayers()
 		for p = #bannedPlayers, 1, -1 do
 		
 			if bannedPlayers[p].id == steamId then

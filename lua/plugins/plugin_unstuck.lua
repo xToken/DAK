@@ -9,7 +9,7 @@ if kDAKConfig and kDAKConfig.Unstuck then
 
 		local player = client:GetControllingPlayer()
 		chatMessage = string.sub(string.format(message), 1, kMaxChatLength)
-		Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+		Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 
 	end
 	
@@ -64,6 +64,12 @@ if kDAKConfig and kDAKConfig.Unstuck then
 	local function OnUnstuckChatMessage(message, playerName, steamId, teamNumber, teamOnly, client)
 	
 		if client and steamId and steamId ~= 0 then
+			for c = 1, #kDAKConfig.VoteRandom.kVoteRandomChatCommands do
+				local chatcommand = kDAKConfig.VoteRandom.kVoteRandomChatCommands[c]
+				if message == chatcommand then
+					RegisterClientStuck(client)
+				end
+			end
 			if message == "stuck" or message == "unstuck" or message == "/stuck" or message == "/unstuck" then
 				RegisterClientStuck(client)
 			end
@@ -109,7 +115,7 @@ if kDAKConfig and kDAKConfig.Unstuck then
 		return true
 	end
 
-	table.insert(kDAKOnServerUpdate, function(deltatime) return ProcessStuckUsers(deltatime) end)
+	DAKRegisterEventHook(kDAKOnServerUpdate, function(deltatime) return ProcessStuckUsers(deltatime) end, 5)
 	
 end
 

@@ -8,6 +8,7 @@ local function SetupDefaultConfig(Save)
 	kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage = 60
 	kDAKConfig.VoteSurrender.kVoteSurrenderVotingTime = 120
 	kDAKConfig.VoteSurrender.kVoteSurrenderAlertDelay = 20
+	kDAKConfig.VoteSurrender.kSurrenderChatCommands = { "surrender" }
 	if Save then
 		SaveDAKConfig()
 	end

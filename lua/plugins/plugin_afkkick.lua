@@ -9,7 +9,7 @@ if kDAKConfig and kDAKConfig.AFKKicker then
 
 		local player = client:GetControllingPlayer()
 		chatMessage = string.sub(string.format(message), 1, kMaxChatLength)
-		Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - Admin", -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+		Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 
 	end
 	
@@ -136,7 +136,7 @@ if kDAKConfig and kDAKConfig.AFKKicker then
 		return true
 	end
 
-	table.insert(kDAKOnServerUpdate, function(deltatime) return ProcessPlayingUsers(deltatime) end)
+	DAKRegisterEventHook(kDAKOnServerUpdate, function(deltatime) return ProcessPlayingUsers(deltatime) end, 5)
 	
 end
 
