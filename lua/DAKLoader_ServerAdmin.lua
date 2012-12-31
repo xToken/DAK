@@ -127,23 +127,23 @@ if Server then
 	local function GetClientLevel(client)
         local steamId = client:GetUserId()
 		if steamId == nil then return 0 end
-        return DAKGetSteamIDLevel(steamId)
+        return GetSteamIDLevel(steamId)
     end
 	
 	local function GetPlayerLevel(player)
 		local client = Server.GetOwner(player)
         local steamId = client:GetUserId()
 		if steamId == nil then return 0 end
-        return DAKGetSteamIDLevel(steamId)
+        return GetSteamIDLevel(steamId)
     end
 	
 	local function GetObjectLevel(target)
 		if tonumber(target) ~= nil then
-			return DAKGetSteamIDLevel(tonumber(target))
-		elseif Server.GetOwner(target) ~= nil then
-			return GetPlayerLevel(target)
+			return GetSteamIDLevel(tonumber(target))
 		elseif VerifyClient(target) ~= nil then
 			return GetClientLevel(target)
+		elseif Server.GetOwner(target) ~= nil then
+			return GetPlayerLevel(target)
 		end
 		return 0
 	end
