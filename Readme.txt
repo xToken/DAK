@@ -71,6 +71,7 @@ Current ServerAdmin Command List:
       },
 	  "ServerAdmin": {
         "kQueryURL": This is the URL that DAK will query for a list of admins.
+		"kQueryTimeout": This controls how long DAK will wait in seconds before it checks to see if the Query responded, or if the cached file should be loaded.
         "kMapChangeDelay": This is the number of minutes after a map change that a new query will not run during.
         "kUpdateDelay": This is the number of seconds after a client connect that a new query will not run.
       },

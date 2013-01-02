@@ -64,8 +64,10 @@ if Server then
 	
 	local function SaveServerAdminWebSettings(users)
 		local configFile = io.open(DAKServerAdminWebFileName, "w+")
-		configFile:write(json.encode(users, { indent = true, level = 1 }))
-		io.close(configFile)
+		if configFile ~= nil and users ~= nil then
+			configFile:write(json.encode(users, { indent = true, level = 1 }))
+			io.close(configFile)
+		end
 		ServerAdminWebCache = users
 	end	
     
@@ -294,11 +296,13 @@ if Server then
 	end
 	
 	local function tablemerge(tab1, tab2)
-		for k, v in pairs(tab2) do
-			if (type(v) == "table") and (type(tab1[k] or false) == "table") then
-				tablemerge(tab1[k], tab2[k])
-			else
-				tab1[k] = v
+		if tab2 ~= nil then
+			for k, v in pairs(tab2) do
+				if (type(v) == "table") and (type(tab1[k] or false) == "table") then
+					tablemerge(tab1[k], tab2[k])
+				else
+					tab1[k] = v
+				end
 			end
 		end
 		return tab1
@@ -363,7 +367,7 @@ if Server then
 			Shared.Message("Server Commands Registered.")
 			DelayedServerAdminCommands = nil			
 		end
-		if initialwebupdate < Shared.GetTime() then
+		if initialwebupdate < Shared.GetTime() and kDAKConfig.DAKLoader.ServerAdmin.kQueryURL ~= "" then
 			if ServerAdminWebCache == nil then
 				Shared.Message("WebQuery failed, falling back on cached list.")
 				settings.users = tablemerge(settings.users, LoadServerAdminWebSettings())
