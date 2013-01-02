@@ -16,6 +16,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 	local mapvotenotify = 0
 	local mapvotedelay = 0
 	local mapvoteextend = 0
+	local pregamenotify = 0
 	local nextmap
 
 	if kDAKSettings.PreviousMaps == nil then
@@ -64,7 +65,8 @@ if kDAKConfig and kDAKConfig.MapVote then
 	local function StartCountdown(gamerules)
 		if gamerules then
 			gamerules:ResetGame() 
-			gamerules:ResetGame()
+			//gamerules:ResetGame() - Dont think this is necessary anymore, and probably could potentially cause issues.  
+			//Used this back when you could hear where the other team spawned to make it more difficult
 			gamerules:SetGameState(kGameState.Countdown)      
 			gamerules.countdownTime = kCountDownLength     
 			gamerules.lastCountdownPlayed = nil 
@@ -382,6 +384,10 @@ if kDAKConfig and kDAKConfig.MapVote then
                 if Shared.GetCheatsEnabled() then
                     self.countdownTime = 1
                 end
+			elseif pregamenotify + kDAKConfig.MapVote.kPregameNotifyDelay < Shared.GetTime() then
+				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kPregameNotification, (preGameTime - self.timeSinceGameStateChanged)), 1, kMaxChatLength)
+				Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+				pregamenotify = Shared.GetTime()
             end
 			return false
 			
