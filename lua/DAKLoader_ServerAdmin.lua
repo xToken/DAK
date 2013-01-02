@@ -5,8 +5,10 @@ if Server then
 	local settings = { groups = { }, users = { } }
 	
 	local DAKServerAdminFileName = "config://ServerAdmin.json"
+	local DAKServerAdminWebFileName = "config://ServerAdminWeb.json"
 	local DelayedServerAdminCommands = { }
-	local DelayedServerCommands = false
+	local ServerAdminWebCache
+	local initialwebupdate = 0
 	local lastwebupdate = 0
 		
     local function LoadServerAdminSettings()
@@ -43,6 +45,29 @@ if Server then
     end
 	
     LoadServerAdminSettings()
+	
+	local function LoadServerAdminWebSettings()
+    
+        Shared.Message("Loading " .. DAKServerAdminWebFileName)
+		
+		local configFile = io.open(DAKServerAdminWebFileName, "r")
+		local users
+        if configFile then
+            local fileContents = configFile:read("*all")
+            users = json.decode(fileContents)
+			io.close(configFile)
+        end
+		ServerAdminWebCache = users
+		return users
+        
+    end
+	
+	local function SaveServerAdminWebSettings(users)
+		local configFile = io.open(DAKServerAdminWebFileName, "w+")
+		configFile:write(json.encode(users, { indent = true, level = 1 }))
+		io.close(configFile)
+		ServerAdminWebCache = users
+	end	
     
     function DAKGetGroupCanRunCommand(groupName, commandName)
     
@@ -127,23 +152,24 @@ if Server then
 	local function GetClientLevel(client)
         local steamId = client:GetUserId()
 		if steamId == nil then return 0 end
-        return DAKGetSteamIDLevel(steamId)
+        return GetSteamIDLevel(steamId)
     end
 	
 	local function GetPlayerLevel(player)
 		local client = Server.GetOwner(player)
+		if client == nil then return 0 end
         local steamId = client:GetUserId()
 		if steamId == nil then return 0 end
-        return DAKGetSteamIDLevel(steamId)
+        return GetSteamIDLevel(steamId)
     end
 	
 	local function GetObjectLevel(target)
 		if tonumber(target) ~= nil then
-			return DAKGetSteamIDLevel(tonumber(target))
-		elseif Server.GetOwner(target) ~= nil then
-			return GetPlayerLevel(target)
+			return GetSteamIDLevel(tonumber(target))
 		elseif VerifyClient(target) ~= nil then
 			return GetClientLevel(target)
+		elseif Server.GetOwner(target) ~= nil then
+			return GetPlayerLevel(target)
 		end
 		return 0
 	end
@@ -158,7 +184,6 @@ if Server then
 	function DAKCreateServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
 		local ServerAdminCmd = { cmdName = commandName, cmdFunction = commandFunction, helpT = helpText, opt = optionalAlwaysAllowed }
 		table.insert(DelayedServerAdminCommands, ServerAdminCmd)
-		DelayedServerCommands = true
 	end
 	
 	function RegisterServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
@@ -279,23 +304,29 @@ if Server then
 		return tab1
 	end
 	
+	local function ProcessWebResponse(response)
+		local sstart = string.find(response,"<body>")
+		local rstring = string.sub(response, sstart)
+		if rstring then
+			rstring = rstring:gsub("<body>\n", "{")
+			rstring = rstring:gsub("<body>", "{")
+			rstring = rstring:gsub("</body>", "}")
+			rstring = rstring:gsub("<div id=\"username\"> ", "\"")
+			rstring = rstring:gsub(" </div> <div id=\"steamid\"> ", "\": { \"id\": ")
+			rstring = rstring:gsub(" </div> <div id=\"group\"> ", ", \"groups\": [ \"")
+			rstring = rstring:gsub(" </div> <br>", "\" ] },")
+			rstring = rstring:gsub("\n", "")
+			return json.decode(rstring)
+		end
+		return nil
+	end
+	
 	local function OnServerAdminWebResponse(response)
 		if response then
-			local sstart = string.find(response,"<body>")
-			local rstring = string.sub(response, sstart)
-			if rstring then
-				rstring = rstring:gsub("<body>\n", "{")
-				rstring = rstring:gsub("<body>", "{")
-				rstring = rstring:gsub("</body>", "}")
-				rstring = rstring:gsub("<div id=\"username\"> ", "\"")
-				rstring = rstring:gsub(" </div> <div id=\"steamid\"> ", "\": { \"id\": ")
-				rstring = rstring:gsub(" </div> <div id=\"group\"> ", ", \"groups\": [ \"")
-				rstring = rstring:gsub(" </div> <br>", "\" ] },")
-				rstring = rstring:gsub("\n", "")
-				local addusers = json.decode(rstring)
-				if addusers then
-					settings.users = tablemerge(settings.users, addusers)
-				end
+			local addusers = ProcessWebResponse(response)
+			if addusers and ServerAdminWebCache ~= addusers then
+				settings.users = tablemerge(settings.users, addusers)
+				SaveServerAdminWebSettings(addusers)
 			end
 		end
 	end
@@ -311,7 +342,7 @@ if Server then
 	
 	local function OnServerAdminClientConnect(client)
 		local tt = Shared.GetTime()
-		if tt > kDAKConfig.DAKLoader.ServerAdmin.kMapChangeDelay and (lastwebupdate == nil or (lastwebupdate + kDAKConfig.DAKLoader.ServerAdmin.kUpdateDelay) < tt) and kDAKConfig.DAKLoader.ServerAdmin.kQueryURL ~= "" then
+		if tt > kDAKConfig.DAKLoader.ServerAdmin.kMapChangeDelay and (lastwebupdate == nil or (lastwebupdate + kDAKConfig.DAKLoader.ServerAdmin.kUpdateDelay) < tt) and kDAKConfig.DAKLoader.ServerAdmin.kQueryURL ~= "" and initialwebupdate ~= 0 then
 			QueryForAdminList()
 		end
 		return true
@@ -320,7 +351,7 @@ if Server then
 	table.insert(kDAKOnClientConnect, function(client) return OnServerAdminClientConnect(client) end)
 	
 	local function DelayedServerCommandRegistration()	
-		if DelayedServerCommands then
+		if DelayedServerAdminCommands ~= nil then
 			if #DelayedServerAdminCommands > 0 then
 				for i = 1, #DelayedServerAdminCommands do
 					local ServerAdminCmd = DelayedServerAdminCommands[i]
@@ -328,11 +359,18 @@ if Server then
 				end
 			end
 			QueryForAdminList()
+			initialwebupdate = Shared.GetTime() + kDAKConfig.DAKLoader.ServerAdmin.kQueryTimeout
 			Shared.Message("Server Commands Registered.")
-			DelayedServerAdminCommands = nil
-			//DelayedServerCommands = false
+			DelayedServerAdminCommands = nil			
 		end
-		DAKDeregisterEventHook(kDAKOnServerUpdate, DelayedServerCommandRegistration)
+		if initialwebupdate < Shared.GetTime() then
+			if ServerAdminWebCache == nil then
+				Shared.Message("WebQuery failed, falling back on cached list.")
+				settings.users = tablemerge(settings.users, LoadServerAdminWebSettings())
+				initialwebupdate = 0
+			end
+			DAKDeregisterEventHook(kDAKOnServerUpdate, DelayedServerCommandRegistration)
+		end
 	end
 	
 	DAKRegisterEventHook(kDAKOnServerUpdate, DelayedServerCommandRegistration, 5)

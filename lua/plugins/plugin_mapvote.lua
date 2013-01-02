@@ -155,7 +155,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 			
 			//Add in Extend Vote
 			if mapvoteextend < (kDAKConfig.MapVote.kExtendDuration * kDAKConfig.MapVote.kMaximumExtends) then
-				table.insert(tempMaps, string.format("Extend %s", tostring(Shared.GetMapName())))
+				table.insert(tempMaps, string.format("extend %s", tostring(Shared.GetMapName())))
 			end
 			
 			if #tempMaps > 0 then
@@ -257,9 +257,10 @@ if kDAKConfig and kDAKConfig.MapVote then
 				
 		elseif totalvotes >= math.ceil(playerRecords:GetSize() * (kDAKConfig.MapVote.kVoteMinimumPercentage / 100)) then
 		
-			if mapname == string.format("Extend %s", tostring(Shared.GetMapName())) then
+			if mapname == string.format("extend %s", tostring(Shared.GetMapName())) then
 				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapExtended, kDAKConfig.MapVote.kExtendDuration), 1, kMaxMapVoteChatLength) .. "******"
 				mapvotedelay = 0
+				nextmap = "extend"
 			else
 				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapWinner, mapname, ToString(totalvotes)), 1, kMaxMapVoteChatLength) .. "******"
 				nextmap = mapname
@@ -268,8 +269,8 @@ if kDAKConfig and kDAKConfig.MapVote then
 			
 			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 			votepassed = true
-			mapvotecomplete = true	
-					
+			mapvotecomplete = true
+			
 		elseif totalvotes < math.ceil(playerRecords:GetSize() * (kDAKConfig.MapVote.kVoteMinimumPercentage / 100)) then
 
 			chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapMinimumNotMet, mapname, ToString(totalvotes), ToString(math.ceil(playerRecords:GetSize() * (kDAKConfig.MapVote.kVoteMinimumPercentage / 100)))), 1, kMaxChatLength)
@@ -303,9 +304,13 @@ if kDAKConfig and kDAKConfig.MapVote then
 			if Shared.GetTime() > mapvotedelay then
 			
 				if nextmap ~= nil then
-					table.insert(kDAKSettings.PreviousMaps, nextmap)
-					SaveDAKSettings()
-					MapCycle_ChangeToMap(nextmap)
+					if nextmap == "extend" then
+						DAKDeregisterEventHook(kDAKOnServerUpdate, UpdateMapVotes)
+					else
+						table.insert(kDAKSettings.PreviousMaps, nextmap)
+						SaveDAKSettings()
+						MapCycle_ChangeToMap(nextmap)
+					end
 				else
 					MapCycle_CycleMap()
 				end

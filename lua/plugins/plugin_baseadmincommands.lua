@@ -41,6 +41,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		end
 		
 	end
+	
 	Event.Hook("Console_sv_help", function(client, command) PrintHelpForCommand(client, command) end)
 
 	local function GetPlayerList()
