@@ -3,7 +3,7 @@
 if kDAKConfig and kDAKConfig.ReservedSlots then
 
 	local ReservedPlayers = { }
-	local cachedPlayersList = { }
+	//local cachedPlayersList = { }
 	local lastconnect = 0
 	local lastdisconnect = 0
 	local disconnectclients = { }
@@ -97,8 +97,8 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 	end
 	
 	local function UpdateServerLockStatus()
-		local playerCount = #cachedPlayersList
-		if kDAKConfig.ReservedSlots.kMaximumSlots - (playerCount - CheckOccupiedReserveSlots()) <= (kDAKConfig.ReservedSlots.kReservedSlots + kDAKConfig.ReservedSlots.kMinimumSlots) then
+		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
+		if kDAKConfig.ReservedSlots.kMaximumSlots - (#playerList - CheckOccupiedReserveSlots()) <= (kDAKConfig.ReservedSlots.kReservedSlots + kDAKConfig.ReservedSlots.kMinimumSlots) then
 			Server.SetPassword(kDAKConfig.ReservedSlots.kReservePassword)
 		else
 			Server.SetPassword("")
@@ -106,13 +106,12 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 	end
 
 	local function OnReserveSlotClientConnected(client)
-		local playerCount = #cachedPlayersList
-		local serverFull = kDAKConfig.ReservedSlots.kMaximumSlots - (playerCount - CheckOccupiedReserveSlots()) <= (kDAKConfig.ReservedSlots.kReservedSlots + kDAKConfig.ReservedSlots.kMinimumSlots)
-		local serverReallyFull = kDAKConfig.ReservedSlots.kMaximumSlots - playerCount <= kDAKConfig.ReservedSlots.kMinimumSlots
+		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
+		local serverFull = kDAKConfig.ReservedSlots.kMaximumSlots - (#playerList - CheckOccupiedReserveSlots()) <= (kDAKConfig.ReservedSlots.kReservedSlots + kDAKConfig.ReservedSlots.kMinimumSlots)
+		local serverReallyFull = kDAKConfig.ReservedSlots.kMaximumSlots - #playerList <= kDAKConfig.ReservedSlots.kMinimumSlots
 
 		local reserved = CheckReserveStatus(client, false)
-		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
-		table.insert(cachedPlayersList,client:GetUserId())
+		//table.insert(cachedPlayersList, client:GetUserId())
 
 		UpdateServerLockStatus()
 		
@@ -178,13 +177,15 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 	
 		lastdisconnect = Shared.GetTime() + kDAKConfig.ReservedSlots.kDelayedSyncTime
 		if client ~= nil and VerifyClient(client) ~= nil then
+			UpdateServerLockStatus()
+			/*
 			for r = #cachedPlayersList, 1, -1 do
 				if cachedPlayersList[r] == client:GetUserId() then
 					table.remove(cachedPlayersList,r)
-					UpdateServerLockStatus()
 					break
 				end
 			end
+			*/
 			return true
 		else
 			return false
@@ -212,6 +213,7 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 			if (lastconnect >= lastdisconnect and lastconnect < Shared.GetTime()) or (lastdisconnect >= lastconnect and lastdisconnect < Shared.GetTime()) then
 				lastconnect = 0
 				lastdisconnect = 0
+				/*
 				local playerList = GetPlayerList()
 				if #cachedPlayersList ~= #playerList then
 					table.insert(reserveslotactionslog, string.format("Cached PlayerList differs from actual, %s actual, %s  cached", #playerList, #cachedPlayersList))
@@ -222,10 +224,11 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 					if playerList[r] ~= nil then
 						local client = Server.GetOwner(playerList[r])
 						if client ~= nil then
-							table.insert(cachedPlayersList,client:GetUserId())
+							table.insert(cachedPlayersList, client:GetUserId())
 						end
 					end
 				end
+				*/
 				UpdateServerLockStatus()
 			end
 		end

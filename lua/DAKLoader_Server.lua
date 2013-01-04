@@ -88,7 +88,7 @@ if Server then
 	Script.Load("lua/DAKLoader_EventHooks.lua")
 	Script.Load("lua/DAKLoader_ServerAdminCommands.lua")
 	
-	kDAKRevisions["DAKLoader"] = 2.5
+	kDAKRevisions["DAKLoader"] = 2.6
 	
 	//*****************************************************************************************************************
 	//Globals

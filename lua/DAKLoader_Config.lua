@@ -65,6 +65,7 @@ if Server then
 			kDAKConfig.DAKLoader.ServerAdmin = { }
 			kDAKConfig.DAKLoader.ServerAdmin.kMapChangeDelay = 5
 			kDAKConfig.DAKLoader.ServerAdmin.kUpdateDelay = 60
+			kDAKConfig.DAKLoader.ServerAdmin.kQueryTimeout = 10
 			kDAKConfig.DAKLoader.ServerAdmin.kQueryURL = ""
 			//Base DAK Config
 		end

@@ -16,6 +16,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 	local mapvotenotify = 0
 	local mapvotedelay = 0
 	local mapvoteextend = 0
+	local pregamenotify = 0
 	local nextmap
 
 	if kDAKSettings.PreviousMaps == nil then
@@ -64,7 +65,8 @@ if kDAKConfig and kDAKConfig.MapVote then
 	local function StartCountdown(gamerules)
 		if gamerules then
 			gamerules:ResetGame() 
-			gamerules:ResetGame()
+			//gamerules:ResetGame() - Dont think this is necessary anymore, and probably could potentially cause issues.  
+			//Used this back when you could hear where the other team spawned to make it more difficult
 			gamerules:SetGameState(kGameState.Countdown)      
 			gamerules.countdownTime = kCountDownLength     
 			gamerules.lastCountdownPlayed = nil 
@@ -117,7 +119,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 					
 				end
 
-				if mapName ~= tostring(Shared.GetMapName()) and not recentlyplayed then	
+				if mapName ~= tostring(Shared.GetMapName()) and not recentlyplayed and MapCycle_MeetsPlayerRequirements(mapName) then	
 					table.insert(tempMaps, mapName)
 				end
 				
@@ -136,7 +138,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 						
 					end
 
-					if mapName ~= tostring(Shared.GetMapName()) and not recentlyplayed then	
+					if mapName ~= tostring(Shared.GetMapName()) and not recentlyplayed and MapCycle_MeetsPlayerRequirements(mapName) then	
 						table.insert(tempMaps, mapName)
 					end
 					
@@ -146,7 +148,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 			if #tempMaps < kDAKConfig.MapVote.kMapsToSelect then
 			
 				for i = 1, (kDAKConfig.MapVote.kMapsToSelect - #tempMaps) do
-					if kDAKSettings.PreviousMaps[i] ~= tostring(Shared.GetMapName()) and VerifyMapInCycle(kDAKSettings.PreviousMaps[i]) then
+					if kDAKSettings.PreviousMaps[i] ~= tostring(Shared.GetMapName()) and VerifyMapInCycle(kDAKSettings.PreviousMaps[i]) and MapCycle_MeetsPlayerRequirements(kDAKSettings.PreviousMaps[i]) then
 						table.insert(tempMaps, kDAKSettings.PreviousMaps[i])
 					end
 				end
@@ -154,8 +156,8 @@ if kDAKConfig and kDAKConfig.MapVote then
 			end
 			
 			//Add in Extend Vote
-			if mapvoteextend < (kDAKConfig.MapVote.kExtendDuration * kDAKConfig.MapVote.kMaximumExtends) then
-				table.insert(tempMaps, string.format("Extend %s", tostring(Shared.GetMapName())))
+			if mapvoteextend < (kDAKConfig.MapVote.kExtendDuration * kDAKConfig.MapVote.kMaximumExtends) and MapCycle_MeetsPlayerRequirements(tostring(Shared.GetMapName())) then
+				table.insert(tempMaps, string.format("extend %s", tostring(Shared.GetMapName())))
 			end
 			
 			if #tempMaps > 0 then
@@ -257,9 +259,10 @@ if kDAKConfig and kDAKConfig.MapVote then
 				
 		elseif totalvotes >= math.ceil(playerRecords:GetSize() * (kDAKConfig.MapVote.kVoteMinimumPercentage / 100)) then
 		
-			if mapname == string.format("Extend %s", tostring(Shared.GetMapName())) then
+			if mapname == string.format("extend %s", tostring(Shared.GetMapName())) then
 				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapExtended, kDAKConfig.MapVote.kExtendDuration), 1, kMaxMapVoteChatLength) .. "******"
 				mapvotedelay = 0
+				nextmap = "extend"
 			else
 				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapWinner, mapname, ToString(totalvotes)), 1, kMaxMapVoteChatLength) .. "******"
 				nextmap = mapname
@@ -268,8 +271,8 @@ if kDAKConfig and kDAKConfig.MapVote then
 			
 			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 			votepassed = true
-			mapvotecomplete = true	
-					
+			mapvotecomplete = true
+			
 		elseif totalvotes < math.ceil(playerRecords:GetSize() * (kDAKConfig.MapVote.kVoteMinimumPercentage / 100)) then
 
 			chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapMinimumNotMet, mapname, ToString(totalvotes), ToString(math.ceil(playerRecords:GetSize() * (kDAKConfig.MapVote.kVoteMinimumPercentage / 100)))), 1, kMaxChatLength)
@@ -303,9 +306,13 @@ if kDAKConfig and kDAKConfig.MapVote then
 			if Shared.GetTime() > mapvotedelay then
 			
 				if nextmap ~= nil then
-					table.insert(kDAKSettings.PreviousMaps, nextmap)
-					SaveDAKSettings()
-					MapCycle_ChangeToMap(nextmap)
+					if nextmap == "extend" then
+						DAKDeregisterEventHook(kDAKOnServerUpdate, UpdateMapVotes)
+					else
+						table.insert(kDAKSettings.PreviousMaps, nextmap)
+						SaveDAKSettings()
+						MapCycle_ChangeToMap(nextmap)
+					end
 				else
 					MapCycle_CycleMap()
 				end
@@ -377,6 +384,10 @@ if kDAKConfig and kDAKConfig.MapVote then
                 if Shared.GetCheatsEnabled() then
                     self.countdownTime = 1
                 end
+			elseif pregamenotify + kDAKConfig.MapVote.kPregameNotifyDelay < Shared.GetTime() then
+				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kPregameNotification, (preGameTime - self.timeSinceGameStateChanged)), 1, kMaxChatLength)
+				Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+				pregamenotify = Shared.GetTime()
             end
 			return false
 			

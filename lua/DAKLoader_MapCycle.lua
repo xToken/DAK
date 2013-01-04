@@ -39,7 +39,32 @@ if Server then
 		return map
 	end
 	
-	function DAKVerifyMapName(mapName)
+	function MapCycle_MeetsPlayerRequirements(map)
+		local playerRecords = Shared.GetEntitiesWithClassname("Player")
+		for i = #kDAKMapCycle.maps, 1, -1 do
+			if GetMapName(kDAKMapCycle.maps[i]) == map then
+				if (tonumber(kDAKMapCycle.maps[i].minPlayers) or 0) <= playerRecords:GetSize() and
+					(tonumber(kDAKMapCycle.maps[i].maxPlayers) or 99) >= playerRecords:GetSize() then
+					return true
+				end
+				break
+			end
+		end
+		if kDAKMapCycle.votemaps ~= nil and #kDAKMapCycle.votemaps > 0 then
+			for i = #kDAKMapCycle.votemaps, 1, -1 do
+				if GetMapName(kDAKMapCycle.votemaps[i]) == map then
+					if (tonumber(kDAKMapCycle.votemaps[i].minPlayers) or 0) <= playerRecords:GetSize() and
+						(tonumber(kDAKMapCycle.votemaps[i].maxPlayers) or 99) >= playerRecords:GetSize() then
+						return true
+					end
+					break
+				end
+			end
+		end
+		return false
+	end
+	
+	function MapCycle_VerifyMapName(mapName)
 		local matchingFiles = { }
 		Shared.GetMatchingFileNames("maps/*.level", false, matchingFiles)
 
@@ -110,11 +135,11 @@ if Server then
 		
 		// Verify the map exists on the file system.
 		// Need to disable this because of map mods, meh
-		// local found = DAKVerifyMapName(mapName)
+		local found = MapCycle_VerifyMapName(mapName)
 		
-		//if found then
-		Server.StartWorld(mods, mapName)
-		//end
+		if found then
+			Server.StartWorld(mods, mapName)
+		end
 	end
 	
 	function MapCycle_GetNextMapInCycle()
@@ -135,11 +160,16 @@ if Server then
 			// Don't change to the map we're currently playing.
 			if GetMapName(map) == currentMap then
 			
-				mapIndex = mapIndex + 1
-				if mapIndex > numMaps then
-					mapIndex = 1
+				for i = 1, numMaps do
+					mapIndex = mapIndex + 1
+					if mapIndex > numMaps then
+						mapIndex = 1
+					end
+					if MapCycle_MeetsPlayerRequirements(GetMapName(kDAKMapCycle.maps[mapIndex])) then
+						map = kDAKMapCycle.maps[mapIndex]
+						break
+					end
 				end
-				map = kDAKMapCycle.maps[mapIndex]
 				
 			end
 			
@@ -156,12 +186,16 @@ if Server then
 				end
 			end
 			
-			mapIndex = mapIndex + 1
-			if mapIndex > numMaps then
-				mapIndex = 1
+			for i = 1, numMaps do
+				mapIndex = mapIndex + 1
+				if mapIndex > numMaps then
+					mapIndex = 1
+				end
+				if MapCycle_MeetsPlayerRequirements(GetMapName(kDAKMapCycle.maps[mapIndex])) then
+					map = kDAKMapCycle.maps[mapIndex]
+					break
+				end
 			end
-			
-			map = kDAKMapCycle.maps[mapIndex]
 			
 		end
 		

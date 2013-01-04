@@ -45,7 +45,8 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 	local function StartCountdown(gamerules)
 		if gamerules then
 			gamerules:ResetGame() 
-			gamerules:ResetGame()
+			//gamerules:ResetGame() - Dont think this is necessary anymore, and probably could potentially cause issues.  
+			//Used this back when you could hear where the other team spawned to make it more difficult
 			gamerules:SetGameState(kGameState.Countdown)      
 			gamerules.countdownTime = kCountDownLength     
 			gamerules.lastCountdownPlayed = nil 
