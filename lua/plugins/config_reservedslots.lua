@@ -1,6 +1,6 @@
 //reservedslots config
 
-kDAKRevisions["ReservedSlots"] = 1.8
+kDAKRevisions["ReservedSlots"] = 2.0
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.ReservedSlots == nil then
 		kDAKConfig.ReservedSlots = { }

@@ -344,13 +344,20 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 	local function OnCommandSVBan(client, playerId, duration, ...)
 	
 		if playerId ~= nil then
-			if duration == nil then duration = 0 end
+			duration = tonumber(duration)
+			if duration == nil or duration <= 0 then duration = 0 end
 			local bannedplayer = GetPlayerMatching(playerId)
 			local bannedclient = Server.GetOwner(bannedplayer)
+			local args
+			if ... == nil then
+				args = ""
+			else
+				args = StringConcatArgs(...)
+			end
 			if bannedclient ~= nil then
-				PrintToAllAdmins("sv_ban", client, string.format(" on %s for %s for %s.", GetClientUIDString(bannedclient), duration, StringConcatArgs(...)))
+				PrintToAllAdmins("sv_ban", client, string.format(" on %s for %s for %s.", GetClientUIDString(bannedclient), duration, args))
 			elseif tonumber(playerId) > 0 then
-				PrintToAllAdmins("sv_ban", client, string.format(" on SteamID:%s for %s for %s.", playerId, duration, StringConcatArgs(...)))
+				PrintToAllAdmins("sv_ban", client, string.format(" on SteamID:%s for %s for %s.", playerId, duration, args))
 			end
 		end
 	end

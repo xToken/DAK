@@ -4,10 +4,6 @@ if kDAKConfig and kDAKConfig.CommBans then
 
 	local CommBans = { }
 	local CommBansFileName = "config://CommBans.json"
-	
-	//UpdateVoteManagerFields
-	VoteManager.kMinVotesNeeded = kDAKConfig.CommBans.kMinVotesNeeded
-	VoteManager.kTeamVotePercentage = kDAKConfig.CommBans.kTeamVotePercentage
 
 	local function LoadCommanderBannedPlayers()
 
@@ -140,6 +136,17 @@ if kDAKConfig and kDAKConfig.CommBans then
 		)
 		
 	end
+	
+	local function DelayedVoteManagerOverride()	
+		if VoteManager ~= nil then
+			//UpdateVoteManagerFields
+			VoteManager.kMinVotesNeeded = kDAKConfig.CommBans.kMinVotesNeeded
+			VoteManager.kTeamVotePercentage = kDAKConfig.CommBans.kTeamVotePercentage
+		end
+		DAKDeregisterEventHook(kDAKOnServerUpdate, DelayedVoteManagerOverride)
+	end
+	
+	DAKRegisterEventHook(kDAKOnServerUpdate, DelayedVoteManagerOverride, 5)
 	
 	function CommBansCastVoteByPlayer(gamerules, voteTechId, player)
 		local commanders = GetEntitiesForTeam("Commander", player:GetTeamNumber())

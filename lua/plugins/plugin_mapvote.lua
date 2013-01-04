@@ -119,7 +119,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 					
 				end
 
-				if mapName ~= tostring(Shared.GetMapName()) and not recentlyplayed then	
+				if mapName ~= tostring(Shared.GetMapName()) and not recentlyplayed and MapCycle_MeetsPlayerRequirements(mapName) then	
 					table.insert(tempMaps, mapName)
 				end
 				
@@ -138,7 +138,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 						
 					end
 
-					if mapName ~= tostring(Shared.GetMapName()) and not recentlyplayed then	
+					if mapName ~= tostring(Shared.GetMapName()) and not recentlyplayed and MapCycle_MeetsPlayerRequirements(mapName) then	
 						table.insert(tempMaps, mapName)
 					end
 					
@@ -148,7 +148,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 			if #tempMaps < kDAKConfig.MapVote.kMapsToSelect then
 			
 				for i = 1, (kDAKConfig.MapVote.kMapsToSelect - #tempMaps) do
-					if kDAKSettings.PreviousMaps[i] ~= tostring(Shared.GetMapName()) and VerifyMapInCycle(kDAKSettings.PreviousMaps[i]) then
+					if kDAKSettings.PreviousMaps[i] ~= tostring(Shared.GetMapName()) and VerifyMapInCycle(kDAKSettings.PreviousMaps[i]) and MapCycle_MeetsPlayerRequirements(kDAKSettings.PreviousMaps[i]) then
 						table.insert(tempMaps, kDAKSettings.PreviousMaps[i])
 					end
 				end
@@ -156,7 +156,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 			end
 			
 			//Add in Extend Vote
-			if mapvoteextend < (kDAKConfig.MapVote.kExtendDuration * kDAKConfig.MapVote.kMaximumExtends) then
+			if mapvoteextend < (kDAKConfig.MapVote.kExtendDuration * kDAKConfig.MapVote.kMaximumExtends) and MapCycle_MeetsPlayerRequirements(tostring(Shared.GetMapName())) then
 				table.insert(tempMaps, string.format("extend %s", tostring(Shared.GetMapName())))
 			end
 			

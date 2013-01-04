@@ -1,6 +1,6 @@
 //mapvote config
 
-kDAKRevisions["MapVote"] = 1.8
+kDAKRevisions["MapVote"] = 2.0
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.MapVote == nil then
 		kDAKConfig.MapVote = { }
