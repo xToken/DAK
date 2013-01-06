@@ -47,6 +47,48 @@ if Server then
 		end
 	end
 	
+	//Hooks for logging functions
+	function EnhancedLog(message)
+	
+		if kDAKConfig and kDAKConfig.EnhancedLogging and DAKIsPluginEnabled("enhancedlogging") then
+			EnhancedLogMessage(message)
+		end
+	
+	end
+		
+	function PrintToAllAdmins(commandname, client, parm1)
+	
+		if kDAKConfig and kDAKConfig.EnhancedLogging and DAKIsPluginEnabled("enhancedlogging") then
+			EnhancedLoggingAllAdmins(commandname, client, parm1)
+		end
+	
+	end
+
+	function DAKCreateGUIVoteBase(OnVoteFunction, OnVoteUpdateFunction, Relevancy)
+		if kDAKConfig and kDAKConfig.GUIVoteBase and kDAKConfig.GUIVoteBase.kEnabled then
+			return CreateGUIVoteBase(OnVoteFunction, OnVoteUpdateFunction, Relevancy)
+		end
+		return false
+	end
+
+	function ShufflePlayerList()
+	
+		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
+		for i = #playerList, 1, -1 do
+			if playerList[i]:GetTeamNumber() ~= 0 then
+				table.remove(playerList, i)
+			end
+		end
+		for i = 1, (#playerList) do
+			r = math.random(1, #playerList)
+			local iplayer = playerList[i]
+			playerList[i] = playerList[r]
+			playerList[r] = iplayer
+		end
+		return playerList
+		
+	end
+	
 	Script.Load("lua/dkjson.lua")
 	Script.Load("lua/DAKLoader_Class.lua")
 	Script.Load("lua/DAKLoader_ServerAdmin.lua")
@@ -89,51 +131,5 @@ if Server then
 	Script.Load("lua/DAKLoader_ServerAdminCommands.lua")
 	
 	kDAKRevisions["DAKLoader"] = 2.6
-	
-	//*****************************************************************************************************************
-	//Globals
-	//*****************************************************************************************************************
-	
-	//Hooks for logging functions
-	function EnhancedLog(message)
-	
-		if kDAKConfig and kDAKConfig.EnhancedLogging and DAKIsPluginEnabled("enhancedlogging") then
-			EnhancedLogMessage(message)
-		end
-	
-	end
-		
-	function PrintToAllAdmins(commandname, client, parm1)
-	
-		if kDAKConfig and kDAKConfig.EnhancedLogging and DAKIsPluginEnabled("enhancedlogging") then
-			EnhancedLoggingAllAdmins(commandname, client, parm1)
-		end
-	
-	end
-
-	function DAKCreateGUIVoteBase(OnVoteFunction, OnVoteUpdateFunction, Relevancy)
-		if kDAKConfig and kDAKConfig.GUIVoteBase and kDAKConfig.GUIVoteBase.kEnabled then
-			return CreateGUIVoteBase(OnVoteFunction, OnVoteUpdateFunction, Relevancy)
-		end
-		return false
-	end
-
-	function ShufflePlayerList()
-	
-		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
-		for i = #playerList, 1, -1 do
-			if playerList[i]:GetTeamNumber() ~= 0 then
-				table.remove(playerList, i)
-			end
-		end
-		for i = 1, (#playerList) do
-			r = math.random(1, #playerList)
-			local iplayer = playerList[i]
-			playerList[i] = playerList[r]
-			playerList[r] = iplayer
-		end
-		return playerList
-		
-	end
 	
 end

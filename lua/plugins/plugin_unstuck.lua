@@ -64,14 +64,11 @@ if kDAKConfig and kDAKConfig.Unstuck then
 	local function OnUnstuckChatMessage(message, playerName, steamId, teamNumber, teamOnly, client)
 	
 		if client and steamId and steamId ~= 0 then
-			for c = 1, #kDAKConfig.VoteRandom.kVoteRandomChatCommands do
-				local chatcommand = kDAKConfig.VoteRandom.kVoteRandomChatCommands[c]
+			for c = 1, #kDAKConfig.Unstuck.kUnstuckChatCommands do
+				local chatcommand = kDAKConfig.Unstuck.kUnstuckChatCommands[c]
 				if message == chatcommand then
 					RegisterClientStuck(client)
 				end
-			end
-			if message == "stuck" or message == "unstuck" or message == "/stuck" or message == "/unstuck" then
-				RegisterClientStuck(client)
 			end
 		end
 	
