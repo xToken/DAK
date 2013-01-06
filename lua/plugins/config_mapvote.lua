@@ -33,7 +33,7 @@ local function SetupDefaultConfig(Save)
 	kDAKConfig.MapVote.kVoteMapRockTheVote = "%s rock'd the vote. (%s votes, needed %s)."
 	kDAKConfig.MapVote.kVoteMapCancelled = "******           Map vote has been cancelled.         ******"
 	kDAKConfig.MapVote.kVoteMapInsufficientMaps = "******           Not enough maps for a vote.         ******"
-	kDAKConfig.MapVote.kPregameNotification = "******      %.1f seconds remaing before game begins!     ******"
+	kDAKConfig.MapVote.kPregameNotification = "******      %.1f seconds remaining before game begins!     ******"
 	kDAKConfig.MapVote.kTimeleftChatCommands = { "timeleft" }
 	kDAKConfig.MapVote.kRockTheVoteChatCommands = { "rtv", "rockthevote" }
 	kDAKConfig.MapVote.kVoteChatCommands = { "vote" }
