@@ -385,15 +385,12 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 		if client ~= nil then
 			//Shared.Message( GetTimeStamp() .. GetClientUIDString(client) .. " connected," .. GetClientIPAddress(client))
 			PrintToEnhancedLog(GetTimeStamp() .. GetClientUIDString(client) .. " connected," .. GetClientIPAddress(client))
-			return true
-		else
-			return false
 		end
 		
 	end
-
-	table.insert(kDAKOnClientDelayedConnect, function(client) return LogOnClientConnect(client) end)
 	
+	DAKRegisterEventHook(kDAKOnClientDelayedConnect, LogOnClientConnect, 5)
+
 	local function LogOnClientDisconnect(client)
 		local reason = ""
 		if client ~= nil then
@@ -402,15 +399,12 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 			end
 			//Shared.Message(GetTimeStamp() .. GetClientUIDString(client) .. " disconnected, " .. reason)
 			PrintToEnhancedLog(GetTimeStamp() .. GetClientUIDString(client) .. " disconnected, " .. reason)
-			return true
-		else
-			return false
 		end
 		
 	end
-
-	table.insert(kDAKOnClientDisconnect, function(client) return LogOnClientDisconnect(client) end)
 	
+	DAKRegisterEventHook(kDAKOnClientDisconnect, LogOnClientDisconnect, 5)
+
 	local function UpdateServerEnhancedLogging()
 		if pendinglogsave then
 			if lastlogupdate + kDAKConfig.EnhancedLogging.kLogWriteDelay < Shared.GetTime() then
@@ -419,7 +413,7 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 		end
 	end
 
-	DAKRegisterEventHook(kDAKOnServerUpdate, function(deltatime) return UpdateServerEnhancedLogging() end, 5)
+	DAKRegisterEventHook(kDAKOnServerUpdate, UpdateServerEnhancedLogging, 5)
 	
 	function OnCommandSetName(client, name)
 
@@ -553,8 +547,8 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 		end
 	end
 	
-	table.insert(kDAKOnClientChatMessage, function(message, playerName, steamId, teamNumber, teamOnly, client) return EnhancedLoggingChatMessage(message, playerName, steamId, teamNumber, teamOnly, client) end)
-	
+	DAKRegisterEventHook(kDAKOnClientChatMessage, EnhancedLoggingChatMessage, 5)
+
 	local function EnhancedLoggingSetGameState(self, state, currentstate)
 
 		if state ~= currentstate then
@@ -566,38 +560,37 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 		end
 		
 	end
-			
-	table.insert(kDAKOnSetGameState, function(self, state, currentstate) return EnhancedLoggingSetGameState(self, state, currentstate) end)
 	
-	function EnhancedLoggingJoinTeam(player, newTeamNumber, force)
+	DAKRegisterEventHook(kDAKOnSetGameState, EnhancedLoggingSetGameState, 5)
+	
+	function EnhancedLoggingJoinTeam(self, player, newTeamNumber, force)
+	
 		local client = Server.GetOwner(player)
 		if client ~= nil then
 			PrintToEnhancedLog(GetTimeStamp() .. string.format("%s joined team %s.", GetClientUIDString(client), newTeamNumber))
 		end
-		return true
-	end
-	
-	table.insert(kDAKOnTeamJoin, function(player, newTeamNumber, force) return EnhancedLoggingJoinTeam(player, newTeamNumber, force) end)
-	
-	function EnhancedLoggingEndGame(winningTeam)
-	
-		local gamerules = GetGamerules()
-		if gamerules then
-			local version = ToString(Shared.GetBuildNumber())
-			local winner = ToString(winningTeam:GetTeamType())
-			local length = string.format("%.2f", Shared.GetTime() - gamerules.gameStartTime)
-			local map = Shared.GetMapName()
-			local start_location1 = gamerules.startingLocationNameTeam1
-			local start_location2 = gamerules.startingLocationNameTeam2
-			PrintToEnhancedLog(GetTimeStamp() .. "game_ended" .. " build " .. version .. " winning_team " .. winner .. " game_length " .. length .. 
-				" map " .. map .. " marine_start_loc " .. start_location1 .. " alien_start_loc " .. start_location2)
-		end
 		
 	end
 	
-	table.insert(kDAKOnGameEnd, function(winningTeam) return EnhancedLoggingEndGame(winningTeam) end)
+	DAKRegisterEventHook(kDAKOnTeamJoin, EnhancedLoggingJoinTeam, 5)
+	
+	function EnhancedLoggingEndGame(self, winningTeam)
 
-	function EnhancedLoggingCastVoteByPlayer(gamerules, voteTechId, player)
+		local version = ToString(Shared.GetBuildNumber())
+		local winner = ToString(winningTeam:GetTeamType())
+		local length = string.format("%.2f", Shared.GetTime() - self.gameStartTime)
+		local map = Shared.GetMapName()
+		local start_location1 = self.startingLocationNameTeam1
+		local start_location2 = self.startingLocationNameTeam2
+		PrintToEnhancedLog(GetTimeStamp() .. "game_ended" .. " build " .. version .. " winning_team " .. winner .. " game_length " .. length .. 
+			" map " .. map .. " marine_start_loc " .. start_location1 .. " alien_start_loc " .. start_location2)
+		
+	end
+	
+	DAKRegisterEventHook(kDAKOnGameEnd, EnhancedLoggingEndGame, 5)
+	
+	function EnhancedLoggingCastVoteByPlayer(self, voteTechId, player)
+	
 		if voteTechId == kTechId.VoteDownCommander1 or voteTechId == kTechId.VoteDownCommander2 or voteTechId == kTechId.VoteDownCommander3 then 
 			local playerIndex = (voteTechId - kTechId.VoteDownCommander1 + 1)        
 			local commanders = GetEntitiesForTeam("Commander", player:GetTeamNumber())
@@ -613,12 +606,12 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 				end
 			end
 		end
-		return true
+		
 	end
 	
-	table.insert(kDAKOnCastVoteByPlayer, function(self, voteTechId, player) return EnhancedLoggingCastVoteByPlayer(self, voteTechId, player) end)
-	
-	function EnhancedLoggingOnEntityKilled(targetEntity, attacker, doer, point, direction)
+	DAKRegisterEventHook(kDAKOnCastVoteByPlayer, EnhancedLoggingCastVoteByPlayer, 5)
+
+	function EnhancedLoggingOnEntityKilled(self, targetEntity, attacker, doer, point, direction)
      
         if attacker and targetEntity and doer then
             local attackerOrigin = attacker:GetOrigin()
@@ -638,8 +631,8 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 
     end
 	
-	table.insert(kDAKOnEntityKilled, function(targetEntity, attacker, doer, point, direction) return EnhancedLoggingOnEntityKilled(targetEntity, attacker, doer, point, direction) end)
-	
+	DAKRegisterEventHook(kDAKOnEntityKilled, EnhancedLoggingOnEntityKilled, 5)
+
 end
 
 Shared.Message("EnhancedLogging Loading Complete")

@@ -97,11 +97,10 @@ if kDAKConfig and kDAKConfig.VoteRandom then
 			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 			
 		end
-		return true
 		
 	end
 	
-	table.insert(kDAKOnClientDisconnect, function(client) return UpdateRandomVotes(true, "") end)
+	DAKRegisterEventHook(kDAKOnClientDisconnect, UpdateRandomVotes, 5)
 
 	local function VoteRandomClientConnect(client)
 
@@ -113,32 +112,29 @@ if kDAKConfig and kDAKConfig.VoteRandom then
 				Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 				JoinRandomTeam(player)
 			end
-			return true
 		end
-		return false
 	end
 	
-	table.insert(kDAKOnClientDelayedConnect, function(client) return VoteRandomClientConnect(client) end)
-	
-	local function VoteRandomJoinTeam(player, newTeamNumber, force)
+	DAKRegisterEventHook(kDAKOnClientDelayedConnect, VoteRandomClientConnect, 5)
+
+	local function VoteRandomJoinTeam(self, player, newTeamNumber, force)
 		if RandomRoundRecentlyEnded ~= nil and RandomRoundRecentlyEnded + RandomNewRoundDelay > Shared.GetTime() and (newTeamNumber == 1 or newTeamNumber == 2) then
 			chatMessage = string.sub(string.format("Random teams are enabled, you will be randomed to a team shortly."), 1, kMaxChatLength)
 			Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
-			return false
+			return true
 		end
-		return true
 	end
 	
-	table.insert(kDAKOnTeamJoin, function(player, newTeamNumber, force) return VoteRandomJoinTeam(player, newTeamNumber, force) end)
+	DAKRegisterEventHook(kDAKOnTeamJoin, VoteRandomJoinTeam, 5)
 	
-	local function VoteRandomEndGame(winningTeam)
+	local function VoteRandomEndGame(self, winningTeam)
 		if kVoteRandomTeamsEnabled then
 			RandomRoundRecentlyEnded = Shared.GetTime()
 		end
 	end
 	
-	table.insert(kDAKOnGameEnd, function(winningTeam) return VoteRandomEndGame(winningTeam) end)
-
+	DAKRegisterEventHook(kDAKOnGameEnd, VoteRandomEndGame, 5)
+	
 	local function RandomTeams()
 
 		PROFILE("VoteRandom:RandomTeams")
@@ -156,10 +152,10 @@ if kDAKConfig and kDAKConfig.VoteRandom then
 			end
 			
 		end
-		return true
+		
 	end
 
-	DAKRegisterEventHook(kDAKOnServerUpdate, function(deltatime) return RandomTeams() end, 5)
+	DAKRegisterEventHook(kDAKOnServerUpdate, RandomTeams, 5)
 
 	local function OnCommandVoteRandom(client)
 
@@ -205,7 +201,7 @@ if kDAKConfig and kDAKConfig.VoteRandom then
 	
 	end
 	
-	table.insert(kDAKOnClientChatMessage, function(message, playerName, steamId, teamNumber, teamOnly, client) return OnVoteRandomChatMessage(message, playerName, steamId, teamNumber, teamOnly, client) end)
+	DAKRegisterEventHook(kDAKOnClientChatMessage, OnVoteRandomChatMessage, 5)
 
 	local function VoteRandomOff(client)
 

@@ -95,7 +95,7 @@ if kDAKConfig and kDAKConfig.VoteSurrender then
 		end
 	end
 	
-	DAKRegisterEventHook(kDAKOnServerUpdate, function(deltatime) return UpdateSurrenderVotes() end, 5)
+	DAKRegisterEventHook(kDAKOnServerUpdate, UpdateSurrenderVotes, 5)
 	
 	local function ClearSurrenderVotes()
 		for i = 1, kSurrenderTeamCount do
@@ -104,8 +104,8 @@ if kDAKConfig and kDAKConfig.VoteSurrender then
 			kSurrenderVoteArray[i].SurrenderVotes = { }
 		end
 	end
-		
-	table.insert(kDAKOnGameEnd, function(winningTeam) return ClearSurrenderVotes() end)
+	
+	DAKRegisterEventHook(kDAKOnGameEnd, ClearSurrenderVotes, 5)
 
 	local function OnCommandVoteSurrender(client)
 	
@@ -159,8 +159,8 @@ if kDAKConfig and kDAKConfig.VoteSurrender then
 	
 	end
 	
-	table.insert(kDAKOnClientChatMessage, function(message, playerName, steamId, teamNumber, teamOnly, client) return OnVoteSurrenderChatMessage(message, playerName, steamId, teamNumber, teamOnly, client) end)
-
+	DAKRegisterEventHook(kDAKOnClientChatMessage, OnVoteSurrenderChatMessage, 5)
+	
 	local function VoteSurrenderOff(client, teamnum)
 		local tmNum = tonumber(teamnum)
 		if tmNum ~= nil and ValidateTeamNumber(tmNum) and kVoteSurrenderRunning[tmNum] ~= 0 then

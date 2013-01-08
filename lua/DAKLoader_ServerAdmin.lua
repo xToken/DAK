@@ -123,6 +123,22 @@ if Server then
         return false
         
     end
+
+    function DAKGetClientIsInGroup(client, gpName)
+		local steamId = client:GetUserId()
+		for name, user in pairs(settings.users) do
+        
+            if user.id == steamId then
+                for g = 1, #user.groups do
+                    local groupName = user.groups[g]
+                    if groupName == gpName then
+						return true
+					end
+                end
+            end
+            
+        end
+	end
 	
 	local function CreateBaseServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
 
@@ -371,11 +387,10 @@ if Server then
 		if tt > kDAKConfig.DAKLoader.ServerAdmin.kMapChangeDelay and (lastwebupdate == nil or (lastwebupdate + kDAKConfig.DAKLoader.ServerAdmin.kUpdateDelay) < tt) and kDAKConfig.DAKLoader.ServerAdmin.kQueryURL ~= "" and initialwebupdate ~= 0 then
 			QueryForAdminList()
 		end
-		return true
 	end
 	
-	table.insert(kDAKOnClientConnect, function(client) return OnServerAdminClientConnect(client) end)
-	
+	DAKRegisterEventHook(kDAKOnClientConnect, OnServerAdminClientConnect, 5)
+
 	local function DelayedServerCommandRegistration()
 		if kDAKConfig.DAKLoader.ServerAdmin.kQueryURL == "" then
 			DAKDeregisterEventHook(kDAKOnServerUpdate, DelayedServerCommandRegistration)

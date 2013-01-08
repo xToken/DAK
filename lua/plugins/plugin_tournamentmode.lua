@@ -36,8 +36,12 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 		return kDAKSettings.TournamentMode
 	end
 	
-	table.insert(kDAKCheckMapChange, function() return (GetTournamentMode() and not kDAKConfig.TournamentMode.kTournamentModePubMode) end)
-
+	local function BlockMapChange()
+		return kDAKSettings.TournamentMode and not kDAKConfig.TournamentMode.kTournamentModePubMode
+	end
+	
+	DAKRegisterEventHook(kDAKCheckMapChange, BlockMapChange, 5)
+	
 	function GetFriendlyFire()
 		return kDAKSettings.FriendlyFire
 	end
@@ -146,8 +150,8 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 		end
 	end
 	
-	table.insert(kDAKOnClientDisconnect, function(client) return TournamentModeOnDisconnect(client) end)
-		
+	DAKRegisterEventHook(kDAKOnClientDisconnect, TournamentModeOnDisconnect, 5)
+	
 	local function UpdatePregame(self, timePassed)
 	
 		if self and GetTournamentMode() and not Shared.GetCheatsEnabled() and not Shared.GetDevMode() and self:GetGameState() == kGameState.PreGame and 
@@ -156,14 +160,13 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 				MonitorPubMode(self)
 			end
 			MonitorCountDown()
-			return false
+			return true
 		end
-		return true
 		
 	end
-		
-	table.insert(kDAKOnUpdatePregame, function(self, timePassed) return UpdatePregame(self, timePassed) end)
 	
+	DAKRegisterEventHook(kDAKOnUpdatePregame, UpdatePregame, 5)
+		
 	if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.GamerulesExtensions then
 	
 		local originalNS2GRGetCanJoinTeamNumber
@@ -374,8 +377,8 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 	
 	end
 	
-	table.insert(kDAKOnClientChatMessage, function(message, playerName, steamId, teamNumber, teamOnly, client) return OnTournamentModeChatMessage(message, playerName, steamId, teamNumber, teamOnly, client) end)
-		
+	DAKRegisterEventHook(kDAKOnClientChatMessage, OnTournamentModeChatMessage, 5)
+
 end
 
 Shared.Message("TournamentMode Loading Complete")

@@ -66,11 +66,10 @@ if kDAKConfig and kDAKConfig.MOTD then
 				end
 			end		
 		end
-		return true
 
 	end
-
-	table.insert(kDAKOnClientDisconnect, function(client) return MOTDOnClientDisconnect(client) end)
+	
+	DAKRegisterEventHook(kDAKOnClientDisconnect, MOTDOnClientDisconnect, 5)
 
 	local function ProcessRemainingMOTDMessages(deltatime)
 
@@ -96,21 +95,21 @@ if kDAKConfig and kDAKConfig.MOTD then
 				DAKDeregisterEventHook(kDAKOnServerUpdate, ProcessRemainingMOTDMessages)
 			end
 		end
-		return true	
+		
 	end
 
 	local function MOTDOnClientConnect(client)
 	
 		if client:GetIsVirtual() then
-			return true
-		end
-		
-		if VerifyClient(client) == nil then
 			return false
 		end
 		
-		if IsAcceptedClient(client) then
+		if VerifyClient(client) == nil then
 			return true
+		end
+		
+		if IsAcceptedClient(client) then
+			return false
 		end
 		
 		local PEntry = { ID = client:GetUserId(), Client = client, Message = 1, Time = 0 }
@@ -121,11 +120,10 @@ if kDAKConfig and kDAKConfig.MOTD then
 			end
 			table.insert(MOTDClientTracker, PEntry)
 		end
-		return true
 	end
-
-	table.insert(kDAKOnClientDelayedConnect, function(client) return MOTDOnClientConnect(client) end)
-
+	
+	DAKRegisterEventHook(kDAKOnClientDelayedConnect, MOTDOnClientConnect, 5)
+	
 	local function OnCommandAcceptMOTD(client)
 	
 		local player = client:GetControllingPlayer()
@@ -193,7 +191,7 @@ if kDAKConfig and kDAKConfig.MOTD then
 	
 	end
 	
-	table.insert(kDAKOnClientChatMessage, function(message, playerName, steamId, teamNumber, teamOnly, client) return OnMOTDChatMessage(message, playerName, steamId, teamNumber, teamOnly, client) end)
+	DAKRegisterEventHook(kDAKOnClientChatMessage, OnMOTDChatMessage, 5)
 	
 end
 

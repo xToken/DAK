@@ -24,7 +24,6 @@ if kDAKConfig and kDAKConfig.AFKKicker then
 	
 		if client:GetIsVirtual() then
 			//Bots dont get afk'd
-			return true
 		end
 		
 		if client ~= nil then
@@ -33,13 +32,12 @@ if kDAKConfig and kDAKConfig.AFKKicker then
 				local PEntry = { ID = client:GetUserId(), MVec = player:GetViewAngles(), POrig = player:GetOrigin(), Time = Shared.GetTime() + kDAKConfig.AFKKicker.kAFKKickDelay, Active = true, Warn1 = false, Warn2 = false, kick = false }
 				table.insert(AFKClientTracker, PEntry)
 			end
-			return true
 		end
-		return false
+		
 	end
 	
-	table.insert(kDAKOnClientDelayedConnect, function(client) return AFKOnClientConnect(client) end)
-	
+	DAKRegisterEventHook(kDAKOnClientDelayedConnect, AFKOnClientConnect, 5)
+
 	local function UpdateAFKClient(client, PEntry, player)
 		if player ~= nil then
 		
@@ -98,11 +96,10 @@ if kDAKConfig and kDAKConfig.AFKKicker then
 				end
 			end
 		end
-		return true
 		
 	end
-
-	table.insert(kDAKOnClientDisconnect, function(client) return AFKOnClientDisconnect(client) end)
+	
+	DAKRegisterEventHook(kDAKOnClientDisconnect, AFKOnClientDisconnect, 5)
 
 	local function ProcessPlayingUsers(deltatime)
 
@@ -133,10 +130,10 @@ if kDAKConfig and kDAKConfig.AFKKicker then
 			end
 			lastAFKUpdate = Shared.GetTime()
 		end
-		return true
+		
 	end
 
-	DAKRegisterEventHook(kDAKOnServerUpdate, function(deltatime) return ProcessPlayingUsers(deltatime) end, 5)
+	DAKRegisterEventHook(kDAKOnServerUpdate, ProcessPlayingUsers, 5)
 	
 end
 

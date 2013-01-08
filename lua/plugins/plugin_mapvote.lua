@@ -58,8 +58,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 			// We haven't been on the current map for long enough.
 			return true
 		end
-		return false
-		
+
 	end
 	
 	local function StartCountdown(gamerules)
@@ -73,8 +72,8 @@ if kDAKConfig and kDAKConfig.MapVote then
 		end
     end
 	
-	table.insert(kDAKCheckMapChange, function() return CheckMapVote() end)
-
+	DAKRegisterEventHook(kDAKCheckMapChange, CheckMapVote, 5)
+	
 	local function UpdateMapVoteCountDown()
 
 		chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapStarted, string.format(kDAKConfig.MapVote.kVoteMinimumPercentage)), 1, kMaxChatLength)
@@ -304,7 +303,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 		if mapvotecomplete then
 			
 			if Shared.GetTime() > mapvotedelay then
-			
+
 				if nextmap ~= nil then
 					if nextmap == "extend" then
 						DAKDeregisterEventHook(kDAKOnServerUpdate, UpdateMapVotes)
@@ -314,7 +313,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 						MapCycle_ChangeToMap(nextmap)
 					end
 				else
-					MapCycle_CycleMap()
+					MapCycle_ChangeToMap(GetMapName(MapCycle_GetNextMapInCycle()))
 				end
 				nextmap = nil
 				mapvotecomplete = false
@@ -324,7 +323,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 		end
 		
 		if mapvoteintiated then
-		
+
 			if Shared.GetTime() > mapvotedelay then
 				UpdateMapVoteCountDown()
 			end
@@ -332,7 +331,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 		end
 		
 		if mapvoterunning then
-		
+
 			if Shared.GetTime() > mapvotedelay then
 				ProcessandSelectMap()	
 			elseif Shared.GetTime() > mapvotenotify then
@@ -349,14 +348,14 @@ if kDAKConfig and kDAKConfig.MapVote then
 			end
 
 		end
-		return true
+
 	end
 	
 	local function StartMapVote()
 
 		if mapvoterunning or mapvoteintiated or mapvotecomplete then
-			return false
-		else		
+			return true
+		else
 			mapvoteintiated = true
 			mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteStartDelay
 			
@@ -368,11 +367,10 @@ if kDAKConfig and kDAKConfig.MapVote then
 		end
 		
 		DAKRegisterEventHook(kDAKOnServerUpdate, UpdateMapVotes, 5)
-		return true
 		
 	end
 	
-	table.insert(kDAKOverrideMapChange, function() return StartMapVote() end)
+	DAKRegisterEventHook(kDAKOverrideMapChange, StartMapVote, 5)
 	
 	local function MapVoteUpdatePregame(self, timePassed)
 	
@@ -389,16 +387,14 @@ if kDAKConfig and kDAKConfig.MapVote then
 				Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 				pregamenotify = Shared.GetTime()
             end
-			return false
+			return true
 			
 		end
-		
-		return true
-		
+
 	end
-		
-	table.insert(kDAKOnUpdatePregame, function(self, timePassed) return MapVoteUpdatePregame(self, timePassed) end)
 	
+	DAKRegisterEventHook(kDAKOnUpdatePregame, MapVoteUpdatePregame, 5)
+
 	local function MapVoteSetGameState(self, state, currentstate)
 
 		if MapCycle_TestCycleMap() then
@@ -406,8 +402,8 @@ if kDAKConfig and kDAKConfig.MapVote then
 		end
 		
 	end
-			
-	table.insert(kDAKOnSetGameState, function(self, state, currentstate) return MapVoteSetGameState(self, state, currentstate) end)
+	
+	DAKRegisterEventHook(kDAKOnSetGameState, MapVoteSetGameState, 5)
 
 	local function UpdateRTV(silent, playername)
 
@@ -448,11 +444,10 @@ if kDAKConfig and kDAKConfig.MapVote then
 			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 			
 		end
-		return true
 
 	end
-
-	table.insert(kDAKOnClientDisconnect, function(client) return UpdateRTV(true, "") end)
+	
+	DAKRegisterEventHook(kDAKOnClientDisconnect, UpdateRTV, 5)
 
 	local function OnCommandVote(client, mapnumber)
 
@@ -554,8 +549,8 @@ if kDAKConfig and kDAKConfig.MapVote then
 	
 	end
 	
-	table.insert(kDAKOnClientChatMessage, function(message, playerName, steamId, teamNumber, teamOnly, client) return OnMapVoteChatMessage(message, playerName, steamId, teamNumber, teamOnly, client) end)
-
+	DAKRegisterEventHook(kDAKOnClientChatMessage, OnMapVoteChatMessage, 5)
+	
 	local function OnCommandStartMapVote(client)
 	
 		if mapvoterunning or mapvoteintiated or mapvotecomplete then

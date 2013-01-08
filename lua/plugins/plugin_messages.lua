@@ -54,11 +54,10 @@ if kDAKConfig and kDAKConfig.Messages then
 			end
 			
 		end
-		return true
 		
 	end
 
-	DAKRegisterEventHook(kDAKOnServerUpdate, function(deltatime) return ProcessMessageQueue() end, 5)
+	DAKRegisterEventHook(kDAKOnServerUpdate, ProcessMessageQueue, 5)
 	
 end
 

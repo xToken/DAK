@@ -88,7 +88,7 @@ if Server then
 				break
 			end
 		end
-		
+		assert(false)
 		return false
 	end
 	
@@ -136,7 +136,7 @@ if Server then
 		// Verify the map exists on the file system.
 		// Need to disable this because of map mods, meh
 		local found = MapCycle_VerifyMapName(mapName)
-		
+
 		if found then
 			Server.StartWorld(mods, mapName)
 		end
@@ -203,13 +203,9 @@ if Server then
 	end
 	
 	function MapCycle_CycleMap()
-	
-		if #kDAKOverrideMapChange > 0 then
-			for i = 1, #kDAKOverrideMapChange do
-				if kDAKOverrideMapChange[i]() then
-					return
-				end
-			end
+
+		if DAKExecuteEventHooks(kDAKOverrideMapChange) then
+			return false
 		end
 
 		local currentMap = Shared.GetMapName()
@@ -217,7 +213,7 @@ if Server then
 		
 		if mapName == nil then
 			Shared.Message("No maps in the map cycle")
-			return
+			return false
 		end
 		
 		if mapName ~= currentMap then
@@ -227,13 +223,9 @@ if Server then
 	end
 
 	function MapCycle_TestCycleMap()
-			
-		if #kDAKCheckMapChange > 0 then
-			for i = 1, #kDAKCheckMapChange do
-				if kDAKCheckMapChange[i]() then
-					return false
-				end
-			end
+	
+		if DAKExecuteEventHooks(kDAKCheckMapChange) then
+			return false
 		end
 
 		// time is stored as minutes so convert to seconds.

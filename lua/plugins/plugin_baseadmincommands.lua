@@ -451,10 +451,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		if tt > kDAKConfig.BaseAdminCommands.kMapChangeDelay and (lastbannedwebupdate == nil or (lastbannedwebupdate + kDAKConfig.BaseAdminCommands.kUpdateDelay) < tt) and kDAKConfig.BaseAdminCommands.kBansQueryURL ~= "" and initialbannedwebupdate ~= 0 then
 			QueryForBansList()
 		end
-		return true
 	end
-	
-	table.insert(kDAKOnClientConnect, function(client) return OnServerAdminClientConnect(client) end)
 	
 	local function DelayedBannedPlayersWebUpdate()
 		if kDAKConfig.BaseAdminCommands.kBansQueryURL == "" then
@@ -479,6 +476,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 
 	local function OnConnectCheckBan(client)
 
+		OnServerAdminClientConnect()
 		local steamid = client:GetUserId()
 		for b = #bannedPlayers, 1, -1 do
 		
@@ -491,7 +489,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 				
 					client.disconnectreason = "Banned"
 					Server.DisconnectClient(client)
-					break
+					return true
 					
 				else
 				
@@ -517,7 +515,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 				
 					client.disconnectreason = "Banned"
 					Server.DisconnectClient(client)
-					break
+					return true
 					
 				else
 				
@@ -533,8 +531,8 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		end
 		
 	end
-
-	Event.Hook("ClientConnect", OnConnectCheckBan)
+	
+	DAKRegisterEventHook(kDAKOnClientConnect, OnConnectCheckBan, 6)
 	
 	local function OnPlayerBannedResponse(response)
 		if response == "TRUE" then

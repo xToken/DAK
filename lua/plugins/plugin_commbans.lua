@@ -148,7 +148,7 @@ if kDAKConfig and kDAKConfig.CommBans then
 	
 	DAKRegisterEventHook(kDAKOnServerUpdate, DelayedVoteManagerOverride, 5)
 	
-	function CommBansCastVoteByPlayer(gamerules, voteTechId, player)
+	function CommBansCastVoteByPlayer(self, voteTechId, player)
 		local commanders = GetEntitiesForTeam("Commander", player:GetTeamNumber())
 		if table.count(commanders) >= 1 then
 			local targetCommander = commanders[1]
@@ -156,15 +156,14 @@ if kDAKConfig and kDAKConfig.CommBans then
 				local client = Server.GetOwner(targetCommander)
 				if client ~= nil then
 					if not DAKGetLevelSufficient(client, playerId) and DAKGetClientCanRunCommand(client, "sv_ejectionprotection") then
-						return false
+						return true
 					end
 				end
 			end
 		end
-		return true
 	end
 	
-	table.insert(kDAKOnCastVoteByPlayer, function(self, voteTechId, player) return CommBansCastVoteByPlayer(self, voteTechId, player) end)
+	DAKRegisterEventHook(kDAKOnCastVoteByPlayer, CommBansCastVoteByPlayer, 5)
 
 	local function OnCommandCommBan(client, playerId, duration, ...)
 

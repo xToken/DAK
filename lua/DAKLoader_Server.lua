@@ -27,10 +27,14 @@ if Server then
 	kDAKServerAdminCommands = { }			//List of ServerAdmin Commands
 	kDAKPluginDefaultConfigs = { }			//List of functions to setup default configs per plugin
 	
-	function DAKRegisterEventHook(functionarray, eventfunction, priority)
+	kDAKRevisions["DAKLoader"] = 3.0
+	
+	function DAKRegisterEventHook(functionarray, eventfunction, p)
 		//Register Event in Array
+		p = tonumber(p)
+		if p == nil then p = 5 end
 		if functionarray ~= nil then
-			table.insert(functionarray, {func = eventfunction, priority = priority})
+			table.insert(functionarray, {func = eventfunction, priority = p})
 			table.sort(functionarray, function(f1, f2) return f1.priority < f2.priority end)
 		end
 	end
@@ -45,6 +49,17 @@ if Server then
 				end
 			end
 		end
+	end
+	
+	function DAKExecuteEventHooks(event, ...)
+		if #event ~= nil then
+			if #event > 0 then
+				for i = #event, 1, -1 do
+					if event[i].func(...) then return true end
+				end
+			end
+		end
+		return false
 	end
 	
 	//Hooks for logging functions
@@ -96,40 +111,12 @@ if Server then
 	Script.Load("lua/DAKLoader_Settings.lua")
 	Script.Load("lua/DAKLoader_Shared.lua")
 	
-	if kDAKConfig and kDAKConfig.DAKLoader and not kDAKConfig.DAKLoader.LoadFromServerLUA then
+	if kBaseScreenHeight == nil then
+		//Assume Server.lua has not been loaded already
 		Script.Load("lua/Server.lua")
-		Script.Load("lua/DAKLoader_MapCycle.lua")
 	end
-	
-	if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.LoadFromServerLUA then
-		local function DelayedEventOverride()	
-			local chatMessageCount = 0
 
-			function Server.AddChatToHistory(message, playerName, steamId, teamNumber, teamOnly)
-
-				chatMessageCount = chatMessageCount + 1
-				Server.recentChatMessages:Insert({ id = chatMessageCount, message = message, player = playerName,
-												   steamId = steamId, team = teamNumber, teamOnly = teamOnly })
-
-				local client = GetClientMatchingSteamId(steamId)
-				if #kDAKOnClientChatMessage > 0 then
-					for i = 1, #kDAKOnClientChatMessage do
-						kDAKOnClientChatMessage[i](message, playerName, steamId, teamNumber, teamOnly, client)
-					end
-				end
-
-			end
-			Script.Load("lua/DAKLoader_MapCycle.lua")
-			Shared.Message("Loading Event Overrides.")
-			DAKDeregisterEventHook(kDAKOnServerUpdate, DelayedEventOverride)
-		end
-		
-		DAKRegisterEventHook(kDAKOnServerUpdate, DelayedEventOverride, 5)
-	end
-	
 	Script.Load("lua/DAKLoader_EventHooks.lua")
 	Script.Load("lua/DAKLoader_ServerAdminCommands.lua")
-	
-	kDAKRevisions["DAKLoader"] = 2.6
 	
 end
