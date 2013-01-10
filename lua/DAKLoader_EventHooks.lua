@@ -82,9 +82,11 @@ if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.GamerulesExtensi
 	originalNS2GRJoinTeam = Class_ReplaceMethod(kDAKConfig.DAKLoader.GamerulesClassName, "JoinTeam", 
 		function(self, player, newTeamNumber, force)
 		
-			DAKExecuteEventHooks(kDAKOnTeamJoin, self, player, newTeamNumber, force)
-			return originalNS2GRJoinTeam(self, player, newTeamNumber, force)
-
+			if not DAKExecuteEventHooks(kDAKOnTeamJoin, self, player, newTeamNumber, force) then
+				return originalNS2GRJoinTeam(self, player, newTeamNumber, force)
+			end
+			return false, player
+			
 		end
 	)
 	
@@ -117,8 +119,9 @@ if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.GamerulesExtensi
 	originalNS2GRUpdatePregame = Class_ReplaceMethod(kDAKConfig.DAKLoader.GamerulesClassName, "UpdatePregame", 
 		function(self, timePassed)
 
-			DAKExecuteEventHooks(kDAKOnUpdatePregame, self, timePassed)
-			originalNS2GRUpdatePregame(self, timePassed)
+			if not DAKExecuteEventHooks(kDAKOnUpdatePregame, self, timePassed) then
+				originalNS2GRUpdatePregame(self, timePassed)
+			end
 		
 		end
 	)
@@ -128,8 +131,9 @@ if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.GamerulesExtensi
 	originalNS2GRCastVoteByPlayer = Class_ReplaceMethod(kDAKConfig.DAKLoader.GamerulesClassName, "CastVoteByPlayer", 
 		function(self, voteTechId, player)
 		
-			DAKExecuteEventHooks(kDAKOnCastVoteByPlayer, self, voteTechId, player)
-			originalNS2GRCastVoteByPlayer(self, voteTechId, player)
+			if not DAKExecuteEventHooks(kDAKOnCastVoteByPlayer, self, voteTechId, player) then
+				originalNS2GRCastVoteByPlayer(self, voteTechId, player)
+			end
 
 		end
 	)

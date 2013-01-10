@@ -68,16 +68,9 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 	
 	ClearTournamentModeState()
 	
-	local function DisplayNotification(message)
-		Shared.Message(message)
-		EnhancedLog(message)
-		chatMessage = string.sub(message, 1, kMaxChatLength)
-		Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
-	end
-	
 	local function CheckCancelGameStart()
 		if TournamentModeSettings.countdownstarttime ~= 0 then
-			DisplayNotification("Game start cancelled.")
+			DAKDisplayMessageToAllClients(kTournamentModeGameCancelled)
 			TournamentModeSettings.countdownstarttime = 0
 			TournamentModeSettings.countdownstartcount = 0
 			TournamentModeSettings.countdownstarted = false
@@ -90,7 +83,7 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 								
 			if TournamentModeSettings.countdownstarttime - TournamentModeSettings.countdownstartcount < Shared.GetTime() and TournamentModeSettings.countdownstartcount ~= 0 then
 				if (math.fmod(TournamentModeSettings.countdownstartcount, 5) == 0 or TournamentModeSettings.countdownstartcount <= 5) then
-					DisplayNotification(string.format(kDAKConfig.TournamentMode.kTournamentModeCountdown, TournamentModeSettings.countdownstartcount), 1, kMaxChatLength)
+					DAKDisplayMessageToAllClients(kTournamentModeCountdown, TournamentModeSettings.countdownstartcount)
 				end
 				TournamentModeSettings.countdownstartcount = TournamentModeSettings.countdownstartcount - 1
 			end
@@ -107,17 +100,16 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 		
 			if lastreadyalert + kDAKConfig.TournamentMode.kTournamentModeAlertDelay < Shared.GetTime() then
 			
-				local message = string.format(kDAKConfig.TournamentMode.kTournamentModeReadyAlert)
-				
 				if TournamentModeSettings[1].ready or TournamentModeSettings[2].ready then
 					if TournamentModeSettings[1].ready then
-						message = string.format(kDAKConfig.TournamentMode.kTournamentModeTeamReadyAlert, 1, 2)
+						DAKDisplayMessageToAllClients(kTournamentModeTeamReadyAlert, 1, 2)
 					else
-						message = string.format(kDAKConfig.TournamentMode.kTournamentModeTeamReadyAlert, 2, 1)
+						DAKDisplayMessageToAllClients(kTournamentModeTeamReadyAlert, 2, 1)
 					end
+				else
+					DAKDisplayMessageToAllClients(kTournamentModeReadyAlert)
 				end
 				
-				DisplayNotification(message)
 				lastreadyalert = Shared.GetTime()
 				
 			end
@@ -137,7 +129,7 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 		else
 			CheckCancelGameStart()
 			if TournamentModeSettings.lastpubmessage + kDAKConfig.TournamentMode.kTournamentModePubAlertDelay < Shared.GetTime() then
-				DisplayNotification(string.format(kDAKConfig.TournamentMode.kTournamentModePubPlayerWarning, kDAKConfig.TournamentMode.kTournamentModePubMinPlayersPerTeam), 1, kMaxChatLength)
+				DAKDisplayMessageToAllClients(kTournamentModePubPlayerWarning, kDAKConfig.TournamentMode.kTournamentModePubMinPlayersPerTeam)
 				TournamentModeSettings.lastpubmessage = Shared.GetTime()
 			end
 		end
@@ -165,7 +157,7 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 		
 	end
 	
-	DAKRegisterEventHook(kDAKOnUpdatePregame, UpdatePregame, 5)
+	DAKRegisterEventHook(kDAKOnUpdatePregame, UpdatePregame, 6)
 		
 	if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.GamerulesExtensions then
 	
@@ -185,11 +177,11 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 	end
 	
 	local function EnablePCWMode(client)
-		DisplayNotification("PCW Mode set, team captains not required.")
+		DAKDisplayMessageToAllClients(kTournamentModePCWMode)
 	end	
 	
 	local function EnableOfficialMode(client)
-		DisplayNotification("Official Mode set, team captains ARE required.")
+		DAKDisplayMessageToAllClients(kTournamentModeOfficialsMode)
 		//eventually add additional req. for offical matches
 	end
 
@@ -335,14 +327,14 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 				if TournamentModeSettings[teamnum].lastready + kDAKConfig.TournamentMode.kTournamentModeReadyDelay < Shared.GetTime() and TournamentModeSettings[teamnum].captain == clientid then
 					TournamentModeSettings[teamnum].ready = not TournamentModeSettings[teamnum].ready
 					TournamentModeSettings[teamnum].lastready = Shared.GetTime()
-					DisplayNotification(string.format("%s has " .. ConditionalValue(TournamentModeSettings[teamnum].ready, "readied", "unreadied") .. " for Team %s.",playername, teamnum))
+					DAKDisplayMessageToAllClients(kTournamentModeTeamReady, playername, ConditionalValue(TournamentModeSettings[teamnum].ready, "readied", "unreadied"), teamnum)
 					CheckGameCountdownStart()
 				end
 			elseif not TournamentModeSettings.official then
 				if TournamentModeSettings[teamnum].lastready + kDAKConfig.TournamentMode.kTournamentModeReadyDelay < Shared.GetTime() then
 					TournamentModeSettings[teamnum].ready = not TournamentModeSettings[teamnum].ready
 					TournamentModeSettings[teamnum].lastready = Shared.GetTime()
-					DisplayNotification(string.format("%s has " .. ConditionalValue(TournamentModeSettings[teamnum].ready, "readied", "unreadied") .. " for Team %s.",playername, teamnum))
+					DAKDisplayMessageToAllClients(kTournamentModeTeamReady, playername, ConditionalValue(TournamentModeSettings[teamnum].ready, "readied", "unreadied"), teamnum)
 					CheckGameCountdownStart()
 				end
 			end

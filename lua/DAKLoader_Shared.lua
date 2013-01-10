@@ -25,20 +25,8 @@ local kVoteBaseUpdateMessage =
 
 Shared.RegisterNetworkMessage( "GUIVoteBase", kVoteBaseUpdateMessage )
 
-local function OnMessageBaseVote(client, voteMessage)
-	
-	if voteMessage and client then
-		local votemanager = kGlobalVote[voteMessage.key]
-		if votemanager and votemanager.UpdateTime ~= nil then
-			votemanager.OnVoteFunction(player, voteMessage.optionselected)				
-		end
-	end
-	
-end
-
 local kVoteBaseMessage =
 {
-	key = "integer",
 	optionselected = "integer"
 }
 

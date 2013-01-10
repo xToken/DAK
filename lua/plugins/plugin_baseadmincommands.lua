@@ -134,8 +134,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		if MapCycle_VerifyMapName(mapName) then
 			MapCycle_ChangeToMap(mapName)
 		else
-			chatMessage = string.format("Invalid Map Provided.")
-			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+			DAKDisplayMessageToAllClients(InvalidMap)
 		end
 		
 	end

@@ -58,6 +58,9 @@ if Server then
 			kDAKConfig.DAKLoader.GamerulesExtensions = true
 			kDAKConfig.DAKLoader.GamerulesClassName = "NS2Gamerules"
 			kDAKConfig.DAKLoader.MessageSender = "Admin"
+			kDAKConfig.DAKLoader.kLanguageList = { "EN" }
+			kDAKConfig.DAKLoader.kLanguageChatCommands = { "/lang" }
+			kDAKConfig.DAKLoader.kDefaultLanguage = "EN"
 			kDAKConfig.DAKLoader.OverrideInterp = { }
 			kDAKConfig.DAKLoader.OverrideInterp.kEnabled = false
 			kDAKConfig.DAKLoader.OverrideInterp.kInterp = 100

@@ -4,19 +4,11 @@ if kDAKConfig and kDAKConfig.Unstuck then
 
 	local UnstuckClientTracker = { }
 	local LastUnstuckTracker = { }
-
-	local function DisplayMessage(client, message)
-
-		local player = client:GetControllingPlayer()
-		chatMessage = string.sub(string.format(message), 1, kMaxChatLength)
-		Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
-
-	end
 	
 	local function UnstuckClient(client, player, PEntry)
 
 		if PEntry.Orig ~= player:GetOrigin() then
-			DisplayMessage(client, string.format("You moved since issuing unstuck command?"))
+			DAKDisplayMessageToClient(client, kUnstuckMoved)
 		else
 			local TechID = kTechId.Skulk
 			if player:GetIsAlive() then
@@ -38,7 +30,7 @@ if kDAKConfig and kDAKConfig.Unstuck then
 					end
 				end
 			end
-			DisplayMessage(client, string.format("Unstuck!"))
+			DAKDisplayMessageToClient(client, kUnstuck)
 		end
 
 	end
@@ -91,13 +83,13 @@ if kDAKConfig and kDAKConfig.Unstuck then
 			if LastUnstuckTracker[ID] == nil or LastUnstuckTracker[ID] + kDAKConfig.Unstuck.kTimeBetweenUntucks < Shared.GetTime() then
 				local player = client:GetControllingPlayer()
 				local PEntry = { ID = client:GetUserId(), Orig = player:GetOrigin(), Time = Shared.GetTime() + kDAKConfig.Unstuck.kMinimumWaitTime }
-				DisplayMessage(client, string.format("You will be unstuck in %s seconds", kDAKConfig.Unstuck.kMinimumWaitTime))
+				DAKDisplayMessageToClient(client, kUnstuckIn, kDAKConfig.Unstuck.kMinimumWaitTime)
 				if #UnstuckClientTracker == 0 then
 					DAKRegisterEventHook(kDAKOnServerUpdate, ProcessStuckUsers, 5)
 				end
 				table.insert(UnstuckClientTracker, PEntry)
 			else
-				DisplayMessage(client, string.format("You have unstucked to recently, please wait %.1f seconds", (LastUnstuckTracker[ID] + kDAKConfig.Unstuck.kTimeBetweenUntucks) - Shared.GetTime()))
+				DAKDisplayMessageToClient(client, kUnstuckRecently, (LastUnstuckTracker[ID] + kDAKConfig.Unstuck.kTimeBetweenUntucks) - Shared.GetTime())
 			end
 		end
 	end

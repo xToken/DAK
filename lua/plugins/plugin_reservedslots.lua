@@ -116,10 +116,10 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 		UpdateServerLockStatus()
 		
 		if serverFull and not reserved then
+		
+			DAKDisplayMessageToClient(client, kReserveSlotServerFull)
 			local player = client:GetControllingPlayer()
 			if player ~= nil then
-				chatMessage = string.sub(string.format(kDAKConfig.ReservedSlots.kReserveSlotServerFull), 1, kMaxChatLength)
-				Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 				table.insert(reserveslotactionslog, "Kicking player "  .. tostring(player.name) .. " - id: " .. tostring(client:GetUserId()) .. " for no reserve slot.")
 				EnhancedLog("Kicking player "  .. tostring(player.name) .. " - id: " .. tostring(client:GetUserId()) .. " for no reserve slot.")
 			end
@@ -154,8 +154,7 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 
 				table.insert(reserveslotactionslog, "Kicking player "  .. tostring(playertokick.name) .. " - id: " .. tostring(playertokick:GetClient():GetUserId()) .. " with score: " .. tostring(playertokick.score))
 				EnhancedLog("Kicking player "  .. tostring(playertokick.name) .. " - id: " .. tostring(playertokick:GetClient():GetUserId()) .. " with score: " .. tostring(playertokick.score))
-				chatMessage = string.sub(string.format(kDAKConfig.ReservedSlots.kReserveSlotKickedForRoom), 1, kMaxChatLength)
-				Server.SendNetworkMessage(playertokick, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+				DAKDisplayMessageToClient(playertokick:GetClient(), kReserveSlotKickedForRoom)
 				playertokick.disconnectreason = kDAKConfig.ReservedSlots.kReserveSlotKickedDisconnectReason
 				table.insert(disconnectclients, playertokick:GetClient())
 				disconnectclienttime = Shared.GetTime() + kDAKConfig.ReservedSlots.kDelayedKickTime
@@ -212,12 +211,8 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 		if client ~= nil and parm1 and idNum then
 			local ReservePlayer = { name = ToString(parm1), id = idNum, reason = ToString(parm3 or ""), time = ConditionalValue(exptime, exptime, 0) }
 			table.insert(ReservedPlayers, ReservePlayer)
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				chatMessage = string.sub(string.format("Player %s added to reserve players list.", ToString(parm2)), 1, kMaxChatLength)
-				Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
-				PrintToAllAdmins("sv_addreserve", client, ToString(parm1) .. ToString(parm2) .. ToString(parm3) .. ToString(parm4))
-			end
+			PrintToAllAdmins("sv_addreserve", client, ToString(parm1) .. ToString(parm2) .. ToString(parm3) .. ToString(parm4))
+			DAKDisplayMessageToClient(client, kReserveSlotGranted, ToString(parm2))
 		end
 		
 		SaveReservedPlayers()

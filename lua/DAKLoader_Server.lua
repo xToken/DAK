@@ -118,5 +118,6 @@ if Server then
 
 	Script.Load("lua/DAKLoader_EventHooks.lua")
 	Script.Load("lua/DAKLoader_ServerAdminCommands.lua")
+	Script.Load("lua/DAKLoader_Language.lua")
 	
 end

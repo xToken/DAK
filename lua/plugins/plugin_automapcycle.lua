@@ -3,7 +3,7 @@
 if kDAKConfig and kDAKConfig.AutoMapCycle then
 
 	local lastcheck = 0
-	local checkint = 60
+	local checkint = 1
 
 	local function UpdateMapCycle(deltatime)
 	

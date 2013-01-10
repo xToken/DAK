@@ -1,5 +1,5 @@
 	
-if kDAKConfig and kDAKConfig.Badges then
+if kDAKConfig and kDAKConfig.Badges and kBadges.Huze ~= nil then
 
 	local kPAX2012ProductId = 4931
 	local kBadgeData = { }
@@ -38,7 +38,7 @@ if kDAKConfig and kDAKConfig.Badges then
 		local function isBadgeAuthorized(client, badgeId)
 			local dlcAuthorized = false
 			local groupBadgeAuthorized = false
-			
+			Print(ToString(badgeId))
 			if type(badgeId) == "number" then
 				dlcAuthorized = Server.GetIsDlcAuthorized(client, badgeId)
 			else

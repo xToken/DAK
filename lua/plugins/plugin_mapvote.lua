@@ -3,7 +3,6 @@
 
 if kDAKConfig and kDAKConfig.MapVote then
 
-	local kMaxMapVoteChatLength = 74
 	local TiedMaps = { }
 	local VotingMaps = { }
 	local MapVotes = { }
@@ -76,8 +75,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 	
 	local function UpdateMapVoteCountDown()
 
-		chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapStarted, string.format(kDAKConfig.MapVote.kVoteMinimumPercentage)), 1, kMaxChatLength)
-		Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+		DAKDisplayMessageToAllClients(kVoteMapStarted, string.format(kDAKConfig.MapVote.kVoteMinimumPercentage))
 		
 		VotingMaps      = { }
 		MapVotes        = { }
@@ -91,8 +89,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 						
 				VotingMaps[validmaps] = TiedMaps[i]
 				MapVotes[validmaps] = 0
-				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapMapListing, ToString(validmaps), TiedMaps[i]), 1, kMaxMapVoteChatLength) .. "******"
-				Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+				DAKDisplayMessageToAllClients(kVoteMapMapListing, ToString(validmaps), TiedMaps[i])
 				validmaps = validmaps + 1
 				
 			end
@@ -168,8 +165,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 						tempMaps[map] = true
 						VotingMaps[validmaps] = map
 						MapVotes[validmaps] = 0
-						chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapMapListing, ToString(validmaps), map), 1, kMaxMapVoteChatLength) .. "******"
-						Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+						DAKDisplayMessageToAllClients(kVoteMapMapListing, ToString(validmaps), map)
 						validmaps = validmaps + 1
 						
 					end
@@ -181,8 +177,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 				end
 			else
 			
-				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapInsufficientMaps, ToString(validmaps), map), 1, kMaxMapVoteChatLength) .. "******"
-				Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+				DAKDisplayMessageToAllClients(kVoteMapInsufficientMaps, ToString(validmaps), map)
 				mapvoteintiated = false
 				return
 				
@@ -242,15 +237,13 @@ if kDAKConfig and kDAKConfig.MapVote then
 
 		if mapname == nil then
 		
-			chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapNoWinner), 1, kMaxMapVoteChatLength) .. "******"
-			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+			DAKDisplayMessageToAllClients(kVoteMapNoWinner)
 			mapvotedelay = 0
 			mapvotecomplete = true	
 			
 		elseif #TiedMaps > 1 then
 		
-			chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapTie, kDAKConfig.MapVote.kVoteStartDelay), 1, kMaxChatLength) 
-			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+			DAKDisplayMessageToAllClients(kDAKConfig.MapVote.kVoteMapTie, kDAKConfig.MapVote.kVoteStartDelay)
 			mapvoteintiated = true
 			mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteStartDelay
 			mapvotecomplete = false	
@@ -259,23 +252,21 @@ if kDAKConfig and kDAKConfig.MapVote then
 		elseif totalvotes >= math.ceil(playerRecords:GetSize() * (kDAKConfig.MapVote.kVoteMinimumPercentage / 100)) then
 		
 			if mapname == string.format("extend %s", tostring(Shared.GetMapName())) then
-				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapExtended, kDAKConfig.MapVote.kExtendDuration), 1, kMaxMapVoteChatLength) .. "******"
+				DAKDisplayMessageToAllClients(kDAKConfig.MapVote.kVoteMapExtended, kDAKConfig.MapVote.kExtendDuration)
 				mapvotedelay = 0
 				nextmap = "extend"
 			else
-				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapWinner, mapname, ToString(totalvotes)), 1, kMaxMapVoteChatLength) .. "******"
+				DAKDisplayMessageToAllClients(kVoteMapWinner, mapname, ToString(totalvotes))
 				nextmap = mapname
 				mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteChangeDelay
 			end
 			
-			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 			votepassed = true
 			mapvotecomplete = true
 			
 		elseif totalvotes < math.ceil(playerRecords:GetSize() * (kDAKConfig.MapVote.kVoteMinimumPercentage / 100)) then
 
-			chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapMinimumNotMet, mapname, ToString(totalvotes), ToString(math.ceil(playerRecords:GetSize() * (kDAKConfig.MapVote.kVoteMinimumPercentage / 100)))), 1, kMaxChatLength)
-			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+			DAKDisplayMessageToAllClients(kVoteMapMinimumNotMet, mapname, ToString(totalvotes), ToString(math.ceil(playerRecords:GetSize() * (kDAKConfig.MapVote.kVoteMinimumPercentage / 100))))
 			mapvotedelay = 0
 			mapvotecomplete = true	
 			
@@ -287,8 +278,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 			mapvoterunning = false
 			mapvoteintiated = false
 			if not votepassed then
-				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapAutomaticChange), 1, kMaxMapVoteChatLength) .. "******"
-				Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+				DAKDisplayMessageToAllClients(kVoteMapAutomaticChange)
 				nextmap = nil
 				mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteChangeDelay
 			end
@@ -335,12 +325,10 @@ if kDAKConfig and kDAKConfig.MapVote then
 			if Shared.GetTime() > mapvotedelay then
 				ProcessandSelectMap()	
 			elseif Shared.GetTime() > mapvotenotify then
-				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapTimeLeft, mapvotedelay - Shared.GetTime()), 1, kMaxChatLength)
-				Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+				DAKDisplayMessageToAllClients(kVoteMapTimeLeft, mapvotedelay - Shared.GetTime())
 				i = 1
 				for map, votes in pairs(MapVotes) do
-					chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapCurrentMapVotes, votes, VotingMaps[map], i), 1, kMaxMapVoteChatLength) .. "******"
-					Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)			
+					DAKDisplayMessageToAllClients(kVoteMapCurrentMapVotes, votes, VotingMaps[map], i)	
 					i = i + 1
 				end
 				mapvotenotify = Shared.GetTime() + kDAKConfig.MapVote.kVoteNotifyDelay
@@ -359,11 +347,9 @@ if kDAKConfig and kDAKConfig.MapVote then
 			mapvoteintiated = true
 			mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteStartDelay
 			
-			chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapBeginning, kDAKConfig.MapVote.kVoteStartDelay), 1, kMaxChatLength)
-			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+			DAKDisplayMessageToAllClients(kVoteMapBeginning, kDAKConfig.MapVote.kVoteStartDelay)
 			
-			chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapHowToVote, kDAKConfig.MapVote.kVoteStartDelay), 1, kMaxChatLength)
-			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+			DAKDisplayMessageToAllClients(kVoteMapHowToVote)
 		end
 		
 		DAKRegisterEventHook(kDAKOnServerUpdate, UpdateMapVotes, 5)
@@ -383,8 +369,7 @@ if kDAKConfig and kDAKConfig.MapVote then
                     self.countdownTime = 1
                 end
 			elseif pregamenotify + kDAKConfig.MapVote.kPregameNotifyDelay < Shared.GetTime() then
-				chatMessage = string.sub(string.format(kDAKConfig.MapVote.kPregameNotification, (preGameTime - self.timeSinceGameStateChanged)), 1, kMaxChatLength)
-				Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+				DAKDisplayMessageToAllClients(kPregameNotification, (preGameTime - self.timeSinceGameStateChanged))
 				pregamenotify = Shared.GetTime()
             end
 			return true
@@ -440,8 +425,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 			
 		elseif not silent then
 		
-			chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapRockTheVote, playername, totalvotes, math.ceil((playerRecords:GetSize() * (kDAKConfig.MapVote.kRTVMinimumPercentage / 100)))), 1, kMaxChatLength)
-			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+			DAKDisplayMessageToAllClients(kVoteMapRockTheVote, playername, totalvotes, math.ceil((playerRecords:GetSize() * (kDAKConfig.MapVote.kRTVMinimumPercentage / 100))))
 			
 		end
 
@@ -456,16 +440,14 @@ if kDAKConfig and kDAKConfig.MapVote then
 			local player = client:GetControllingPlayer()
 			if VotingMaps[idNum] ~= nil and player ~= nil then
 				
-				if PlayerVotes[client:GetUserId()] ~= nil then			
-					chatMessage = string.sub(string.format("You already voted for %s.", VotingMaps[PlayerVotes[client:GetUserId()]]), 1, kMaxChatLength)
-					Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+				if PlayerVotes[client:GetUserId()] ~= nil then
+					DAKDisplayMessageToClient(client, kVoteMapAlreadyVoted, VotingMaps[PlayerVotes[client:GetUserId()]])
 				else
 					MapVotes[idNum] = MapVotes[idNum] + 1
 					PlayerVotes[client:GetUserId()] = idNum
 					Shared.Message(string.format("%s voted for %s", player:GetName(), VotingMaps[idNum]))
 					EnhancedLog(string.format("%s voted for %s", player:GetName(), VotingMaps[idNum]))
-					chatMessage = string.sub(string.format("Vote cast for %s.", VotingMaps[idNum]), 1, kMaxChatLength)
-					Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+					DAKDisplayMessageToClient(client, kVoteMapCastVote, VotingMaps[idNum])
 				end
 			end
 			
@@ -482,13 +464,11 @@ if kDAKConfig and kDAKConfig.MapVote then
 			local player = client:GetControllingPlayer()
 			if player ~= nil then
 				if mapvoterunning or mapvoteintiated or mapvotecomplete then
-					chatMessage = string.sub(string.format("Map vote already running."), 1, kMaxChatLength)
-					Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+					DAKDisplayMessageToClient(client, kVoteMapAlreadyRunning)
 					return
 				end
 				if RTVVotes[client:GetUserId()] ~= nil then			
-					chatMessage = string.sub(string.format("You already voted for a mapvote."), 1, kMaxChatLength)
-					Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+					DAKDisplayMessageToClient(client, kVoteMapAlreadyRTVd)
 				else
 					table.insert(RTVVotes,client:GetUserId())
 					RTVVotes[client:GetUserId()] = true
@@ -508,13 +488,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 	local function OnCommandTimeleft(client)
 
 		if client ~= nil then
-		
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				chatMessage = string.sub(string.format("%.1f Minutes Remaining.", math.max(0,((kDAKMapCycle.time * 60) - Shared.GetTime())/60)), 1, kMaxChatLength)
-				Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
-			end
-			
+			DAKDisplayMessageToClient(client, kVoteMapTimeRemaining, math.max(0,((kDAKMapCycle.time * 60) - Shared.GetTime())/60))
 		end
 		
 	end
@@ -555,11 +529,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 	
 		if mapvoterunning or mapvoteintiated or mapvotecomplete then
 			if client ~= nil then
-				local player = client:GetControllingPlayer()
-				if player ~= nil then
-					chatMessage = string.sub(string.format("Map vote already running."), 1, kMaxChatLength)
-					Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
-				end
+				DAKDisplayMessageToClient(client, kVoteMapAlreadyRunning)
 			else
 				Shared.Message("Map vote already running")
 			end
@@ -589,18 +559,11 @@ if kDAKConfig and kDAKConfig.MapVote then
 			MapVotes = { }
 			PlayerVotes= { }
 			
-			chatMessage = string.sub(string.format(kDAKConfig.MapVote.kVoteMapCancelled, kDAKConfig.MapVote.kVoteStartDelay), 1, kMaxChatLength)
-			Server.SendNetworkMessage("Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
+			DAKDisplayMessageToAllClients(kVoteMapCancelled)
 			DAKDeregisterEventHook(kDAKOnServerUpdate, UpdateMapVotes)
 			
 		elseif client ~= nil then
-		
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				chatMessage = string.sub(string.format("Map vote not running."), 1, kMaxChatLength)
-				Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, "PM - " .. kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
-			end
-			
+			DAKDisplayMessageToClient(client, kVoteMapNotRunning)
 		end
 		PrintToAllAdmins("sv_cancelmapvote", client)
 		
