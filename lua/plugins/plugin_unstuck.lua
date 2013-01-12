@@ -8,7 +8,7 @@ if kDAKConfig and kDAKConfig.Unstuck then
 	local function UnstuckClient(client, player, PEntry)
 
 		if PEntry.Orig ~= player:GetOrigin() then
-			DAKDisplayMessageToClient(client, kUnstuckMoved)
+			DAKDisplayMessageToClient(client, "kUnstuckMoved")
 		else
 			local TechID = kTechId.Skulk
 			if player:GetIsAlive() then
@@ -30,7 +30,7 @@ if kDAKConfig and kDAKConfig.Unstuck then
 					end
 				end
 			end
-			DAKDisplayMessageToClient(client, kUnstuck)
+			DAKDisplayMessageToClient(client, "kUnstuck")
 		end
 
 	end
@@ -83,13 +83,13 @@ if kDAKConfig and kDAKConfig.Unstuck then
 			if LastUnstuckTracker[ID] == nil or LastUnstuckTracker[ID] + kDAKConfig.Unstuck.kTimeBetweenUntucks < Shared.GetTime() then
 				local player = client:GetControllingPlayer()
 				local PEntry = { ID = client:GetUserId(), Orig = player:GetOrigin(), Time = Shared.GetTime() + kDAKConfig.Unstuck.kMinimumWaitTime }
-				DAKDisplayMessageToClient(client, kUnstuckIn, kDAKConfig.Unstuck.kMinimumWaitTime)
+				DAKDisplayMessageToClient(client, "kUnstuckIn", kDAKConfig.Unstuck.kMinimumWaitTime)
 				if #UnstuckClientTracker == 0 then
 					DAKRegisterEventHook(kDAKOnServerUpdate, ProcessStuckUsers, 5)
 				end
 				table.insert(UnstuckClientTracker, PEntry)
 			else
-				DAKDisplayMessageToClient(client, kUnstuckRecently, (LastUnstuckTracker[ID] + kDAKConfig.Unstuck.kTimeBetweenUntucks) - Shared.GetTime())
+				DAKDisplayMessageToClient(client, "kUnstuckRecently", (LastUnstuckTracker[ID] + kDAKConfig.Unstuck.kTimeBetweenUntucks) - Shared.GetTime())
 			end
 		end
 	end

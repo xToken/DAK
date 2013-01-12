@@ -50,7 +50,7 @@ if kDAKConfig and kDAKConfig.VoteSurrender then
 				end
 				if totalvotes >= math.ceil((#playerRecords * (kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage / 100))) then
 					
-					DAKDisplayMessageToAllClients(kSurrenderTeamQuit, ToString(i))
+					DAKDisplayMessageToAllClients("kSurrenderTeamQuit", ToString(i))
 					for i = 1, #playerRecords do
 						if playerRecords[i] ~= nil then
 							local gamerules = GetGamerules()
@@ -66,15 +66,15 @@ if kDAKConfig and kDAKConfig.VoteSurrender then
 
 				else
 					if kSurrenderVoteArray[i].SurrenderVotesAlertTime == 0 then
-						DAKDisplayMessageToTeam(i, kSurrenderVoteStarted, math.ceil((#playerRecords * (kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage / 100))))
+						DAKDisplayMessageToTeam(i, "kSurrenderVoteStarted", math.ceil((#playerRecords * (kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage / 100))))
 						kSurrenderVoteArray[i].SurrenderVotesAlertTime = Shared.GetTime()
 					elseif kSurrenderVoteArray[i].VoteSurrenderRunning + kDAKConfig.VoteSurrender.kVoteSurrenderVotingTime < Shared.GetTime() then
-						DAKDisplayMessageToTeam(i, kSurrenderVoteExpired)
+						DAKDisplayMessageToTeam(i, "kSurrenderVoteExpired")
 						kSurrenderVoteArray[i].SurrenderVotesAlertTime = 0
 						kSurrenderVoteArray[i].VoteSurrenderRunning = 0
 						kSurrenderVoteArray[i].SurrenderVotes = { }
 					else
-						DAKDisplayMessageToTeam(i, kSurrenderVoteUpdate, totalvotes, math.ceil((#playerRecords * (kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage / 100))), 
+						DAKDisplayMessageToTeam(i, "kSurrenderVoteUpdate", totalvotes, math.ceil((#playerRecords * (kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage / 100))), 
 						 math.ceil((kSurrenderVoteArray[i].VoteSurrenderRunning + kDAKConfig.VoteSurrender.kVoteSurrenderVotingTime) - Shared.GetTime()))
 						kSurrenderVoteArray[i].SurrenderVotesAlertTime = Shared.GetTime()
 					end
@@ -115,15 +115,15 @@ if kDAKConfig and kDAKConfig.VoteSurrender then
 							end
 						end
 						if alreadyvoted then
-							DAKDisplayMessageToClient(client, kSurrenderVoteAlreadyVoted)
+							DAKDisplayMessageToClient(client, "kSurrenderVoteAlreadyVoted")
 						else
 							table.insert(kSurrenderVoteArray[teamnumber].SurrenderVotes, clientID)
-							DAKDisplayMessageToClient(client, kSurrenderVoteToSurrender)
+							DAKDisplayMessageToClient(client, "kSurrenderVoteToSurrender")
 						end						
 					else
 						kSurrenderVoteArray[teamnumber].VoteSurrenderRunning = Shared.GetTime()
 						table.insert(kSurrenderVoteArray[teamnumber].SurrenderVotes, clientID)
-						DAKDisplayMessageToClient(client, kSurrenderVoteToSurrender)
+						DAKDisplayMessageToClient(client, "kSurrenderVoteToSurrender")
 					end
 				end
 			end
@@ -154,7 +154,7 @@ if kDAKConfig and kDAKConfig.VoteSurrender then
 			kSurrenderVoteArray[tmNum].SurrenderVotesAlertTime = 0
 			kSurrenderVoteArray[tmNum].VoteSurrenderRunning = 0
 			kSurrenderVoteArray[tmNum].SurrenderVotes = { }
-			DAKDisplayMessageToTeam(tmNum, kSurrenderVoteCancelled, tmNum)
+			DAKDisplayMessageToTeam(tmNum, "kSurrenderVoteCancelled", tmNum)
 			if client ~= nil then 
 				ServerAdminPrint(client, string.format("Surrender vote cancelled for team %s.", ToString(tmNum)))
 				local player = client:GetControllingPlayer()

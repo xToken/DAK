@@ -134,7 +134,9 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		if MapCycle_VerifyMapName(mapName) then
 			MapCycle_ChangeToMap(mapName)
 		else
-			DAKDisplayMessageToAllClients(InvalidMap)
+			if client ~= nil then
+				DAKDisplayMessageToClient(client, "InvalidMap")
+			end
 		end
 		
 	end

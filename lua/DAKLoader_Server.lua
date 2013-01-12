@@ -79,9 +79,9 @@ if Server then
 	
 	end
 
-	function DAKCreateGUIVoteBase(OnVoteFunction, OnVoteUpdateFunction, Relevancy)
-		if kDAKConfig and kDAKConfig.GUIVoteBase and kDAKConfig.GUIVoteBase.kEnabled then
-			return CreateGUIVoteBase(OnVoteFunction, OnVoteUpdateFunction, Relevancy)
+	function DAKCreateGUIVoteBase(id, OnVoteFunction, OnVoteUpdateFunction)
+		if kDAKConfig and kDAKConfig.GUIVoteBase and DAKIsPluginEnabled("guivotebase") then
+			return CreateGUIVoteBase(id, OnVoteFunction, OnVoteUpdateFunction)
 		end
 		return false
 	end

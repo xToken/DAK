@@ -47,7 +47,7 @@ if kDAKConfig and kDAKConfig.AFKKicker then
 					PEntry.kick = false
 					PEntry.Warn2 = false
 					PEntry.Warn1 = false
-					DAKDisplayMessageToClient(client, kAFKKickReturnMessage)
+					DAKDisplayMessageToClient(client, "kAFKKickReturnMessage")
 				end
 				return PEntry			
 			end
@@ -60,17 +60,17 @@ if kDAKConfig and kDAKConfig.AFKKicker then
 			end
 			
 			if not PEntry.Warn1 and PEntry.Time < (Shared.GetTime() + kDAKConfig.AFKKicker.kAFKKickWarning1) then
-				DAKDisplayMessageToClient(client, kAFKKickWarningMessage1, kDAKConfig.AFKKicker.kAFKKickWarning1)
+				DAKDisplayMessageToClient(client, "kAFKKickWarningMessage1", kDAKConfig.AFKKicker.kAFKKickWarning1)
 				PEntry.Warn1 = true
 			end
 			
 			if not PEntry.Warn2 and PEntry.Time < (Shared.GetTime() + kDAKConfig.AFKKicker.kAFKKickWarning2) then
-				DAKDisplayMessageToClient(client, kAFKKickWarningMessage2, kDAKConfig.AFKKicker.kAFKKickWarning2)
+				DAKDisplayMessageToClient(client, "kAFKKickWarningMessage2", kDAKConfig.AFKKicker.kAFKKickWarning2)
 				PEntry.Warn2 = true
 			end
 			
 			if PEntry.Warn2 and PEntry.Warn1 and PEntry.Time < Shared.GetTime() then
-				DAKDisplayMessageToClient(client, kAFKKickClientMessage, kDAKConfig.AFKKicker.kAFKKickDelay)
+				DAKDisplayMessageToClient(client, "kAFKKickClientMessage", kDAKConfig.AFKKicker.kAFKKickDelay)
 				PEntry.kick = true
 			end
 			

@@ -45,26 +45,33 @@ if kDAKConfig and kDAKConfig.EnhancedLogging then
 
 	local function GetDateTimeString(logfile)
 	
-		local st = Shared.GetSystemTime()
-		local DST = 0
 		local TIMEZONE = 0
 		if kDAKConfig.EnhancedLogging.kServerTimeZoneAdjustment then
 			TIMEZONE = kDAKConfig.EnhancedLogging.kServerTimeZoneAdjustment
 		end
+		local st = Shared.GetSystemTime() + (TIMEZONE * 3600)
+		local DST = 0
 		local Days = math.floor(st / 86400)
-		st = st - (Days * 86400)
 		local Month = 1
 		local Year = math.floor(Days / 365)
 		Days = Days - (Year * 365)
 		Year = Year + 1970
-		Days = Days - math.floor((Year - 1972) / 4) + 1
+		Days = Days - math.floor((Year - 1972) / 4)
+		//Run once to test DST
+		//Year will always be accurate, so just recalc using Days and time and blahblah
 		Month, Day = GetMonthDaysString(Year, Days)
-		if Month == 11 and Day <= 2 or Month < 11 and Month > 3 or Month == 3 and Day >= 10 then
-			DST = 1		
+		if (Month == 11 and Day <= 2 or Month < 11) and (Month > 3 or Month == 3 and Day >= 10) then
+			DST = 1
 		end
+		//Run again to get real date/time :/
+		st = st + (DST * 3600)
+		Days = math.floor(st / 86400)
+		st = st - (Days * 86400)
+		Days = Days - ((Year - 1970) * 365) - math.floor((Year - 1972) / 4)
+		Month, Day = GetMonthDaysString(Year, Days)
 		local Hours = math.floor(st / 3600)
 		st = st - (Hours * 3600)
-		Hours = Hours + DST + TIMEZONE
+		Hours = Hours + DST
 		local Minutes = math.floor(st / 60)
 		st = st - (Minutes * 60)
 		local DateTime 

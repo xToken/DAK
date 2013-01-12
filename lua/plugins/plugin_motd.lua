@@ -136,7 +136,7 @@ if kDAKConfig and kDAKConfig.MOTD then
 		if client ~= nil then
 
 			if IsAcceptedClient(client) then
-				DAKDisplayMessageToClient(client, kMOTDAlreadyAccepted)
+				DAKDisplayMessageToClient(client, "kMOTDAlreadyAccepted")
 				return
 			end
 				
@@ -152,7 +152,7 @@ if kDAKConfig and kDAKConfig.MOTD then
 			NewClient.revision = kDAKConfig.MOTD.kMOTDMessageRevision
 			NewClient.name = name
 			
-			DAKDisplayMessageToClient(client, kMOTDAccepted)
+			DAKDisplayMessageToClient(client, "kMOTDAccepted")
 			table.insert(kDAKSettings.MOTDAcceptedClients, NewClient)
 			
 			SaveDAKSettings()

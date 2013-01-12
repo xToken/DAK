@@ -10,10 +10,33 @@ if Server then
 		kDAKSettings.DAKClientLanguages = { }
 	end
 	
+	local function tablemerge(tab1, tab2)
+		for k, v in pairs(tab2) do
+			if (type(v) == "table") and (type(tab1[k] or false) == "table") then
+				tablemerge(tab1[k], tab2[k])
+			else
+				tab1[k] = v
+			end
+		end
+		return tab1
+	end
+	
 	local function LoadLanguageDefinitions()
 		for i = 1, #kDAKConfig.DAKLoader.kLanguageList do
-			local filename = string.format("lua/lang/%s.lua", kDAKConfig.DAKLoader.kLanguageList[i])
-			Script.Load(filename)
+			local filename = string.format("lua/lang/%s.json", kDAKConfig.DAKLoader.kLanguageList[i])
+			local DAKLangFile = io.open(filename, "r")
+			if DAKLangFile then
+				kDAKLanguageStrings = tablemerge(kDAKLanguageStrings, json.decode(DAKLangFile:read("*all")))
+				DAKLangFile:close()
+			else
+				//Look in config/lang folder for lang def.
+				local filename = string.format("config://lang\\%s.json", kDAKConfig.DAKLoader.kLanguageList[i])
+				local DAKLangFile = io.open(filename, "r")
+				if DAKLangFile then
+					kDAKLanguageStrings = tablemerge(kDAKLanguageStrings, json.decode(DAKLangFile:read("*all")))
+					DAKLangFile:close()
+				end
+			end
 		end
 		LanguageStrings = kDAKLanguageStrings
 		//Load, then move to local var.  Not sure if this offers any benefits, but meh might as well
@@ -49,7 +72,7 @@ if Server then
 		return kDAKConfig.DAKLoader.kDefaultLanguage
 	end
 	
-	local function GetLanguageSpecificMessage(messageId, lang)
+	function DAKGetLanguageSpecificMessage(messageId, lang)
 		if lang == nil or not GetIsLanguageValid(lang) then lang = kDAKConfig.DAKLoader.kDefaultLanguage end
 		if LanguageStrings[lang] ~= nil then
 			local ltable = LanguageStrings[lang]
@@ -75,7 +98,7 @@ if Server then
 		if client ~= nil then
 			local language = ClientLanguageOverride(client)
 			local player = client:GetControllingPlayer()
-			local message = GetLanguageSpecificMessage(messageId, language)
+			local message = DAKGetLanguageSpecificMessage(messageId, language)
 			local chatMessage = string.sub(string.format(message, ...), 1, kMaxChatLength)
 			Server.SendNetworkMessage(player, "Chat", BuildChatMessage(false, kDAKConfig.DAKLoader.MessageSender, -1, kTeamReadyRoom, kNeutralTeamType, chatMessage), true)
 		end
@@ -85,7 +108,7 @@ if Server then
 	function DAKDisplayMessageToAllClients(messageId, ...)
 	
 		local playerRecords = Shared.GetEntitiesWithClassname("Player")
-		//local message = GetLanguageSpecificMessage(messageId)
+		//local message = DAKGetLanguageSpecificMessage(messageId, "GB")
 		//Shared.Message(string.format(message, ...))
 		for _, player in ientitylist(playerRecords) do
 			

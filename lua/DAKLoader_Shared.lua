@@ -5,9 +5,8 @@
 /*
 local kMaxVoteStringLength = 35
 
-local kVoteBaseUpdateMessage = 
+local kMenuBaseUpdateMessage = 
 {
-	key              	= "integer",
 	header         		= string.format("string (%d)", kMaxVoteStringLength),
 	option1         	= string.format("string (%d)", kMaxVoteStringLength),
 	option1desc         = string.format("string (%d)", kMaxVoteStringLength),
@@ -20,15 +19,16 @@ local kVoteBaseUpdateMessage =
 	option5         	= string.format("string (%d)", kMaxVoteStringLength),
 	option5desc         = string.format("string (%d)", kMaxVoteStringLength),
 	footer         		= string.format("string (%d)", kMaxVoteStringLength),
+	inputallowed		= "boolean",
 	votetime   	  		= "time"
 }
 
-Shared.RegisterNetworkMessage( "GUIVoteBase", kVoteBaseUpdateMessage )
+Shared.RegisterNetworkMessage( "GUIMenuBase", kMenuBaseUpdateMessage )
 
-local kVoteBaseMessage =
+local kMenuBaseMessage =
 {
 	optionselected = "integer"
 }
 
-Shared.RegisterNetworkMessage("GUIVoteBaseRecieved", kVoteBaseMessage)
+Shared.RegisterNetworkMessage("GUIMenuBaseSelected", kMenuBaseMessage)
 */

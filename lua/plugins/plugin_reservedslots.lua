@@ -117,7 +117,7 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 		
 		if serverFull and not reserved then
 		
-			DAKDisplayMessageToClient(client, kReserveSlotServerFull)
+			DAKDisplayMessageToClient(client, "kReserveSlotServerFull")
 			local player = client:GetControllingPlayer()
 			if player ~= nil then
 				table.insert(reserveslotactionslog, "Kicking player "  .. tostring(player.name) .. " - id: " .. tostring(client:GetUserId()) .. " for no reserve slot.")
@@ -154,7 +154,7 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 
 				table.insert(reserveslotactionslog, "Kicking player "  .. tostring(playertokick.name) .. " - id: " .. tostring(playertokick:GetClient():GetUserId()) .. " with score: " .. tostring(playertokick.score))
 				EnhancedLog("Kicking player "  .. tostring(playertokick.name) .. " - id: " .. tostring(playertokick:GetClient():GetUserId()) .. " with score: " .. tostring(playertokick.score))
-				DAKDisplayMessageToClient(playertokick:GetClient(), kReserveSlotKickedForRoom)
+				DAKDisplayMessageToClient(playertokick:GetClient(), "kReserveSlotKickedForRoom")
 				playertokick.disconnectreason = kDAKConfig.ReservedSlots.kReserveSlotKickedDisconnectReason
 				table.insert(disconnectclients, playertokick:GetClient())
 				disconnectclienttime = Shared.GetTime() + kDAKConfig.ReservedSlots.kDelayedKickTime
@@ -212,7 +212,7 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 			local ReservePlayer = { name = ToString(parm1), id = idNum, reason = ToString(parm3 or ""), time = ConditionalValue(exptime, exptime, 0) }
 			table.insert(ReservedPlayers, ReservePlayer)
 			PrintToAllAdmins("sv_addreserve", client, ToString(parm1) .. ToString(parm2) .. ToString(parm3) .. ToString(parm4))
-			DAKDisplayMessageToClient(client, kReserveSlotGranted, ToString(parm2))
+			DAKDisplayMessageToClient(client, "kReserveSlotGranted", ToString(parm2))
 		end
 		
 		SaveReservedPlayers()

@@ -1,15 +1,15 @@
-//GUIVoteBase config
+//GUIMenuBase config
 
-kDAKRevisions["GUIVoteBase"] = 1.0
+kDAKRevisions["GUIMenuBase"] = 1.0
 
 local function SetupDefaultConfig(Save)
-	if kDAKConfig.GUIVoteBase == nil then
-		kDAKConfig.GUIVoteBase = { }
+	if kDAKConfig.GUIMenuBase == nil then
+		kDAKConfig.GUIMenuBase = { }
 	end
-	kDAKConfig.GUIVoteBase.kVoteUpdateRate = 2
+	kDAKConfig.GUIMenuBase.kVoteUpdateRate = 2
 	if Save then
 		SaveDAKConfig()
 	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "GUIVoteBase", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "GUIMenuBase", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
