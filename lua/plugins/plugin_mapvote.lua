@@ -60,6 +60,8 @@ if kDAKConfig and kDAKConfig.MapVote then
 
 	end
 	
+	DAKRegisterEventHook(kDAKCheckMapChange, CheckMapVote, 5)
+	
 	local function StartCountdown(gamerules)
 		if gamerules then
 			gamerules:ResetGame() 
@@ -70,8 +72,6 @@ if kDAKConfig and kDAKConfig.MapVote then
 			gamerules.lastCountdownPlayed = nil 
 		end
     end
-	
-	DAKRegisterEventHook(kDAKCheckMapChange, CheckMapVote, 5)
 	
 	local function UpdateMapVoteCountDown()
 
@@ -426,19 +426,17 @@ if kDAKConfig and kDAKConfig.MapVote then
 	
 	local function StartMapVote()
 
-		if mapvoterunning or mapvoteintiated or mapvotecomplete then
-			return true
-		else
+		if not mapvoterunning and not mapvoteintiated and not mapvotecomplete then
+		
 			mapvoteintiated = true
 			mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteStartDelay
-			
 			DAKDisplayMessageToAllClients("kVoteMapBeginning", kDAKConfig.MapVote.kVoteStartDelay)
-			
 			DAKDisplayMessageToAllClients("kVoteMapHowToVote")
+			DAKRegisterEventHook(kDAKOnServerUpdate, UpdateMapVotes, 5)
+			
 		end
 		
-		DAKRegisterEventHook(kDAKOnServerUpdate, UpdateMapVotes, 5)
-		
+		return true
 	end
 	
 	DAKRegisterEventHook(kDAKOverrideMapChange, StartMapVote, 5)
