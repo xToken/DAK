@@ -87,6 +87,7 @@ Below is a sample of the default plugins and their config options, with an expla
   "kTournamentModePubMode": This boolean controls if the tournamentmode will run in pub mode, which prevents the game from starting until both teams have kTournamentModePubMinPlayers.
   "kTournamentModePubMinPlayersPerTeam": Minimum number of players needed per team to start the round in pub mode.
   "kTournamentModePubMinPlayersOnline": Minimum amount of players that need to be online for pub mode to be active, otherwise game will start like vanilla NS2.
+  "kTournamentModeOverrideCanJoinTeam": Override the default team join rules, so that players can join any team regardless of size
 },
 "CommBans": {
   "kTeamVotePercentage": Changes default vote % of commander ejection votes
