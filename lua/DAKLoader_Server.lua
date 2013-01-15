@@ -27,7 +27,7 @@ if Server then
 	kDAKServerAdminCommands = { }			//List of ServerAdmin Commands
 	kDAKPluginDefaultConfigs = { }			//List of functions to setup default configs per plugin
 	
-	kDAKRevisions["DAKLoader"] = 3.0
+	kDAKRevisions["DAKLoader"] = "0.1.114a"
 	
 	function DAKRegisterEventHook(functionarray, eventfunction, p)
 		//Register Event in Array

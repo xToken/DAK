@@ -1,6 +1,6 @@
 //GUIMenuBase config
 
-kDAKRevisions["GUIMenuBase"] = 1.0
+kDAKRevisions["GUIMenuBase"] = "0.1.114a"
 
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.GUIMenuBase == nil then
@@ -12,4 +12,4 @@ local function SetupDefaultConfig(Save)
 	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "GUIMenuBase", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "GUIMenuBase", DefaultConfig = SetupDefaultConfig })

@@ -156,7 +156,7 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 		originalNS2GRGetCanJoinTeamNumber = Class_ReplaceMethod(kDAKConfig.DAKLoader.GamerulesClassName, "GetCanJoinTeamNumber", 
 			function(self, teamNumber)
 	
-				if GetTournamentMode() and (teamNumber == 1 or teamNumber == 2) then
+				if GetTournamentMode() and not kDAKConfig.TournamentMode.kTournamentModePubMode and (teamNumber == 1 or teamNumber == 2) then
 					return true
 				end
 				return originalNS2GRGetCanJoinTeamNumber(self, teamNumber)

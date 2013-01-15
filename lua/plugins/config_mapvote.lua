@@ -1,6 +1,7 @@
 //mapvote config
 
-kDAKRevisions["MapVote"] = 2.0
+kDAKRevisions["MapVote"] = "0.1.114a"
+
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.MapVote == nil then
 		kDAKConfig.MapVote = { }
@@ -18,6 +19,7 @@ local function SetupDefaultConfig(Save)
 	kDAKConfig.MapVote.kPregameLength = 15
 	kDAKConfig.MapVote.kPregameNotifyDelay = 5
 	kDAKConfig.MapVote.kMaximumExtends = 3
+	kDAKConfig.MapVote.kMaximumTies = 1
 	kDAKConfig.MapVote.kTimeleftChatCommands = { "timeleft" }
 	kDAKConfig.MapVote.kRockTheVoteChatCommands = { "rtv", "rockthevote" }
 	kDAKConfig.MapVote.kVoteChatCommands = { "vote" }
@@ -26,4 +28,4 @@ local function SetupDefaultConfig(Save)
 	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "MapVote", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "MapVote", DefaultConfig = SetupDefaultConfig })

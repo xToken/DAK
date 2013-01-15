@@ -1,17 +1,10 @@
 //Messages config
 
-kDAKRevisions["Messages"] = 1.2
+kDAKRevisions["Messages"] = "0.1.114a"
+
 local function SetupDefaultConfig(Save)
-	local MessageTable = { }
-	table.insert(MessageTable, "********************************************************************")
-	table.insert(MessageTable, "****************** Welcome to the XYZ NS2 Servers ******************")
-	table.insert(MessageTable, "*********** You can also visit our forums at 123.NS2.COM ***********")
-	table.insert(MessageTable, "********************************************************************")
 	if kDAKConfig.Messages == nil then
 		kDAKConfig.Messages = { }
-	end
-	if kDAKConfig.Messages.kMessage == nil then
-		kDAKConfig.Messages.kMessage = MessageTable
 	end
 	kDAKConfig.Messages.kMessagesPerTick = 5
 	kDAKConfig.Messages.kMessageTickDelay = 6
@@ -22,4 +15,4 @@ local function SetupDefaultConfig(Save)
 	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "Messages", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "Messages", DefaultConfig = SetupDefaultConfig })

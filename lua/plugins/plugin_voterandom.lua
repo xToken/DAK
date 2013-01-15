@@ -6,7 +6,7 @@ if kDAKConfig and kDAKConfig.VoteRandom then
 	local RandomNewRoundDelay = 15
 	local RandomVotes = { }
 	local RandomDuration = 0
-	local RandomRoundRecentlyEnded = nil
+	local RandomRoundRecentlyEnded = 0
 
 	local function LoadVoteRandom()
 
@@ -41,7 +41,32 @@ if kDAKConfig and kDAKConfig.VoteRandom then
 				end
 			end
 		end
-	end	
+	end
+	
+	local function RandomTeams()
+
+		PROFILE("VoteRandom:RandomTeams")
+		
+		if kVoteRandomTeamsEnabled then
+		
+			if kDAKSettings.RandomEnabledTill > Shared.GetSystemTime() then
+				kVoteRandomTeamsEnabled = not kDAKConfig.VoteRandom.kVoteRandomInstantly
+			else
+				kVoteRandomTeamsEnabled = false
+			end
+			if RandomRoundRecentlyEnded + RandomNewRoundDelay < Shared.GetTime() then
+				ShuffleTeams(false)
+				RandomRoundRecentlyEnded = 0
+			end
+			
+		end
+		if not kVoteRandomTeamsEnabled then
+			DAKDeregisterEventHook(kDAKOnServerUpdate, RandomTeams)
+		end
+		
+	end
+	
+	DAKRegisterEventHook(kDAKOnServerUpdate, RandomTeams, 5)
 
 	local function UpdateRandomVotes(silent, playername)
 
@@ -87,6 +112,7 @@ if kDAKConfig and kDAKConfig.VoteRandom then
 				kDAKSettings.RandomEnabledTill = Shared.GetSystemTime() + (kDAKConfig.VoteRandom.kVoteRandomDuration * 60)
 				SaveDAKSettings()
 				kVoteRandomTeamsEnabled = true
+				DAKRegisterEventHook(kDAKOnServerUpdate, RandomTeams, 5)
 			end
 			
 		elseif not silent then
@@ -114,7 +140,7 @@ if kDAKConfig and kDAKConfig.VoteRandom then
 	DAKRegisterEventHook(kDAKOnClientDelayedConnect, VoteRandomClientConnect, 5)
 
 	local function VoteRandomJoinTeam(self, player, newTeamNumber, force)
-		if RandomRoundRecentlyEnded ~= nil and RandomRoundRecentlyEnded + RandomNewRoundDelay > Shared.GetTime() and (newTeamNumber == 1 or newTeamNumber == 2) then
+		if RandomRoundRecentlyEnded + RandomNewRoundDelay > Shared.GetTime() and (newTeamNumber == 1 or newTeamNumber == 2) then
 			DAKDisplayMessageToClient(Server.GetOwner(player), "kVoteRandomTeamJoinBlock")
 			return true
 		end
@@ -129,28 +155,6 @@ if kDAKConfig and kDAKConfig.VoteRandom then
 	end
 	
 	DAKRegisterEventHook(kDAKOnGameEnd, VoteRandomEndGame, 5)
-	
-	local function RandomTeams()
-
-		PROFILE("VoteRandom:RandomTeams")
-		
-		if kVoteRandomTeamsEnabled then
-		
-			if kDAKSettings.RandomEnabledTill > Shared.GetSystemTime() then
-				kVoteRandomTeamsEnabled = not kDAKConfig.VoteRandom.kVoteRandomInstantly
-			else
-				kVoteRandomTeamsEnabled = false
-			end
-			if RandomRoundRecentlyEnded ~= nil and RandomRoundRecentlyEnded + RandomNewRoundDelay < Shared.GetTime() then
-				ShuffleTeams(false)
-				RandomRoundRecentlyEnded = nil
-			end
-			
-		end
-		
-	end
-
-	DAKRegisterEventHook(kDAKOnServerUpdate, RandomTeams, 5)
 
 	local function OnCommandVoteRandom(client)
 
@@ -231,6 +235,7 @@ if kDAKConfig and kDAKConfig.VoteRandom then
 				kDAKSettings.RandomEnabledTill = Shared.GetSystemTime() + (kDAKConfig.VoteRandom.kVoteRandomDuration * 60)
 				SaveDAKSettings()
 				kVoteRandomTeamsEnabled = true
+				DAKRegisterEventHook(kDAKOnServerUpdate, RandomTeams, 5)
 			end
 			if client ~= nil then 
 				local player = client:GetControllingPlayer()

@@ -1,6 +1,7 @@
 //automapcycle default config
 
-kDAKRevisions["AutoMapCycle"] = 1.0
+kDAKRevisions["AutoMapCycle"] = "0.1.114a"
+
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.AutoMapCycle == nil then
 		kDAKConfig.AutoMapCycle = { }
@@ -14,4 +15,4 @@ local function SetupDefaultConfig(Save)
 	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "AutoMapCycle", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "AutoMapCycle", DefaultConfig = SetupDefaultConfig })

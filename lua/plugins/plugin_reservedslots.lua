@@ -99,6 +99,8 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 	local function UpdateServerLockStatus()
 		if kDAKConfig.ReservedSlots.kReservePassword ~= "" then
 			local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
+			//Server.GetNumPlayers() - B236!!
+			//Server.GetMaxPlayers() - B236!!
 			if kDAKConfig.ReservedSlots.kMaximumSlots - (#playerList - CheckOccupiedReserveSlots()) <= (kDAKConfig.ReservedSlots.kReservedSlots + kDAKConfig.ReservedSlots.kMinimumSlots) then
 				Server.SetPassword(kDAKConfig.ReservedSlots.kReservePassword)
 			else
@@ -109,8 +111,10 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 
 	local function OnReserveSlotClientConnected(client)
 		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
-		local serverFull = kDAKConfig.ReservedSlots.kMaximumSlots - (#playerList - CheckOccupiedReserveSlots()) < (kDAKConfig.ReservedSlots.kReservedSlots + kDAKConfig.ReservedSlots.kMinimumSlots)
-		local serverReallyFull = kDAKConfig.ReservedSlots.kMaximumSlots - #playerList < kDAKConfig.ReservedSlots.kMinimumSlots
+		local MaxPlayers = kDAKConfig.ReservedSlots.kMaximumSlots
+		local CurPlayers = #playerList
+		local serverFull = MaxPlayers - (CurPlayers - CheckOccupiedReserveSlots()) < (kDAKConfig.ReservedSlots.kReservedSlots + kDAKConfig.ReservedSlots.kMinimumSlots)
+		local serverReallyFull = MaxPlayers - CurPlayers < kDAKConfig.ReservedSlots.kMinimumSlots
 		local reserved = CheckReserveStatus(client, false)
 
 		UpdateServerLockStatus()
@@ -132,7 +136,7 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 
 			local playertokick
 			local lowestscore = 9999
-
+			
 			for r = #playerList, 1, -1 do
 				if playerList[r] ~= nil then
 					local plyr = playerList[r]
@@ -155,7 +159,7 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 				table.insert(reserveslotactionslog, "Kicking player "  .. tostring(playertokick.name) .. " - id: " .. tostring(playertokick:GetClient():GetUserId()) .. " with score: " .. tostring(playertokick.score))
 				EnhancedLog("Kicking player "  .. tostring(playertokick.name) .. " - id: " .. tostring(playertokick:GetClient():GetUserId()) .. " with score: " .. tostring(playertokick.score))
 				DAKDisplayMessageToClient(playertokick:GetClient(), "kReserveSlotKickedForRoom")
-				playertokick.disconnectreason = kDAKConfig.ReservedSlots.kReserveSlotKickedDisconnectReason
+				playertokick.disconnectreason = "Kicked due to a reserved slot."
 				table.insert(disconnectclients, playertokick:GetClient())
 				disconnectclienttime = Shared.GetTime() + kDAKConfig.ReservedSlots.kDelayedKickTime
 			else
@@ -181,7 +185,7 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 	local function CheckReserveSlotSync()
 
 		PROFILE("ReserveSlots:CheckReserveSlotSync")
-
+		
 		if #disconnectclients > 0 and disconnectclienttime < Shared.GetTime() then
 			for r = #disconnectclients, 1, -1 do
 				if disconnectclients[r] ~= nil and VerifyClient(disconnectclients[r]) ~= nil then

@@ -1,6 +1,7 @@
 //unstuck config
 
-kDAKRevisions["Unstuck"] = 1.8
+kDAKRevisions["Unstuck"] = "0.1.114a"
+
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.Unstuck == nil then
 		kDAKConfig.Unstuck = { }
@@ -14,4 +15,4 @@ local function SetupDefaultConfig(Save)
 	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "Unstuck", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "Unstuck", DefaultConfig = SetupDefaultConfig })

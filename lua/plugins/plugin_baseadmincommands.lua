@@ -108,7 +108,7 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 			Shared.Message("playerClient is nil in PrintStatus, alert Brian")
 		else
 			
-			if DAKGetClientCanRunCommand(playerClient, "sv_status") then
+			if DAKGetClientCanRunCommand(client, "sv_status") then
 				local playerAddressString = IPAddressToString(Server.GetClientAddress(playerClient))
 				ServerAdminPrint(client, player:GetName() .. " : Game Id = " 
 				.. ToString(GetGameIdMatchingClient(playerClient))

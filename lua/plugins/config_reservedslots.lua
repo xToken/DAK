@@ -1,6 +1,7 @@
 //reservedslots config
 
-kDAKRevisions["ReservedSlots"] = 2.0
+kDAKRevisions["ReservedSlots"] = "0.1.114a"
+
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.ReservedSlots == nil then
 		kDAKConfig.ReservedSlots = { }
@@ -17,4 +18,4 @@ local function SetupDefaultConfig(Save)
 	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "ReservedSlots", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "ReservedSlots", DefaultConfig = SetupDefaultConfig })

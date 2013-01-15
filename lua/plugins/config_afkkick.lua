@@ -1,6 +1,6 @@
 //afkkick default config
 
-kDAKRevisions["AFKKicker"] = 1.6
+kDAKRevisions["AFKKicker"] = "0.1.114a"
 
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.AFKKicker == nil then
@@ -16,4 +16,4 @@ local function SetupDefaultConfig(Save)
 	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "AFKKicker", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "AFKKicker", DefaultConfig = SetupDefaultConfig })

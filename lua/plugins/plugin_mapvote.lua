@@ -12,10 +12,12 @@ if kDAKConfig and kDAKConfig.MapVote then
 	local mapvoteintiated = false
 	local mapvoterunning = false
 	local mapvotecomplete = false
+	local mapvoterocked = false
 	local mapvotenotify = 0
 	local mapvotedelay = 0
 	local mapvoteextend = 0
 	local pregamenotify = 0
+	local tievotes = 0
 	local nextmap
 
 	if kDAKSettings.PreviousMaps == nil then
@@ -323,11 +325,21 @@ if kDAKConfig and kDAKConfig.MapVote then
 			
 		elseif #TiedMaps > 1 then
 		
-			DAKDisplayMessageToAllClients("kVoteMapTie", kDAKConfig.MapVote.kVoteStartDelay)
-			mapvoteintiated = true
-			mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteStartDelay
-			mapvotecomplete = false	
-			mapvoterunning = false
+			if tievotes < kDAKConfig.MapVote.kMaximumTies then
+				DAKDisplayMessageToAllClients("kVoteMapTie", kDAKConfig.MapVote.kVoteStartDelay)
+				mapvoteintiated = true
+				mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteStartDelay
+				mapvotecomplete = false	
+				mapvoterunning = false
+				tievotes = tievotes + 1
+			else
+				local TiedMap = TiedMaps[math.random(1, #TiedMaps)]
+				DAKDisplayMessageToAllClients("kVoteMapTieBreaker", TiedMap)
+				nextmap = TiedMap
+				mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteChangeDelay
+				votepassed = true
+				mapvotecomplete = true
+			end
 				
 		elseif totalvotes >= math.ceil(playerRecords:GetSize() * (kDAKConfig.MapVote.kVoteMinimumPercentage / 100)) then
 		
@@ -357,7 +369,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 		if mapvotecomplete then
 			mapvoterunning = false
 			mapvoteintiated = false
-			if not votepassed then
+			if not votepassed and not mapvoterocked then
 				DAKDisplayMessageToAllClients("kVoteMapAutomaticChange")
 				nextmap = nil
 				mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteChangeDelay
@@ -375,18 +387,19 @@ if kDAKConfig and kDAKConfig.MapVote then
 			if Shared.GetTime() > mapvotedelay then
 
 				if nextmap ~= nil then
-					if nextmap == "extend" then
-						DAKDeregisterEventHook(kDAKOnServerUpdate, UpdateMapVotes)
-					else
+					if nextmap ~= "extend" then
 						table.insert(kDAKSettings.PreviousMaps, nextmap)
 						SaveDAKSettings()
 						MapCycle_ChangeToMap(nextmap)
 					end
-				else
+				elseif not mapvoterocked then
 					MapCycle_ChangeToMap(GetMapName(MapCycle_GetNextMapInCycle()))
 				end
+				DAKDeregisterEventHook(kDAKOnServerUpdate, UpdateMapVotes)
+				mapvoterocked = false
 				nextmap = nil
 				mapvotecomplete = false
+				tievotes = 0
 				
 			end
 			
@@ -406,10 +419,10 @@ if kDAKConfig and kDAKConfig.MapVote then
 				ProcessandSelectMap()
 			elseif Shared.GetTime() > mapvotenotify then
 				
-				local playerRecords = Shared.GetEntitiesWithClassname("Player")				
-				for _, player in ientitylist(playerRecords) do
-					DAKCreateGUIVoteBase(GetGameIdMatchingPlayer(player), OnCommandVote, OnCommandUpdateVote)
-				end
+				//local playerRecords = Shared.GetEntitiesWithClassname("Player")				
+				//for _, player in ientitylist(playerRecords) do
+					//DAKCreateGUIVoteBase(GetGameIdMatchingPlayer(player), OnCommandVote, OnCommandUpdateVote)
+				//end
 				DAKDisplayMessageToAllClients("kVoteMapTimeLeft", mapvotedelay - Shared.GetTime())
 				i = 1
 				for map, votes in pairs(MapVotes) do
@@ -504,6 +517,7 @@ if kDAKConfig and kDAKConfig.MapVote then
 		if totalvotes >= math.ceil((playerRecords:GetSize() * (kDAKConfig.MapVote.kRTVMinimumPercentage / 100))) then
 		
 			StartMapVote()
+			mapvoterocked = true
 			RTVVotes = { }
 			
 		elseif not silent then

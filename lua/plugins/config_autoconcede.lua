@@ -1,6 +1,7 @@
 //autoconcede default config
 
-kDAKRevisions["AutoConcede"] = 1.2
+kDAKRevisions["AutoConcede"] = "0.1.114a"
+
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.AutoConcede == nil then
 		kDAKConfig.AutoConcede = { }
@@ -13,4 +14,4 @@ local function SetupDefaultConfig(Save)
 	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "AutoConcede", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "AutoConcede", DefaultConfig = SetupDefaultConfig })

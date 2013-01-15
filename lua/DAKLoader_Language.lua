@@ -5,6 +5,7 @@ if Server then
 	kDAKLanguageStrings = { }
 	local LanguageStrings = { }
 	local ClientLanguages = { }
+	local defaultlang = "Default"
 	
 	if kDAKSettings.DAKClientLanguages == nil then
 		kDAKSettings.DAKClientLanguages = { }
@@ -80,8 +81,8 @@ if Server then
 				return ltable[messageId]
 			end
 		end
-		if LanguageStrings[kDAKConfig.DAKLoader.kDefaultLanguage] ~= nil then	
-			local ltable = LanguageStrings[kDAKConfig.DAKLoader.kDefaultLanguage]
+		if LanguageStrings[defaultlang] ~= nil then	
+			local ltable = LanguageStrings[defaultlang]
 			if ltable[messageId] ~= nil then
 				return ltable[messageId]
 			end

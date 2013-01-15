@@ -1,6 +1,7 @@
 //enhanced logging default config
 
-kDAKRevisions["EnhancedLogging"] = 1.8
+kDAKRevisions["EnhancedLogging"] = "0.1.114a"
+
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.EnhancedLogging == nil then
 		kDAKConfig.EnhancedLogging = { }
@@ -13,4 +14,4 @@ local function SetupDefaultConfig(Save)
 	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "EnhancedLogging", DefaultConfig = function(Save) SetupDefaultConfig(Save) end })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "EnhancedLogging", DefaultConfig = SetupDefaultConfig })

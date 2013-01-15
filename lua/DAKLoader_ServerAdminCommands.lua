@@ -51,8 +51,8 @@ local function OnCommandListPlugins(client)
 			local version = kDAKRevisions[plugin]
 			if plugin ~= nil then
 				if version ~= nil then
-					ServerAdminPrint(client, string.format("Plugin %s v%.1f is loaded.", plugin, version))
-					//Shared.Message(string.format("Plugin %s v%.1f is loaded.", plugin, version))
+					ServerAdminPrint(client, string.format("Plugin %s v%s is loaded.", plugin, version))
+					//Shared.Message(string.format("Plugin %s v%s is loaded.", plugin, version))
 				end
 			end
 		end
