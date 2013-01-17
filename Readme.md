@@ -174,13 +174,14 @@ Current ServerAdmin Command List:
  sv_alltalk: Will toggle the alltalk setting on server.
  sv_listplugins: Will list the state of all loaded plugins.
  sv_maps: Will list all the maps currently on the server.
- sv_cheats: <1/0> Will enable/disable cheats.
+ sv_cheats: Will enable/disable cheats.
  sv_listadmins: Will list all groups and admins.
+ sv_setlanguage <player id> <language> Changes the language set for the provided player.
  sv_changemap: <map name> Switches to the map specified
  sv_reset: Resets the game round
  sv_rrall: Forces all players to go to the Ready Room
  sv_randomall: Forces all players to join a random team
- sv_switchteam: <player id> <team number> 1 is Marine, 2 is Alien
+ sv_switchteam: <player id> <team number> Moves passed player to provided team. 1 is Marine, 2 is Alien.
  sv_eject: <player id> Ejects Commander from the Command Structure
  sv_kick: <player id> Kicks the player from the server
  sv_say: <message> Sends a message to every player on the server

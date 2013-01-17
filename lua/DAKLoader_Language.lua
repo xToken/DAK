@@ -12,11 +12,13 @@ if Server then
 	end
 	
 	local function tablemerge(tab1, tab2)
-		for k, v in pairs(tab2) do
-			if (type(v) == "table") and (type(tab1[k] or false) == "table") then
-				tablemerge(tab1[k], tab2[k])
-			else
-				tab1[k] = v
+		if tab1 ~= nil and tab2 ~= nil then
+			for k, v in pairs(tab2) do
+				if (type(v) == "table") and (type(tab1[k] or false) == "table") then
+					tablemerge(tab1[k], tab2[k])
+				else
+					tab1[k] = v
+				end
 			end
 		end
 		return tab1
@@ -24,14 +26,14 @@ if Server then
 	
 	local function LoadLanguageDefinitions()
 		for i = 1, #kDAKConfig.DAKLoader.kLanguageList do
-			local filename = string.format("lua/lang/%s.json", kDAKConfig.DAKLoader.kLanguageList[i])
+			local filename = string.format("config://lang\\%s.json", kDAKConfig.DAKLoader.kLanguageList[i])
 			local DAKLangFile = io.open(filename, "r")
 			if DAKLangFile then
 				kDAKLanguageStrings = tablemerge(kDAKLanguageStrings, json.decode(DAKLangFile:read("*all")))
 				DAKLangFile:close()
 			else
 				//Look in config/lang folder for lang def.
-				local filename = string.format("config://lang\\%s.json", kDAKConfig.DAKLoader.kLanguageList[i])
+				local filename = string.format("lua/lang/%s.json", kDAKConfig.DAKLoader.kLanguageList[i])
 				local DAKLangFile = io.open(filename, "r")
 				if DAKLangFile then
 					kDAKLanguageStrings = tablemerge(kDAKLanguageStrings, json.decode(DAKLangFile:read("*all")))
@@ -136,6 +138,32 @@ if Server then
 		end
 	end
 	
+	local function UpdateClientLanguageSetting(clientID, language)
+		local updated = false
+		if tonumber(clientID) == nil then return end
+		clientID = tonumber(clientID)
+		if clientID ~= nil then
+			for r = #kDAKSettings.DAKClientLanguages, 1, -1 do
+				if kDAKSettings.DAKClientLanguages[r] ~= nil and kDAKSettings.DAKClientLanguages[r].id == clientID then
+					ClientLanguages[clientID] = language
+					kDAKSettings.DAKClientLanguages[r].lang = language
+					updated = true
+					break
+				end
+			end
+		end
+		
+		if not updated then
+			local NewClient = { }
+			NewClient.id = clientID
+			NewClient.lang = language
+			ClientLanguages[clientID] = language
+			table.insert(kDAKSettings.DAKClientLanguages, NewClient)
+		end
+		
+		SaveDAKSettings()
+	end
+	
 	local function OnCommandSetLanguage(client, language)
 	
 		if language == nil then 
@@ -143,32 +171,11 @@ if Server then
 		else
 			language = string.upper(language)
 		end
-				
+		
 		if client ~= nil then
 			local clientID = client:GetUserId()
-			local updated = false
-			
-			if clientID ~= nil then
-				for r = #kDAKSettings.DAKClientLanguages, 1, -1 do
-					if kDAKSettings.DAKClientLanguages[r] ~= nil and kDAKSettings.DAKClientLanguages[r].id == clientID then
-						ClientLanguages[clientID] = language
-						kDAKSettings.DAKClientLanguages[r].lang = language
-						updated = true
-						break
-					end
-				end
-			end
-			
-			if not updated then
-				local NewClient = { }
-				NewClient.id = clientID
-				NewClient.lang = language
-				ClientLanguages[clientID] = language
-				table.insert(kDAKSettings.DAKClientLanguages, NewClient)
-			end
-			
-			DAKDisplayMessageToClient(client, "SetLanguage", language)
-			SaveDAKSettings()
+			UpdateClientLanguageSetting(clientID, language)
+			DAKDisplayMessageToClient(client, "SetLanguage", language)			
 		end
 		
 	end
@@ -190,5 +197,35 @@ if Server then
 	end
 	
 	DAKRegisterEventHook(kDAKOnClientChatMessage, OnLanguageChatMessage, 5)
+	
+	local function SetClientLanguage(client, playerId, language)
+
+		local player = GetPlayerMatching(playerId)
+		if player ~= nil then
+			local client = Server.GetOwner(player)
+			if client ~= nil then
+				playerId = client:GetUserId()
+			end
+		end
+		
+		if language == nil then 
+			language = kDAKConfig.DAKLoader.kDefaultLanguage
+		else
+			language = string.upper(language)
+		end	
+		
+		if tonumber(playerId) > 0 then
+		
+			if not DAKGetLevelSufficient(client, playerId) then
+				return
+			end
+			UpdateClientLanguageSetting(playerId, language)
+			DAKDisplayMessageToClient(client, "SetLanguageAdmin", playerId, language)	
+			
+		end
+		
+	end
+
+	DAKCreateServerAdminCommand("Console_sv_setlanguage", SetClientLanguage, "<player id> <language> Changes the language set for the provided player.")
 	
 end

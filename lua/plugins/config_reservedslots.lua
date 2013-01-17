@@ -1,12 +1,11 @@
 //reservedslots config
 
-kDAKRevisions["ReservedSlots"] = "0.1.114a"
+kDAKRevisions["ReservedSlots"] = "0.1.116a"
 
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.ReservedSlots == nil then
 		kDAKConfig.ReservedSlots = { }
 	end
-	kDAKConfig.ReservedSlots.kMaximumSlots = 19
 	kDAKConfig.ReservedSlots.kReservedSlots = 2
 	kDAKConfig.ReservedSlots.kMinimumSlots = 1
 	kDAKConfig.ReservedSlots.kDelayedSyncTime = 3

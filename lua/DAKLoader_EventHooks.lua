@@ -44,6 +44,7 @@ local function DAKUpdateServer(deltaTime)
 	
 	if kDAKConfig and kDAKConfig.DAKLoader then
 		serverupdatetime = serverupdatetime + deltaTime
+		DAKExecuteEventHooks(kDAKOnServerUpdateEveryFrame, deltaTime)
 		if kDAKConfig.DAKLoader.kDelayedServerUpdate and serverupdatetime > kDAKConfig.DAKLoader.kDelayedServerUpdate then
 		
 			DAKExecuteEventHooks(kDAKOnServerUpdate, deltaTime)

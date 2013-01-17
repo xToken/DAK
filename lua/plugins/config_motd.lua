@@ -1,6 +1,6 @@
 //motd config
 
-kDAKRevisions["MOTD"] = "0.1.114a"
+kDAKRevisions["MOTD"] = "0.1.116a"
 
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.MOTD == nil then

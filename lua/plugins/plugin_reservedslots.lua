@@ -98,10 +98,7 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 	
 	local function UpdateServerLockStatus()
 		if kDAKConfig.ReservedSlots.kReservePassword ~= "" then
-			local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
-			//Server.GetNumPlayers() - B236!!
-			//Server.GetMaxPlayers() - B236!!
-			if kDAKConfig.ReservedSlots.kMaximumSlots - (#playerList - CheckOccupiedReserveSlots()) <= (kDAKConfig.ReservedSlots.kReservedSlots + kDAKConfig.ReservedSlots.kMinimumSlots) then
+			if Server.GetMaxPlayers() - (Server.GetNumPlayers() - CheckOccupiedReserveSlots()) <= (kDAKConfig.ReservedSlots.kReservedSlots + kDAKConfig.ReservedSlots.kMinimumSlots) then
 				Server.SetPassword(kDAKConfig.ReservedSlots.kReservePassword)
 			else
 				Server.SetPassword("")
@@ -110,9 +107,9 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 	end
 
 	local function OnReserveSlotClientConnected(client)
-		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
-		local MaxPlayers = kDAKConfig.ReservedSlots.kMaximumSlots
-		local CurPlayers = #playerList
+
+		local MaxPlayers = Server.GetMaxPlayers()
+		local CurPlayers = Server.GetNumPlayers()
 		local serverFull = MaxPlayers - (CurPlayers - CheckOccupiedReserveSlots()) < (kDAKConfig.ReservedSlots.kReservedSlots + kDAKConfig.ReservedSlots.kMinimumSlots)
 		local serverReallyFull = MaxPlayers - CurPlayers < kDAKConfig.ReservedSlots.kMinimumSlots
 		local reserved = CheckReserveStatus(client, false)
@@ -136,7 +133,8 @@ if kDAKConfig and kDAKConfig.ReservedSlots then
 
 			local playertokick
 			local lowestscore = 9999
-			
+			local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
+					
 			for r = #playerList, 1, -1 do
 				if playerList[r] ~= nil then
 					local plyr = playerList[r]

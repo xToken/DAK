@@ -1,12 +1,13 @@
 //autoconcede default config
 
-kDAKRevisions["AutoConcede"] = "0.1.114a"
+kDAKRevisions["AutoConcede"] = "0.1.116a"
 
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.AutoConcede == nil then
 		kDAKConfig.AutoConcede = { }
 	end
 	kDAKConfig.AutoConcede.kImbalanceDuration = 30
+	kDAKConfig.AutoConcede.kImbalanceNotification = 10
 	kDAKConfig.AutoConcede.kImbalanceAmount = 4
 	kDAKConfig.AutoConcede.kMinimumPlayers = 6
 	if Save then

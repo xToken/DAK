@@ -9,18 +9,18 @@ if kDAKConfig and kDAKConfig.VoteRandom then
 	local RandomRoundRecentlyEnded = 0
 
 	local function LoadVoteRandom()
-
-		if kDAKSettings.RandomEnabledTill ~= nil then
-			if kDAKSettings.RandomEnabledTill > Shared.GetSystemTime() then
-				kVoteRandomTeamsEnabled = not kDAKConfig.VoteRandom.kVoteRandomInstantly
-				Shared.Message(string.format("RandomTeams set to %s", ToString(kVoteRandomTeamsEnabled)))
-				EnhancedLog(string.format("RandomTeams set to %s", ToString(kVoteRandomTeamsEnabled)))
-			else
-				kVoteRandomTeamsEnabled = false
-			end
-		else
+	
+		if kDAKSettings.RandomEnabledTill == nil then
 			kDAKSettings.RandomEnabledTill = 0
 		end
+		if kDAKSettings.RandomEnabledTill > Shared.GetSystemTime() or kDAKConfig.VoteRandom.kVoteRandomAlwaysEnabled then
+			kVoteRandomTeamsEnabled = not kDAKConfig.VoteRandom.kVoteRandomInstantly or kDAKConfig.VoteRandom.kVoteRandomAlwaysEnabled
+			Shared.Message(string.format("RandomTeams set to %s", ToString(kVoteRandomTeamsEnabled)))
+			EnhancedLog(string.format("RandomTeams set to %s", ToString(kVoteRandomTeamsEnabled)))
+		else
+			kVoteRandomTeamsEnabled = false
+		end
+		
 	end
 
 	LoadVoteRandom()
@@ -49,8 +49,8 @@ if kDAKConfig and kDAKConfig.VoteRandom then
 		
 		if kVoteRandomTeamsEnabled then
 		
-			if kDAKSettings.RandomEnabledTill > Shared.GetSystemTime() then
-				kVoteRandomTeamsEnabled = not kDAKConfig.VoteRandom.kVoteRandomInstantly
+			if kDAKSettings.RandomEnabledTill > Shared.GetSystemTime() or kDAKConfig.VoteRandom.kVoteRandomAlwaysEnabled then
+				kVoteRandomTeamsEnabled = not kDAKConfig.VoteRandom.kVoteRandomInstantly or kDAKConfig.VoteRandom.kVoteRandomAlwaysEnabled 
 			else
 				kVoteRandomTeamsEnabled = false
 			end
@@ -221,7 +221,7 @@ if kDAKConfig and kDAKConfig.VoteRandom then
 
 	local function VoteRandomOn(client)
 
-		if kVoteRandomTeamsEnabled == false then
+		if not kVoteRandomTeamsEnabled then
 			
 			if kDAKConfig.VoteRandom.kVoteRandomInstantly then
 				DAKDisplayMessageToAllClients("kVoteRandomEnabled")

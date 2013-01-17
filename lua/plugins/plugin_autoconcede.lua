@@ -5,6 +5,7 @@ if kDAKConfig and kDAKConfig.AutoConcede then
 	local kConcedeTime = 0
 	local kConcedeTeam = 0
 	local kConcedeCheck = 0
+	local kConcedeMessage = 0
 	local kConcedeCheckInt = 1
 
 	if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.GamerulesExtensions then
@@ -33,12 +34,19 @@ if kDAKConfig and kDAKConfig.AutoConcede then
 								DAKDisplayMessageToAllClients("kConcedeWarningMessage", kDAKConfig.AutoConcede.kImbalanceDuration)
 								kConcedeTeam = concede
 								kConcedeTime = Shared.GetTime()
+								kConcedeMessage = Shared.GetTime()
+							end
+						elseif Shared.GetTime() - kConcedeMessage > kDAKConfig.AutoConcede.kImbalanceNotification then
+							if concede ~= 0 then
+								DAKDisplayMessageToAllClients("kConcedeWarningMessage", (kDAKConfig.AutoConcede.kImbalanceDuration - (Shared.GetTime() - kConcedeTime)))
+								kConcedeMessage = Shared.GetTime()
 							end
 						else
 							if concede == 0 or kConcedeTeam ~= concede then
 								DAKDisplayMessageToAllClients("kConcedeCancelledMessage")
 								kConcedeTeam = 0
 								kConcedeTime = 0
+								kConcedeMessage = 0
 							end
 						end
 					    if kConcedeTime ~= 0 and Shared.GetTime() - kConcedeTime > kDAKConfig.AutoConcede.kImbalanceDuration then
@@ -50,6 +58,7 @@ if kDAKConfig and kDAKConfig.AutoConcede then
 							end
 							kConcedeTeam = 0
 							kConcedeTime = 0
+							kConcedeMessage = 0
 						end
 						kConcedeCheck = Shared.GetTime()
 					end

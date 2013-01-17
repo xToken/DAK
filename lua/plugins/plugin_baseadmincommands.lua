@@ -186,9 +186,11 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 
 		local player = GetPlayerMatching(playerId)
 		local teamNumber = tonumber(team)
+		
 		if not DAKGetLevelSufficient(client,player) then
 			return
 		end
+		
 		if type(teamNumber) ~= "number" or teamNumber < 0 or teamNumber > 3 then
 		
 			ServerAdminPrint(client, "Invalid team number")
@@ -207,14 +209,16 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		
 	end
 
-	DAKCreateServerAdminCommand("Console_sv_switchteam", SwitchTeam, "<player id> <team number> 1 is Marine, 2 is Alien")
+	DAKCreateServerAdminCommand("Console_sv_switchteam", SwitchTeam, "<player id> <team number> Moves passed player to provided team. 1 is Marine, 2 is Alien.")
 
 	local function Eject(client, playerId)
 
 		local player = GetPlayerMatching(playerId)
+		
 		if not DAKGetLevelSufficient(client, player) then
 			return
 		end
+		
 		if player and player:isa("Commander") then
 			player:Eject()
 		else
@@ -228,9 +232,11 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 	local function Kick(client, playerId)
 
 		local player = GetPlayerMatching(playerId)
+		
 		if not DAKGetLevelSufficient(client, player) then
 			return
 		end
+		
 		if player then
 			local client = Server.GetOwner(player)
 			client.disconnectreason = "Kicked"
@@ -334,9 +340,11 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 	local function Slay(client, playerId)
 
 		local player = GetPlayerMatching(playerId)
+		
 		if not DAKGetLevelSufficient(client, player) then
 			return
 		end
+		
 		if player then
 			 player:Kill(nil, nil, player:GetOrigin())
 		else
@@ -562,10 +570,12 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 		else
 			bannedUntilTime = bannedUntilTime + (duration * 60)
 		end
-		if not DAKGetLevelSufficient(client, playerId) then
-			return
-		end
+		
 		if player then
+		
+			if not DAKGetLevelSufficient(client, player) then
+				return
+			end
 			
 			if kDAKConfig.BaseAdminCommands.kBanSubmissionURL ~= "" then
 				//Submit ban with key, working on logic to hash key
@@ -586,6 +596,10 @@ if kDAKConfig and kDAKConfig.BaseAdminCommands then
 			Server.DisconnectClient(client)
 			
 		elseif tonumber(playerId) > 0 then
+		
+			if not DAKGetLevelSufficient(client, playerId) then
+				return
+			end
 		
 			if kDAKConfig.BaseAdminCommands.kBanSubmissionURL ~= "" then
 				//Submit ban with key, working on logic to hash key

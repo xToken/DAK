@@ -478,8 +478,10 @@ if kDAKConfig and kDAKConfig.MapVote then
 
 	local function MapVoteSetGameState(self, state, currentstate)
 
-		if MapCycle_TestCycleMap() then
-			self.timeToCycleMap = Shared.GetTime() + kDAKConfig.MapVote.kRoundEndDelay
+		if state ~= currentstate and (state == kGameState.Team1Won or state == kGameState.Team2Won) then
+			if MapCycle_TestCycleMap() then
+				self.timeToCycleMap = Shared.GetTime() + kDAKConfig.MapVote.kRoundEndDelay
+			end
 		end
 		
 	end

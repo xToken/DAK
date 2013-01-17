@@ -22,7 +22,8 @@ if kDAKConfig and kDAKConfig.MOTD then
 			for r = #kDAKSettings.MOTDAcceptedClients, 1, -1 do
 				local AcceptedClient = kDAKSettings.MOTDAcceptedClients[r]
 				local steamid = client:GetUserId()
-				if AcceptedClient.id == steamid and AcceptedClient.revision == kDAKConfig.MOTD.kMOTDMessageRevision then
+				if tonumber(steamid) == nil then return false end
+				if AcceptedClient.id == tonumber(steamid) and AcceptedClient.revision == kDAKConfig.MOTD.kMOTDMessageRevision then
 					return true
 				end
 			end
@@ -32,26 +33,21 @@ if kDAKConfig and kDAKConfig.MOTD then
 	
 	local function ProcessMessagesforUser(PEntry)
 		
+		local messages = DAKGetLanguageSpecificMessage("kMOTDMessage", DAKGetClientLanguageSetting(client))
 		local messagestart = PEntry.Message
-		local lang = DAKGetClientLanguageSetting(PEntry.Client)
-		if kDAKLanguageStrings[lang] ~= nil then
-			local ltable = kDAKLanguageStrings[lang]
-			if ltable.kMOTDMessage ~= nil then
-				for i = messagestart, #ltable.kMOTDMessage do
+		if messages ~= nil then
+			for i = messagestart, #messages do
+			
+				if i < kDAKConfig.MOTD.kMOTDMessagesPerTick + messagestart then
+					DisplayMOTDMessage(PEntry.Client, messages[i])
+				else
+					PEntry.Message = i
+					PEntry.Time = Shared.GetTime() + kDAKConfig.MOTD.kMOTDMessageDelay
+					break
+				end
 				
-					if i < kDAKConfig.MOTD.kMOTDMessagesPerTick + messagestart then
-						DisplayMOTDMessage(PEntry.Client, ltable.kMOTDMessage[i])
-					else
-						PEntry.Message = i
-						PEntry.Time = Shared.GetTime() + kDAKConfig.MOTD.kMOTDMessageDelay
-						break
-					end
-					
-				end
-				if #ltable.kMOTDMessage < messagestart + kDAKConfig.MOTD.kMOTDMessagesPerTick then
-					PEntry = nil
-				end
-			else
+			end
+			if #messages < messagestart + kDAKConfig.MOTD.kMOTDMessagesPerTick then
 				PEntry = nil
 			end
 		else
@@ -139,7 +135,8 @@ if kDAKConfig and kDAKConfig.MOTD then
 				DAKDisplayMessageToClient(client, "kMOTDAlreadyAccepted")
 				return
 			end
-				
+			
+			local steamid = client:GetUserId()
 			local player = client:GetControllingPlayer()
 			local name = "acceptedclient"
 
@@ -147,8 +144,12 @@ if kDAKConfig and kDAKConfig.MOTD then
 				name = player:GetName()
 			end
 			
+			if tonumber(steamid) == nil then
+				return
+			end
+			
 			local NewClient = { }
-			NewClient.id = client:GetUserId()
+			NewClient.id = tonumber(steamid)
 			NewClient.revision = kDAKConfig.MOTD.kMOTDMessageRevision
 			NewClient.name = name
 			

@@ -51,11 +51,11 @@ if kDAKConfig and kDAKConfig.VoteSurrender then
 				if totalvotes >= math.ceil((#playerRecords * (kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage / 100))) then
 					
 					DAKDisplayMessageToAllClients("kSurrenderTeamQuit", ToString(i))
-					for i = 1, #playerRecords do
-						if playerRecords[i] ~= nil then
+					for l = 1, #playerRecords do
+						if playerRecords[l] ~= nil then
 							local gamerules = GetGamerules()
 							if gamerules then
-								gamerules:JoinTeam(playerRecords[i], kTeamReadyRoom)
+								gamerules:JoinTeam(playerRecords[l], kTeamReadyRoom)
 							end
 						end
 					end

@@ -1,6 +1,7 @@
 {
 	"Default": {
 		"SetLanguage": 								"Language changed to %s.",
+		"SetLanguageAdmin":							"Language changed for %s to %s.",
 		"InvalidMap":								"Invalid Map Provided.",
 
 		"kAFKKickClientMessage": 					"You are being kicked for idling for more than %d seconds.",

@@ -12,6 +12,7 @@ if Server then
 	kDAKOnClientConnect = { }				//Functions run on Client Connect
 	kDAKOnClientDisconnect = { }			//Functions run on Client Disconnect
 	kDAKOnServerUpdate = { }				//Functions run on ServerUpdate
+	kDAKOnServerUpdateEveryFrame = { }		//Functions run on Every ServerUpdate
 	kDAKOnClientDelayedConnect = { }		//Functions run on DelayedClientConnect
 	kDAKOnTeamJoin = { }					//Functions run on TeamJoin from Gamerules
 	kDAKOnGameEnd = { }						//Functions run on GameEnd from Gamerules
@@ -27,7 +28,7 @@ if Server then
 	kDAKServerAdminCommands = { }			//List of ServerAdmin Commands
 	kDAKPluginDefaultConfigs = { }			//List of functions to setup default configs per plugin
 	
-	kDAKRevisions["DAKLoader"] = "0.1.114a"
+	kDAKRevisions["DAKLoader"] = "0.1.116a"
 	
 	function DAKRegisterEventHook(functionarray, eventfunction, p)
 		//Register Event in Array

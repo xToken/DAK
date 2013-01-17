@@ -16,19 +16,16 @@ if kDAKConfig and kDAKConfig.Messages then
 	
 	local function ProcessMessagesforUser(client, messagestart)
 	
-		local lang = DAKGetClientLanguageSetting(client)
-		if kDAKLanguageStrings[lang] ~= nil then
-			local ltable = kDAKLanguageStrings[lang]
-			if ltable.kPeriodicMessages ~= nil then
-				for i = messagestart, #ltable.kPeriodicMessages do
-				
-					if i < kDAKConfig.Messages.kMessagesPerTick + messagestart then
-						DisplayMessage(client, ltable.kPeriodicMessages[i])
-					else
-						messagetick = Shared.GetTime() + kDAKConfig.Messages.kMessageTickDelay
-						messageline = i
-						return
-					end
+		local messages = DAKGetLanguageSpecificMessage("kPeriodicMessages", DAKGetClientLanguageSetting(client))
+		if messages ~= nil then
+			for i = messagestart, #messages do
+			
+				if i < kDAKConfig.Messages.kMessagesPerTick + messagestart then
+					DisplayMessage(client, messages[i])
+				else
+					messagetick = Shared.GetTime() + kDAKConfig.Messages.kMessageTickDelay
+					messageline = i
+					return
 				end
 			end
 		end

@@ -1,6 +1,6 @@
 //GUIMenuBase config
 
-kDAKRevisions["GUIMenuBase"] = "0.1.114a"
+kDAKRevisions["GUIMenuBase"] = "0.1.116a"
 
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.GUIMenuBase == nil then

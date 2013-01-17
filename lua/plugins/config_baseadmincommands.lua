@@ -1,6 +1,6 @@
 //baseadmincommands default config
 
-kDAKRevisions["BaseAdminCommands"] = "0.1.114a"
+kDAKRevisions["BaseAdminCommands"] = "0.1.116a"
 local function SetupDefaultConfig(Save)
 	if kDAKConfig.BaseAdminCommands == nil then
 		kDAKConfig.BaseAdminCommands = { }
