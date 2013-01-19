@@ -2,17 +2,25 @@
 This collection of plugins (and loader) make up what I started calling DAK.
 
 ## Installation
-This mod can be downloaded via SteamWorkshop, and will autodownload on all clients on connect.
-The ModID for DAK is 5f4f178, which you will want to set in the server command line, and in MapCycle.json.  The server will automatically download the mod once set.
+* This mod can be downloaded via the Steam Workshop, and will autodownload on all clients on connect.
+* The ModID for DAK is __5f4f178__, which you will want to set in the server command line, and in _MapCycle.json_.  The server will automatically download the mod once set.
+
 For example,
-> `-mods "5f4f178"` on your command line and
-> `"mods": [ "5f4f178" ]` in _MapCycle.json_
+* `-mods "5f4f178"` on your command line and
+* `"mods": [ "5f4f178" ]` in _MapCycle.json_
 
 ### Bypassing Mod Filter
-*NOTE* - If you decide to load this from _Server.lua_ to bypass mod filter, you will not want to add the ModID to the command line or _MapCycle.json_.  You can download the files from SteamWorkshop by
-subscribing to the mod and launching your game.  It will then create a folder in `%APPDATA%\Natural Selection 2\Workshop` called `m5f4f178_##################`.  You can also download the files from GitHub.
-Once downloaded, you would want to merge them with your _ns2/lua_ folder (there will not be any files overridden).  From there, you will want to edit _Server.lua_ and add the line `Script.Load("lua/DAKLoader_Server.lua")` 
-between the `Script.Load` statement for ServerConfig and `Script.Load` for _Shared.lua_ - Between lines 13 and 24 currently.  Line 17 should be blank and is a good place.
+__NOTE__ - If you decide to load this from _Server.lua_ to bypass mod filter, you will __not__ want to add the ModID to the command line or _MapCycle.json_.
+* Download the DAK Admin Kit files by either ways:
+** From the Steam Workshop
+*** Subscribe to DAK Admin Kit mod launch your game
+*** It will then create a folder in `%APPDATA%\Natural Selection 2\Workshop` called `m5f4f178_##################`
+** From GitHub
+*** Download the files and place them in your ```-modstorage``` location (default `%APPDATA%\Natural Selection 2\Workshop`)
+* Once downloaded, you would want to merge them with your _ns2/lua_ folder (there will not be any files overridden)
+* From there, you will want to edit _Server.lua_
+** Between the `Script.Load` statement for ServerConfig and `Script.Load` for _Shared.lua_, (Between lines 13 and 24 currently.  Line 17 should be blank and is a good place.)
+** Add the line `Script.Load("lua/DAKLoader_Server.lua")`  
 
 ## Configuration
 ### DAKConfig.json
@@ -401,11 +409,11 @@ __MapVote Plugin__
 * Since NS2 only has 5 offical maps currently, the plugin will automatically add back in maps if there is not enough to make the minimum.
 * Almost all parts are configurable in the configs.
  
-__AFKKicker Plugin
+__AFKKicker Plugin__
 * This plugin checks if a player is idle by caching their viewangles and origin, and displays messages to alert them if they are going to be kicked.
 * May in the future be improved to use idle parameter on the player.
  
-__EnhancedLogging Plugin
+__EnhancedLogging Plugin__
 * This plugin enables alot of extra logging, which is done to a seperate directory within the configured server admin path.
 * Sample log file below with some information omitted:
  
