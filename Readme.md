@@ -13,11 +13,11 @@ For example,
 __NOTE__ - If you decide to load this from _Server.lua_ to bypass mod filter, you will __not__ want to add the ModID to the command line or _MapCycle.json_.
 
 * Download the DAK Admin Kit files by either of the following ways
- * From the Steam Workshop
-  * Subscribe to DAK Admin Kit mod launch your game
-  * It will then create a folder in `%APPDATA%\Natural Selection 2\Workshop` called `m5f4f178_##################`
- * From GitHub
-  * Download the files and place them in your ```-modstorage``` location (default `%APPDATA%\Natural Selection 2\Workshop`)
+ * __From the Steam Workshop__
+   Subscribe to DAK Admin Kit mod launch your game
+   It will then create a folder in `%APPDATA%\Natural Selection 2\Workshop` called `m5f4f178_##################`
+ * __From GitHub__
+   Download the files and place them in your ```-modstorage``` location (default `%APPDATA%\Natural Selection 2\Workshop`)
 * Once downloaded, you would want to merge them with your _ns2/lua_ folder (there will not be any files overridden)
 * From there, you will want to edit _Server.lua_
  * Between the `Script.Load` statement for ServerConfig and `Script.Load` for _Shared.lua_, (Between lines 13 and 24 currently.  Line 17 should be blank and is a good place.)
@@ -269,19 +269,19 @@ Sample file below:
  sv_dontrandom: Prevents the admin from being randomed to a team.
 ```
 
- All server admin commands will also print to any other admin's consoles when used (admins that also have access to that command).
+All server admin commands will also print to any other admin's consoles when used (admins that also have access to that command).
  
 ## Client Commands
 These commands can be executed via chat or via the console (~)
- * __timeleft__ - displays time left till next map vote.
- * __acceptmotd__ - supresses motd messages unless the `kMOTDMessageRevision` is changed.
-  * This is saved in _DAKSettings.json_ and persists between map changes.
- * __printmotd__ - will print the motd out.
- * __voterandom__ - will vote to enable random teams.
- * __ready__ - marks your team as ready if tournamentmode is enabled.
- * __vote__ - used to vote for a map during map vote, needs to have a number as a paramater.
- * __rtv__ or __rockthevote__ - used to vote for a map vote (can be started anytime)
- * __surrender__ - used to start or vote in an active surrender vote.
+* __timeleft__ - displays time left till next map vote.
+* __acceptmotd__ - supresses motd messages unless the `kMOTDMessageRevision` is changed.
+ * This is saved in _DAKSettings.json_ and persists between map changes.
+* __printmotd__ - will print the motd out.
+* __voterandom__ - will vote to enable random teams.
+* __ready__ - marks your team as ready if tournamentmode is enabled.
+* __vote__ - used to vote for a map during map vote, needs to have a number as a paramater.
+* __rtv__ or __rockthevote__ - used to vote for a map vote (can be started anytime)
+* __surrender__ - used to start or vote in an active surrender vote.
  
 ## Languages
 DAK also now includes a language system, which allows clients to specifiy their language to change the format/language of the messages they recieve.
@@ -298,7 +298,7 @@ DAK also now includes a language system, which allows clients to specifiy their 
 * The same notes still apply regarding regex strings, you will want to maintain the same amounts (%s, %f, %d). 
  
 ## Breakdown of current 'Plugins' system and the standard 'Plugins'
- DAK extends various events from the engine, and creates a couple of its own.
+DAK extends various events from the engine, and creates a couple of its own.
  
 ```
  kDAKOnClientConnect
@@ -316,23 +316,23 @@ DAK also now includes a language system, which allows clients to specifiy their 
  kDAKOverrideMapChange
 ```
 
- Functions can be added to these variables which will be run when these events occur, sample shown below:
+Functions can be added to these variables which will be run when these events occur, sample shown below:
  
- `DAKRegisterEventHook(kDAKOnServerUpdate, UpdateMapVotes, 5) - (EventArray, Function, Priority)`
- * This also allows a priority to be set for the Event, the higher the number the greater the priority.
-  * _Default: 5_
- * This also allows for the EventHooks to be removed during runtime, for greater efficiency.
+`DAKRegisterEventHook(kDAKOnServerUpdate, UpdateMapVotes, 5) - (EventArray, Function, Priority)`
+* This also allows a priority to be set for the Event, the higher the number the greater the priority.
+ * _Default: 5_
+* This also allows for the EventHooks to be removed during runtime, for greater efficiency.
  
- `DAKDeregisterEventHook(kDAKOnServerUpdate, UpdateMapVotes) - (EventArray, Function)`
- * This removes the function from the array, so that it wont be called anymore.
+`DAKDeregisterEventHook(kDAKOnServerUpdate, UpdateMapVotes) - (EventArray, Function)`
+* This removes the function from the array, so that it wont be called anymore.
  
- Plugins are loaded from the plugin folder by DAK, with config_ files being loaded to setup config if needed, and plugin_ files containing the plugin logic.
- The config_ files uses an array to track all config functions:
- `table.insert(kDAKPluginDefaultConfigs, {PluginName = "AFKKicker", DefaultConfig = SetupDefaultConfig })`
+Plugins are loaded from the plugin folder by DAK, with config_ files being loaded to setup config if needed, and plugin_ files containing the plugin logic.
+The config_ files uses an array to track all config functions:
+`table.insert(kDAKPluginDefaultConfigs, {PluginName = "AFKKicker", DefaultConfig = SetupDefaultConfig })`
  
- Notes about Gamerules overrides - they require the same args from vanilla NS2, or will need manual configuration.
- This can be changed in _DAKLoader.lua_, `kDAKBaseGamerules` is the class name used when setting up the overrides.
- Below are the functions overridden and their default configuration.
+Notes about Gamerules overrides - they require the same args from vanilla NS2, or will need manual configuration.
+This can be changed in _DAKLoader.lua_, `kDAKBaseGamerules` is the class name used when setting up the overrides.
+Below are the functions overridden and their default configuration.
  
 ```
 	function NS2Gamerules:JoinTeam(player, newTeamNumber, force)
