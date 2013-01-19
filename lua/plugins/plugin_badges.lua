@@ -1,5 +1,5 @@
 	
-if kDAKConfig and kDAKConfig.Badges and kBadges.Huze ~= nil then
+if kBadges.Huze ~= nil then
 
 	local kPAX2012ProductId = 4931
 	local kBadgeData = { }
@@ -93,5 +93,3 @@ if kDAKConfig and kDAKConfig.Badges and kBadges.Huze ~= nil then
 	DAKRegisterEventHook(kDAKOnServerUpdate, DelayedBadgeOverride, 5)
 	
 end
-
-Shared.Message("Badges Loading Complete")

@@ -1,17 +1,12 @@
 //enhanced logging default config
 
-kDAKRevisions["EnhancedLogging"] = "0.1.116a"
+kDAKRevisions["enhancedlogging"] = "0.1.118a"
 
-local function SetupDefaultConfig(Save)
-	if kDAKConfig.EnhancedLogging == nil then
-		kDAKConfig.EnhancedLogging = { }
-	end
+local function SetupDefaultConfig()
+	kDAKConfig.EnhancedLogging = { }
 	kDAKConfig.EnhancedLogging.kEnhancedLoggingSubDir = "Logs"
 	kDAKConfig.EnhancedLogging.kServerTimeZoneAdjustment = 0
 	kDAKConfig.EnhancedLogging.kLogWriteDelay = 1
-	if Save then
-		SaveDAKConfig()
-	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "EnhancedLogging", DefaultConfig = SetupDefaultConfig })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "enhancedlogging", DefaultConfig = SetupDefaultConfig })

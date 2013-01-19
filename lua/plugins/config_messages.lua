@@ -1,18 +1,13 @@
 //Messages config
 
-kDAKRevisions["Messages"] = "0.1.116a"
+kDAKRevisions["messages"] = "0.1.118a"
 
-local function SetupDefaultConfig(Save)
-	if kDAKConfig.Messages == nil then
-		kDAKConfig.Messages = { }
-	end
+local function SetupDefaultConfig()
+	kDAKConfig.Messages = { }
 	kDAKConfig.Messages.kMessagesPerTick = 5
 	kDAKConfig.Messages.kMessageTickDelay = 6
 	kDAKConfig.Messages.kMessageInterval = 10
 	kDAKConfig.Messages.kMessageStartDelay = 1
-	if Save then
-		SaveDAKConfig()
-	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "Messages", DefaultConfig = SetupDefaultConfig })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "messages", DefaultConfig = SetupDefaultConfig })

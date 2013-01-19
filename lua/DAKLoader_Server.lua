@@ -28,7 +28,7 @@ if Server then
 	kDAKServerAdminCommands = { }			//List of ServerAdmin Commands
 	kDAKPluginDefaultConfigs = { }			//List of functions to setup default configs per plugin
 	
-	kDAKRevisions["DAKLoader"] = "0.1.116a"
+	kDAKRevisions["dakloader"] = "0.1.118a"
 	
 	function DAKRegisterEventHook(functionarray, eventfunction, p)
 		//Register Event in Array
@@ -66,7 +66,7 @@ if Server then
 	//Hooks for logging functions
 	function EnhancedLog(message)
 	
-		if kDAKConfig and kDAKConfig.EnhancedLogging and DAKIsPluginEnabled("enhancedlogging") then
+		if DAKIsPluginEnabled("enhancedlogging") then
 			EnhancedLogMessage(message)
 		end
 	
@@ -74,15 +74,15 @@ if Server then
 		
 	function PrintToAllAdmins(commandname, client, parm1)
 	
-		if kDAKConfig and kDAKConfig.EnhancedLogging and DAKIsPluginEnabled("enhancedlogging") then
+		if DAKIsPluginEnabled("enhancedlogging") then
 			EnhancedLoggingAllAdmins(commandname, client, parm1)
 		end
 	
 	end
 
-	function DAKCreateGUIVoteBase(id, OnVoteFunction, OnVoteUpdateFunction)
-		if kDAKConfig and kDAKConfig.GUIVoteBase and DAKIsPluginEnabled("guivotebase") then
-			return CreateGUIVoteBase(id, OnVoteFunction, OnVoteUpdateFunction)
+	function DAKCreateGUIVoteBase(id, OnMenuFunction, OnMenuUpdateFunction)
+		if DAKIsPluginEnabled("guimenubase") then
+			return CreateGUIMenuBase(id, OnMenuFunction, OnMenuUpdateFunction)
 		end
 		return false
 	end
@@ -110,15 +110,21 @@ if Server then
 	Script.Load("lua/DAKLoader_ServerAdmin.lua")
 	Script.Load("lua/DAKLoader_Config.lua")
 	Script.Load("lua/DAKLoader_Settings.lua")
-	Script.Load("lua/DAKLoader_Shared.lua")
 	
 	if kBaseScreenHeight == nil then
 		//Assume Server.lua has not been loaded already
+		//This is probably not perfect, but assuming Server.lua was not loaded first generally means this is loaded from workshop, which would allow for the client side mods to work
+		//hence loading shared defs.
 		Script.Load("lua/Server.lua")
+		//Script.Load("lua/DAKLoader_Shared.lua")
+		//Shared file just offers net msg definitions required for menus.
 	end
 
 	Script.Load("lua/DAKLoader_EventHooks.lua")
 	Script.Load("lua/DAKLoader_ServerAdminCommands.lua")
+	Script.Load("lua/DAKLoader_PluginLoader.lua")
 	Script.Load("lua/DAKLoader_Language.lua")
+	
+	SaveDAKSettings()
 	
 end

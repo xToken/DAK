@@ -253,6 +253,17 @@ if Server then
 	
 	end
 	
+	function GetPlayerMatching(id)
+
+		local idNum = tonumber(id)
+		if idNum then
+			return GetPlayerMatchingGameId(idNum) or GetPlayerMatchingSteamId(idNum)
+		elseif type(id) == "string" then
+			return GetPlayerMatchingName(id)
+		end
+			
+	end
+	
 	function GetPlayerMatchingGameId(id)
 	
 		assert(type(id) == "number")
@@ -327,6 +338,45 @@ if Server then
 					end
 				end
 			end				
+		end
+		
+		return nil
+		
+	end
+	
+	function GetPlayerMatchingSteamId(steamId)
+
+		assert(type(steamId) == "number")
+		
+		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
+		for r = #playerList, 1, -1 do
+			if playerList[r] ~= nil then
+				local plyr = playerList[r]
+				local clnt = playerList[r]:GetClient()
+				if plyr ~= nil and clnt ~= nil then
+					if clnt:GetUserId() == steamId then
+						return plyr
+					end
+				end
+			end				
+		end
+		
+		return nil
+		
+	end
+	
+	function GetPlayerMatchingName(name)
+	
+		assert(type(name) == "string")
+		
+		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
+		for r = #playerList, 1, -1 do
+			if playerList[r] ~= nil then
+				local plyr = playerList[r]
+				if plyr:GetName() == name then
+					return plyr
+				end
+			end
 		end
 		
 		return nil

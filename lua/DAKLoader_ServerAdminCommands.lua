@@ -105,22 +105,3 @@ local function OnCommandKillServer(client)
 end
 
 //DAKCreateServerAdminCommand("Console_sv_killserver", OnCommandKillServer, "Will crash the server (lol).")
-
-//Load Plugins
-local function LoadPlugins()
-	if kDAKConfig == nil or kDAKConfig == { } or kDAKConfig.DAKLoader == nil or kDAKConfig.DAKLoader == { } or kDAKConfig.DAKLoader.kPluginsList == nil then
-		DAKGenerateDefaultDAKConfig(true)
-	end
-	if kDAKConfig ~= nil and kDAKConfig.DAKLoader ~= nil  then
-		for i = 1, #kDAKConfig.DAKLoader.kPluginsList do
-			local filename = string.format("lua/plugins/plugin_%s.lua", kDAKConfig.DAKLoader.kPluginsList[i])
-			Script.Load(filename)
-		end
-	else
-		Shared.Message("Something may be wrong with your config file.")
-	end
-end
-
-LoadPlugins()
-
-DAKCreateServerAdminCommand("Console_sv_reloadplugins", LoadPlugins, "Reloads all plugins.")

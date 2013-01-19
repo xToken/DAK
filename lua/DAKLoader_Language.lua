@@ -187,7 +187,7 @@ if Server then
 		if client and steamId and steamId ~= 0 then
 			for c = 1, #kDAKConfig.DAKLoader.kLanguageChatCommands do
 				local chatcommand = kDAKConfig.DAKLoader.kLanguageChatCommands[c]
-				if string.sub(message,1,string.len(chatcommand)) == chatcommand then
+				if string.upper(string.sub(message,1,string.len(chatcommand))) == string.upper(chatcommand) then
 					OnCommandSetLanguage(client, string.sub(message,-2))
 					return true
 				end

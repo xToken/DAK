@@ -1,19 +1,14 @@
 //reservedslots config
 
-kDAKRevisions["VoteRandom"] = "0.1.116a"
+kDAKRevisions["voterandom"] = "0.1.118a"
 
-local function SetupDefaultConfig(Save)
-	if kDAKConfig.VoteRandom == nil then
-		kDAKConfig.VoteRandom = { }
-	end
+local function SetupDefaultConfig()
+	kDAKConfig.VoteRandom = { }
 	kDAKConfig.VoteRandom.kVoteRandomInstantly = false
 	kDAKConfig.VoteRandom.kVoteRandomAlwaysEnabled = false
 	kDAKConfig.VoteRandom.kVoteRandomDuration = 30
 	kDAKConfig.VoteRandom.kVoteRandomMinimumPercentage = 60
 	kDAKConfig.VoteRandom.kVoteRandomChatCommands = { "voterandom", "random" }
-	if Save then
-		SaveDAKConfig()
-	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "VoteRandom", DefaultConfig = SetupDefaultConfig })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "voterandom", DefaultConfig = SetupDefaultConfig })

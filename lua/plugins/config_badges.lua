@@ -1,14 +1,9 @@
 //badges
 
-kDAKRevisions["Badges"] = "0.1.116a"
+kDAKRevisions["badges"] = "0.1.118a"
 
-local function SetupDefaultConfig(Save)
-	if kDAKConfig.Badges == nil then
-		kDAKConfig.Badges = { }
-	end
-	if Save then
-		SaveDAKConfig()
-	end
+local function SetupDefaultConfig()
+	//kDAKConfig.Badges = { }
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "Badges", DefaultConfig = SetupDefaultConfig })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "badges", DefaultConfig = SetupDefaultConfig })

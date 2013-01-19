@@ -1,4 +1,4 @@
-//NS2 GUI Vote Base
+//NS2 GUI Menu Base
 
 Script.Load("lua/GUIScript.lua")
 
@@ -20,9 +20,14 @@ GUIMenuBase.kUpdateLifetime = 5
 
 GUIMenuBase.kBgPosition = Vector(GUIMenuBase.kBgSize.x * -.5, GUIScale(-150) * kScale, 0)
 
+local kBackgroundPixelCoords = { 0, 0, 230, 50 }
+local kForegroundPixelCoords = { 0, 50, 230, 100 }
+
 local function OnCommandMenuUpdate(MenuBaseUpdateMessage)
-	self.lastupdate = MenuBaseUpdateMessage
-	Print(ToString(MenuBaseUpdateMessage))
+	local GUIMenuBase = GetGUIManager():GetGUIScriptSingle("gui/GUIMenuBase")
+	if GUIMenuBase then
+		GUIMenuBase:MenuUpdate(MenuBaseUpdateMessage)
+	end
 end
 
 Client.HookNetworkMessage("GUIMenuBase", OnCommandMenuUpdate)
@@ -37,13 +42,13 @@ end
 Event.Hook("Console_menubase", OnCommandMenuBase)
 
 function GUIMenuBase:Initialize()
-    self.votemenu = GUIManager:CreateGraphicItem()
-    self.votemenu:SetSize(GUIMenuBase.kBgSize)
-    self.votemenu:SetAnchor(GUIItem.Middle, GUIItem.Center)
-    self.votemenu:SetPosition(GUIMenuBase.kBgPosition)
-    self.votemenu:SetTexture(texture)
-    self.votemenu:SetTexturePixelCoordinates(unpack(kBackgroundPixelCoords))
-    self.votemenu:SetColor(Color(1,1,1,0))
+    self.mainmenu = GUIManager:CreateGraphicItem()
+    self.mainmenu:SetSize(GUIMenuBase.kBgSize)
+    self.mainmenu:SetAnchor(GUIItem.Middle, GUIItem.Center)
+    self.mainmenu:SetPosition(GUIMenuBase.kBgPosition)
+    self.mainmenu:SetTexture(texture)
+    self.mainmenu:SetTexturePixelCoordinates(unpack(kBackgroundPixelCoords))
+    self.mainmenu:SetColor(Color(1,1,1,0))
 	
 	self.headerText = GUIManager:CreateTextItem()
     self.headerText:SetAnchor(GUIItem.Middle, GUIItem.Top)
@@ -165,51 +170,55 @@ function GUIMenuBase:Initialize()
     self.footerText:SetScale(GUIMenuBase.kFontScale)
     self.footerText:SetColor(Color(1,1,1,1))
 	
-    self.votemenu:AddChild(self.headerText)
-	self.votemenu:AddChild(self.option1text)
-	self.votemenu:AddChild(self.option2text)
-	self.votemenu:AddChild(self.option3text)
-	self.votemenu:AddChild(self.option4text)
-	self.votemenu:AddChild(self.option5text)
-	self.votemenu:AddChild(self.option1desctext)
-	self.votemenu:AddChild(self.option2desctext)
-	self.votemenu:AddChild(self.option3desctext)
-	self.votemenu:AddChild(self.option4desctext)
-	self.votemenu:AddChild(self.option5desctext)
-	self.votemenu:AddChild(self.footerText)
+    self.mainmenu:AddChild(self.headerText)
+	self.mainmenu:AddChild(self.option1text)
+	self.mainmenu:AddChild(self.option2text)
+	self.mainmenu:AddChild(self.option3text)
+	self.mainmenu:AddChild(self.option4text)
+	self.mainmenu:AddChild(self.option5text)
+	self.mainmenu:AddChild(self.option1desctext)
+	self.mainmenu:AddChild(self.option2desctext)
+	self.mainmenu:AddChild(self.option3desctext)
+	self.mainmenu:AddChild(self.option4desctext)
+	self.mainmenu:AddChild(self.option5desctext)
+	self.mainmenu:AddChild(self.footerText)
 	
-	self.votemenu:SetIsVisible(false)
+	self.mainmenu:SetIsVisible(false)
 	self.lastupdate = nil
 	self.lastupdatetime = 0
 	self.menuvisible = false
 end
 
+function GUIMenuBase:MenuUpdate(MenuBaseUpdateMessage)
+	self.lastupdate = MenuBaseUpdateMessage
+end
+
 function GUIMenuBase:Uninitialize()
-    if self.votemenu then
-        GUI.DestroyItem(self.votemenu)
-        self.votemenu = nil
+    if self.mainmenu then
+        GUI.DestroyItem(self.mainmenu)
+        self.mainmenu = nil
     end
 end
 
 function GUIMenuBase:DisplayUpdate()
     if self.lastupdate ~= nil then
 		self.menuvisible = true
-        self.votemenu:SetIsVisible(self.menuvisible)
+        self.mainmenu:SetIsVisible(self.menuvisible)
     end
 end
 
 function GUIMenuBase:OnClose()
 	self.menuvisible = false
-	self.votemenu:SetIsVisible(self.menuvisible)
+	self.mainmenu:SetIsVisible(self.menuvisible)
 	self.lastupdate = nil
 end
 
 function GUIMenuBase:Update(deltaTime)
 	if self.lastupdate ~= nil then
-		if self.lastupdate.votetime < Shared.GetTime() + GUIMenuBase.kUpdateLifetime then
+		if self.lastupdate.menutime < Shared.GetTime() + GUIMenuBase.kUpdateLifetime then
 			self:OnClose()
 		else
-			if self.lastupdate.votetime > self.lastupdatetime then
+			if self.lastupdate.menutime > self.lastupdatetime then
 				self.headerText:SetText(self.lastupdate.header)
 				self.option1text:SetText(self.lastupdate.option1)
 				self.option2text:SetText(self.lastupdate.option2)
@@ -222,7 +231,9 @@ function GUIMenuBase:Update(deltaTime)
 				self.option4desctext:SetText(self.lastupdate.option4desc)
 				self.option5desctext:SetText(self.lastupdate.option5desc)
 				self.footerText:SetText(self.lastupdate.footer)
-				self.lastupdatetime = self.lastupdate.votetime
+				self.lastupdatetime = self.lastupdate.menutime
+				Print(ToString(self.lastupdatetime))
+				self:DisplayUpdate()
 			end
 		end
 	end
@@ -251,21 +262,21 @@ function GUIMenuBase:OverrideInput(input)
 end    
 
 //GUIMenuBase
-//local kVoteBaseUpdateMessage = 
+//local kMenuBaseUpdateMessage = 
 //{
-//	header         		= string.format("string (%d)", kMaxVoteStringLength),
-//	option1         	= string.format("string (%d)", kMaxVoteStringLength),
-//	option1desc         = string.format("string (%d)", kMaxVoteStringLength),
-//	option2        		= string.format("string (%d)", kMaxVoteStringLength),
-//	option2desc         = string.format("string (%d)", kMaxVoteStringLength),
-//	option3        		= string.format("string (%d)", kMaxVoteStringLength),
-//	option3desc         = string.format("string (%d)", kMaxVoteStringLength),
-//	option4        		= string.format("string (%d)", kMaxVoteStringLength),
-//	option4desc         = string.format("string (%d)", kMaxVoteStringLength),
-//	option5         	= string.format("string (%d)", kMaxVoteStringLength),
-//	option5desc         = string.format("string (%d)", kMaxVoteStringLength),
-//	footer         		= string.format("string (%d)", kMaxVoteStringLength),
+//	header         		= string.format("string (%d)", kMaxMenuStringLength),
+//	option1         	= string.format("string (%d)", kMaxMenuStringLength),
+//	option1desc         = string.format("string (%d)", kMaxMenuStringLength),
+//	option2        		= string.format("string (%d)", kMaxMenuStringLength),
+//	option2desc         = string.format("string (%d)", kMaxMenuStringLength),
+//	option3        		= string.format("string (%d)", kMaxMenuStringLength),
+//	option3desc         = string.format("string (%d)", kMaxMenuStringLength),
+//	option4        		= string.format("string (%d)", kMaxMenuStringLength),
+//	option4desc         = string.format("string (%d)", kMaxMenuStringLength),
+//	option5         	= string.format("string (%d)", kMaxMenuStringLength),
+//	option5desc         = string.format("string (%d)", kMaxMenuStringLength),
+//	footer         		= string.format("string (%d)", kMaxMenuStringLength),
 //  inputallowed		= "boolean",
-//	votetime   	  		= "time"
+//	menutime   	  		= "time"
 //}
 

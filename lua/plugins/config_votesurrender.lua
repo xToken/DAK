@@ -1,18 +1,13 @@
 //votesurrender config
 
-kDAKRevisions["VoteSurrender"] = "0.1.116a"
+kDAKRevisions["votesurrender"] = "0.1.118a"
 
-local function SetupDefaultConfig(Save)
-	if kDAKConfig.VoteSurrender == nil then
-		kDAKConfig.VoteSurrender = { }
-	end
+local function SetupDefaultConfig()
+	kDAKConfig.VoteSurrender = { }
 	kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage = 60
 	kDAKConfig.VoteSurrender.kVoteSurrenderVotingTime = 120
 	kDAKConfig.VoteSurrender.kVoteSurrenderAlertDelay = 20
 	kDAKConfig.VoteSurrender.kSurrenderChatCommands = { "surrender" }
-	if Save then
-		SaveDAKConfig()
-	end
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "VoteSurrender", DefaultConfig = SetupDefaultConfig })
+table.insert(kDAKPluginDefaultConfigs, {PluginName = "votesurrender", DefaultConfig = SetupDefaultConfig })
