@@ -72,10 +72,10 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 	
 	local function MonitorCountDown()
 	
-		if TournamentModeSettings.countdownstarted then	
+		if TournamentModeSettings.countdownstarted then
 								
 			if TournamentModeSettings.countdownstarttime - TournamentModeSettings.countdownstartcount < Shared.GetTime() and TournamentModeSettings.countdownstartcount ~= 0 then
-				if (math.fmod(TournamentModeSettings.countdownstartcount, 5) == 0 or TournamentModeSettings.countdownstartcount <= 5) then
+				if (math.fmod(TournamentModeSettings.countdownstartcount, kDAKConfig.TournamentMode.kTournamentModeCountdownDelay) == 0 or TournamentModeSettings.countdownstartcount <= 5) then
 					DAKDisplayMessageToAllClients("kTournamentModeCountdown", TournamentModeSettings.countdownstartcount)
 				end
 				TournamentModeSettings.countdownstartcount = TournamentModeSettings.countdownstartcount - 1
@@ -89,7 +89,7 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 				end
 			end
 			
-		else
+		elseif not kDAKConfig.TournamentMode.kTournamentModePubMode then
 		
 			if lastreadyalert + kDAKConfig.TournamentMode.kTournamentModeAlertDelay < Shared.GetTime() then
 			
@@ -116,14 +116,14 @@ if kDAKConfig and kDAKConfig.TournamentMode then
 		if gamerules and gamerules:GetTeam1():GetNumPlayers() >= kDAKConfig.TournamentMode.kTournamentModePubMinPlayersPerTeam and gamerules:GetTeam2():GetNumPlayers() >= kDAKConfig.TournamentMode.kTournamentModePubMinPlayersPerTeam then
 			if not TournamentModeSettings.countdownstarted then
 				TournamentModeSettings.countdownstarted = true
-				TournamentModeSettings.countdownstarttime = Shared.GetTime() + kDAKConfig.TournamentMode.kTournamentModeGameStartDelay
-				TournamentModeSettings.countdownstartcount = kDAKConfig.TournamentMode.kTournamentModeGameStartDelay	
+				TournamentModeSettings.countdownstarttime = Shared.GetTime() + kDAKConfig.TournamentMode.kTournamentModePubGameStartDelay
+				TournamentModeSettings.countdownstartcount = kDAKConfig.TournamentMode.kTournamentModePubGameStartDelay
 			end
 		else
 			CheckCancelGameStart()
-			if TournamentModeSettings.lastpubmessage + kDAKConfig.TournamentMode.kTournamentModePubAlertDelay < Shared.GetTime() then
+			if TournamentModeSettings.lastmessage + kDAKConfig.TournamentMode.kTournamentModeAlertDelay < Shared.GetTime() then
 				DAKDisplayMessageToAllClients("kTournamentModePubPlayerWarning", kDAKConfig.TournamentMode.kTournamentModePubMinPlayersPerTeam)
-				TournamentModeSettings.lastpubmessage = Shared.GetTime()
+				TournamentModeSettings.lastmessage = Shared.GetTime()
 			end
 		end
 
