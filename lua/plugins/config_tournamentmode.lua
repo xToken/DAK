@@ -14,6 +14,8 @@ local function SetupDefaultConfig(Save)
 	kDAKConfig.TournamentMode.kTournamentModeAlertDelay = 30
 	kDAKConfig.TournamentMode.kTournamentModeReadyDelay = 2
 	kDAKConfig.TournamentMode.kTournamentModeGameStartDelay = 15
+	kDAKConfig.TournamentMode.kTournamentModePubGameStartDelay = 15
+	kDAKConfig.TournamentMode.kTournamentModeCountdownDelay = 5
 	kDAKConfig.TournamentMode.kReadyChatCommands = { "ready" }
 	if Save then
 		SaveDAKConfig()
