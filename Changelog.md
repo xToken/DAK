@@ -3,7 +3,10 @@
 Initial Version - Plugin versions invidually all over - normalizing for this update, along with loader version - Need to decide how to track plugin revisions - 
 should plugins be updated with each 'build' of DAK, even if there are no changes?  This seems the most logical way to proceed currently, and for the future.
 
-- v0.1.118a
+## v0.1.119a
+- Corrected missing config variables for tournamentmode plugin.
+
+## v0.1.118a
 - Updated chat command checks to be case insensitive.
 - Adjusted loading order for menu system functions.
 - Adjusted and corrected many bugs with the base menu system functions - still not complete, mainly just needs a working GUI.
@@ -17,10 +20,10 @@ should plugins be updated with each 'build' of DAK, even if there are no changes
 - Updated readme courtesy of Whosat.
 - Corrected scoreboard issue and added some configuration options to tournamentmode plugin courtesy of kormendi.
 
-- v0.1.117a
+## v0.1.117a
 - Updated some overrides in sv_pause plugin
 
-- v0.1.118a
+## v0.1.116a
 - Added basics for a sv_pause plugin - Currently still missing or broken or untested parts are - Maturity Rate,FireDamage,Comm Abilities - Looking into blocking reloads and energy regain.
 - Corrected issue with mapvote triggering too often (on any gamestate change).
 - Commented out sv_cheats command as NS2 has one now.
@@ -29,7 +32,7 @@ should plugins be updated with each 'build' of DAK, even if there are no changes
 - Removed MaxSlots configuration option from ReservedSlots plugin as it can now be read directly from the Server.
 - Corrected logic issue with SurrenderVote plugin that could cause the first alien on the team to be missed (and the surrender array not cleared).
 
-- v0.1.115a
+## v0.1.115a
 - Merged pull request from Lance including config option to disable tournament mode team join override.
 - Added option to random plugin to have random always turned on.
 - Added some additional safety to language table merging.
@@ -40,7 +43,7 @@ should plugins be updated with each 'build' of DAK, even if there are no changes
 - Changed sv_cheats command to be a toggle.
 - Never Released
 
-- v0.1.114a
+## v0.1.114a
 - Corrected issue with public play setting for tournamentmode allowing any team to be joined.
 - Corrected mapvote plugin issue where RTVs would still trigger automatic map cycle.
 - Added maximum amount of ties to mapvote plugin to prevent endless voting loops.

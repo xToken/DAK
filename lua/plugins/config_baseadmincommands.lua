@@ -1,6 +1,6 @@
 //baseadmincommands default config
 
-kDAKRevisions["baseadmincommands"] = "0.1.118a"
+kDAKRevisions["baseadmincommands"] = "0.1.119a"
 local function SetupDefaultConfig()
 	kDAKConfig.BaseAdminCommands = { }
 	kDAKConfig.BaseAdminCommands.kMapChangeDelay = 5

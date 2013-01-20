@@ -1,6 +1,6 @@
 //reservedslots config
 
-kDAKRevisions["reservedslots"] = "0.1.118a"
+kDAKRevisions["reservedslots"] = "0.1.119a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.ReservedSlots = { }

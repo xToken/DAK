@@ -1,6 +1,6 @@
 //automapcycle default config
 
-kDAKRevisions["automapcycle"] = "0.1.118a"
+kDAKRevisions["automapcycle"] = "0.1.119a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.AutoMapCycle = { }

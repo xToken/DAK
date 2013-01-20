@@ -1,6 +1,6 @@
 //Messages config
 
-kDAKRevisions["messages"] = "0.1.118a"
+kDAKRevisions["messages"] = "0.1.119a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.Messages = { }

@@ -1,6 +1,6 @@
 //afkkick default config
 
-kDAKRevisions["afkkick"] = "0.1.118a"
+kDAKRevisions["afkkick"] = "0.1.119a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.AFKKicker = { }
