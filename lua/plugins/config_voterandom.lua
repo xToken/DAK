@@ -1,6 +1,6 @@
 //reservedslots config
 
-kDAKRevisions["voterandom"] = "0.1.119a"
+kDAKRevisions["voterandom"] = "0.1.125a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.VoteRandom = { }
@@ -11,4 +11,19 @@ local function SetupDefaultConfig()
 	kDAKConfig.VoteRandom.kVoteRandomChatCommands = { "voterandom", "random" }
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "voterandom", DefaultConfig = SetupDefaultConfig })
+DAKRegisterEventHook("kDAKPluginDefaultConfigs", {PluginName = "voterandom", DefaultConfig = SetupDefaultConfig })
+
+local function SetupDefaultLanguageStrings()
+	local DefaultLangStrings = { }
+	DefaultLangStrings["kVoteRandomConnectAlert"] 					= "Random teams are enabled, you are being randomed to a team."
+	DefaultLangStrings["kVoteRandomVoteCountAlert"] 				= "%s voted for random teams. (%s votes, needed %s)."
+	DefaultLangStrings["kVoteRandomEnabledDuration"] 				= "Random teams have been enabled for the next %s Minutes"
+	DefaultLangStrings["kVoteRandomEnabled"] 						= "Random teams have been enabled, the round will restart."
+	DefaultLangStrings["kVoteRandomTeamJoinBlock"] 					= "Random teams are enabled, you will be randomed to a team shortly."
+	DefaultLangStrings["kVoteRandomDisabled"] 						= "Random teams have been disabled."
+	DefaultLangStrings["kVoteRandomAlreadyVoted"] 					= "You already voted for random teams."
+	DefaultLangStrings["kVoteRandomAlreadyEnabled"] 				= "Random teams already enabled."
+	return DefaultLangStrings
+end
+
+DAKRegisterEventHook("kDAKPluginDefaultLanguageDefinitions", SetupDefaultLanguageStrings)

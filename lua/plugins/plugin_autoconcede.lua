@@ -13,7 +13,7 @@ if kDAKConfig and kDAKConfig.DAKLoader and kDAKConfig.DAKLoader.GamerulesExtensi
 	originalNS2GRCheckGameEnd = Class_ReplaceMethod(kDAKConfig.DAKLoader.GamerulesClassName, "CheckGameEnd", 
 		function(self)
 		
-			if self:GetGameStarted() and self.timeGameEnded == nil and not Shared.GetCheatsEnabled() and not self.preventGameEnd then
+			if self:GetGameStarted() and self.timeGameEnded == nil and not GetTournamentMode() and not Shared.GetCheatsEnabled() and not Shared.GetDevMode() and not self.preventGameEnd then
 				if kConcedeCheck == nil or (Shared.GetTime() > kConcedeCheck + kConcedeCheckInt) then
 					local team1Players = self.team1:GetNumPlayers()
 					local team2Players = self.team2:GetNumPlayers()

@@ -1,6 +1,6 @@
 //automapcycle default config
 
-kDAKRevisions["automapcycle"] = "0.1.119a"
+kDAKRevisions["automapcycle"] = "0.1.125a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.AutoMapCycle = { }
@@ -10,4 +10,4 @@ local function SetupDefaultConfig()
 	kDAKConfig.AutoMapCycle.kMapCycleMaps = { "ns2_tram", "ns2_summit", "ns2_veil" }
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "automapcycle", DefaultConfig = SetupDefaultConfig })
+DAKRegisterEventHook("kDAKPluginDefaultConfigs", {PluginName = "automapcycle", DefaultConfig = SetupDefaultConfig })

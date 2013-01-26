@@ -275,24 +275,23 @@ All server admin commands will also print to any other admin's consoles when use
 These commands can be executed via chat or via the console (~)
 * __timeleft__ - displays time left till next map vote.
 * __acceptmotd__ - supresses motd messages unless the `kMOTDMessageRevision` is changed.
- * This is saved in _DAKSettings.json_ and persists between map changes.
+	* This is saved in _DAKSettings.json_ and persists between map changes.
 * __printmotd__ - will print the motd out.
 * __voterandom__ - will vote to enable random teams.
 * __ready__ - marks your team as ready if tournamentmode is enabled.
 * __vote__ - used to vote for a map during map vote, needs to have a number as a paramater.
 * __rtv__ or __rockthevote__ - used to vote for a map vote (can be started anytime)
 * __surrender__ - used to start or vote in an active surrender vote.
+* __\lang or setlanguage (console)__ - used to set your language.
  
 ## Languages
 DAK also now includes a language system, which allows clients to specifiy their language to change the format/language of the messages they recieve.
-* Currently only EN is included, we hope to expand this to include many languages by default
-* The language files are included in the lua folder by default, `lua/lang/%LANGUAGENAME%.json`
-* _Default.json_ should not be modified, as it will include all messages that are used. 
+* DAK will automatically generate a Default.json file in the lang folder in the config_path for the server.
+* The Default.json file should be used to create any custom languages.  The language name is determined by the file name.
 * If you are creating a new language, you will want to copy and rename _Default.json_ accordingly.
- * This will allow those messages to still show up in game, before other language files are updated.
-* DAK will also check in the _config_path/lang_ folder for the language files specified.
+* This will allow those messages to still show up in game, before other language files are updated.
 * You can configure the languages DAK will load in _DAKConfig.json_, EN being the only one by default.
- * Clients can then change their language by using the two letter identification string for that language (currently using 2, EN, FR, ES etc.., may switch to 4 - ENUS, ENGB etc.)
+* Clients can then change their language by using the two letter identification string for that language (currently using 2, EN, FR, ES etc.., may switch to 4 - ENUS, ENGB etc.)
 * Currently they can use the console command `setlanguage en`, or use the chat command `\lang en`.
 * As for configuring the messages, it works mostly the same as before, however all messages are located in the language json files, and you would need to customize each language as needed.
 * The same notes still apply regarding regex strings, you will want to maintain the same amounts (%s, %f, %d). 
@@ -304,6 +303,7 @@ DAK extends various events from the engine, and creates a couple of its own.
  kDAKOnClientConnect
  kDAKOnClientDisconnect
  kDAKOnServerUpdate
+ kDAKOnServerUpdateEveryFrame
  kDAKOnClientDelayedConnect
  kDAKOnTeamJoin
  kDAKOnGameEnd
@@ -320,15 +320,17 @@ Functions can be added to these variables which will be run when these events oc
  
 `DAKRegisterEventHook(kDAKOnServerUpdate, UpdateMapVotes, 5) - (EventArray, Function, Priority)`
 * This also allows a priority to be set for the Event, the higher the number the greater the priority.
- * _Default: 5_
+* _Default: 5_
 * This also allows for the EventHooks to be removed during runtime, for greater efficiency.
  
 `DAKDeregisterEventHook(kDAKOnServerUpdate, UpdateMapVotes) - (EventArray, Function)`
 * This removes the function from the array, so that it wont be called anymore.
  
-Plugins are loaded from the plugin folder by DAK, with config_ files being loaded to setup config if needed, and plugin_ files containing the plugin logic.
+Plugins are loaded from the plugin folder by DAK, with config_ files being loaded to setup config/language strings if needed, and plugin_ files containing the plugin logic.
 The config_ files uses an array to track all config functions:
-`table.insert(kDAKPluginDefaultConfigs, {PluginName = "AFKKicker", DefaultConfig = SetupDefaultConfig })`
+
+`DAKRegisterEventHook("kDAKPluginDefaultConfigs", {PluginName = "AFKKicker", DefaultConfig = SetupDefaultConfig })`
+`DAKRegisterEventHook("kDAKPluginDefaultLanguageDefinitions", SetupDefaultLanguageStrings)`
  
 Notes about Gamerules overrides - they require the same args from vanilla NS2, or will need manual configuration.
 This can be changed in _DAKLoader.lua_, `kDAKBaseGamerules` is the class name used when setting up the overrides.
@@ -366,6 +368,10 @@ Below are the functions overridden and their default configuration.
  
 __OverrideInterp Plugin__
 * This is mainly for testing, however it overrides the default interpolation value of 100ms on each clients connect, making sure that the value is correct set client/server side.
+
+__AFKKicker Plugin__
+* This plugin checks if a player is idle by caching their viewangles and origin, and displays messages to alert them if they are going to be kicked.
+* May in the future be improved to use idle parameter on the player.
  
 __AutoConcede Plugin__
 * This plugin adds an Automatic Concede check to the GameEnd function, which will alert players if the teams are different by a configurable amount of players
@@ -374,6 +380,9 @@ __AutoConcede Plugin__
 __AutoMapCycle Plugin__
 * This plugin will automatically cycle the map after a configurable amount of time, and with a configurable minimum player count.
 * It will invoke a MapCycle change, or alternatively can be configured to use a specific map list.
+
+__Badges Plugin__
+* This plugin is designed to extend Huze's badges mod slightly to allow for admins queried from the web via DAK to be recognized and the badges shown.
  
 __BaseAdminCommands Plugin__
 * This plugin replaces the basic admin commands that are provided with NS2, and changes some functionality.
@@ -382,42 +391,12 @@ __BaseAdminCommands Plugin__
 __CommBans Plugin__
 * This plugin allows commander bans to be set, which can be permanent or time based.
 * They can be added and or removed in game.
- * This allows adds protection to commander ejecting for various admin levels, if the sv_ejectionprotection command is granted.
- 
-__VoteRandom Plugin__
-* This plugin enables players to vote to enable random teams.
-* Supports either randoming the teams instantly, or enabling random teams for a set duration, where the next game and all games for a set duration have random teams.
- 
-__TournamentMode Plugin__
-* Made a recent re-visit to this plugin to improve basics regarding it, created basic framework for PCW/Official modes.
-* May continue to improve and add to differences between modes.
- 
-__ReservedSlots Plugin__
-* Basic Reserve slots plugin, however is more a proof of concept and does not have the ability to work in a way that provides a good user experience.
-* Basic framework may prove useful should the ability arise to reject clients connection earlier or modify query response.
- 
-__MOTD Plugin__
-* This plugin provides a MOTD system that could be more accurately described as a rules system, which allows clients to accept and have the messages not always appear on connect.  Should be loaded as last plugin so that other plugins can stop the messages if needed.
-* Messages are also sent in groups so that they can all be viewed onscreen.
- 
-__Messages Plugin__
-* This plugin provides a periodic message delivery function, which allows for flexible configuration:
- * The total amount of messages, messages per block, interval between blocks, interval between message cycles, and a start delay for message cycling.
- 
-__MapVote Plugin__
-* This plugin provides a map voting system, which will read the mapcycle.txt for cycle time and the list of maps.
-* On round end a map vote is triggered if enough time has elapsed, with a randomly selected list of maps which excludes some of the map last played.
-* Since NS2 only has 5 offical maps currently, the plugin will automatically add back in maps if there is not enough to make the minimum.
-* Almost all parts are configurable in the configs.
- 
-__AFKKicker Plugin__
-* This plugin checks if a player is idle by caching their viewangles and origin, and displays messages to alert them if they are going to be kicked.
-* May in the future be improved to use idle parameter on the player.
+* This allows adds protection to commander ejecting for various admin levels, if the sv_ejectionprotection command is granted.
  
 __EnhancedLogging Plugin__
 * This plugin enables alot of extra logging, which is done to a seperate directory within the configured server admin path.
 * Sample log file below with some information omitted:
- 
+
 ```
  L 9/16/2012 - 12:55:53 - <AAA><10><STEAMID><0> joined team 2.
  L 9/16/2012 - 12:55:59 - <[Mi7] JumpinJackFlas><13><STEAMID><0> changed name to [Mi7] JumpinJackFlash.
@@ -429,8 +408,42 @@ __EnhancedLogging Plugin__
  L 9/16/2012 - 12:57:00 - <Teh_Prodigy><2><STEAMID><1> killed Hydra with Shotgun at (attacker_position 69.100000 0.010000 33.650000) (victim_position 64.600000 -0.000000 30.490000)
 ```
 
-__VoteSurrender Plugin__
-* This plugin provides a surrender vote system for each team, which can be used to vote for the game to end if a set percentage of the team votes.
+__GUIMenuBase Plugin__
+* This plugin is designed to offer a basic client/server side GUI implementation.  Currently the plugin should be fully functional, however it requires the mod to be installed on the server via workshop.
+* Since network messages are used to add the menu functionality, if a client did not have the mod they would be unable to connect.  This also needs a GUI for the menu to work correctly, which is the only part missing.
+* A sample developed GUI is included in the GUI folder, however it is not complete and does not function currently.
+
+__MapVote Plugin__
+* This plugin provides a map voting system, which will read the mapcycle.txt for cycle time and the list of maps.
+* On round end a map vote is triggered if enough time has elapsed, with a randomly selected list of maps which excludes some of the map last played.
+* Since NS2 only has 5 offical maps currently, the plugin will automatically add back in maps if there is not enough to make the minimum.
+* Almost all parts are configurable in the configs.
+
+__Messages Plugin__
+* This plugin provides a periodic message delivery function, which allows for flexible configuration:
+* The total amount of messages, messages per block, interval between blocks, interval between message cycles, and a start delay for message cycling.
+
+__MOTD Plugin__
+* This plugin provides a MOTD system that could be more accurately described as a rules system, which allows clients to accept and have the messages not always appear on connect.  Should be loaded as last plugin so that other plugins can stop the messages if needed.
+* Messages are also sent in groups so that they can all be viewed onscreen.
+
+__Pause Plugin__
+* This plugin is designed to add the ability to pause the game via various overrides and variable tweaking.  It is currently in developement and may not function accurately yet.
+
+__ReservedSlots Plugin__
+* Basic Reserve slots plugin, however is more a proof of concept and does not have the ability to work in a way that provides a good user experience.
+* Basic framework may prove useful should the ability arise to reject clients connection earlier or modify query response.
+
+__TournamentMode Plugin__
+* Made a recent re-visit to this plugin to improve basics regarding it, created basic framework for PCW/Official modes.
+* May continue to improve and add to differences between modes.
  
 __UnStuck Plugin__
 * This plugin provides an unstuck command for players, and has some basic configurable options for delays to prevent abuse, and to change the unstuck amount.
+ 
+__VoteRandom Plugin__
+* This plugin enables players to vote to enable random teams.
+* Supports either randoming the teams instantly, or enabling random teams for a set duration, where the next game and all games for a set duration have random teams.
+
+__VoteSurrender Plugin__
+* This plugin provides a surrender vote system for each team, which can be used to vote for the game to end if a set percentage of the team votes.

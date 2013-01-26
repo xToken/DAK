@@ -5,11 +5,13 @@ if Server then
 	local DAKConfigFileName = "config://DAKConfig.json"
 	
 	local function tablemerge(tab1, tab2)
-		for k, v in pairs(tab2) do
-			if (type(v) == "table") and (type(tab1[k] or false) == "table") then
-				tablemerge(tab1[k], tab2[k])
-			else
-				tab1[k] = v
+		if tab1 ~= nil and tab2 ~= nil then
+			for k, v in pairs(tab2) do
+				if (type(v) == "table") and (type(tab1[k] or false) == "table") and table.getn(v) == 0 then
+					tablemerge(tab1[k], tab2[k])
+				else
+					tab1[k] = v
+				end
 			end
 		end
 		return tab1
@@ -70,11 +72,13 @@ if Server then
 		end
 		
 		//Generate default configs for all plugins
-		
-		for i = 1, #kDAKPluginDefaultConfigs do
-			PluginDefaultConfig = kDAKPluginDefaultConfigs[i]
-			if Plugin == PluginDefaultConfig.PluginName or Plugin == "ALL" then
-				kDAKPluginDefaultConfigs[i].DefaultConfig()
+		local funcarray = DAKReturnEventArray("kDAKPluginDefaultConfigs")
+		if funcarray ~= nil then
+			for i = 1, #funcarray do
+				PluginDefaultConfig = funcarray[i].func
+				if Plugin == PluginDefaultConfig.PluginName or Plugin == "ALL" then
+					PluginDefaultConfig.DefaultConfig()
+				end
 			end
 		end
 		

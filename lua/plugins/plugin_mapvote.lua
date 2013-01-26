@@ -29,38 +29,19 @@ local function GetMapName(map)
 	return map
 end
 
-local function VerifyMapInCycle(mapName)
-
-	if kDAKMapCycle and kDAKMapCycle.maps and mapName then
-		for i = 1, #kDAKMapCycle.maps do
-			if GetMapName(kDAKMapCycle.maps[i]):upper() == mapName:upper() then
-				return true
-			end
-		end
-	end
-	if kDAKMapCycle and kDAKMapCycle.votemaps and mapName then
-		for i = 1, #kDAKMapCycle.votemaps do
-			if GetMapName(kDAKMapCycle.votemaps[i]):upper() == mapName:upper() then
-				return true
-			end
-		end
-	end
-	return false
-end
-
 local function CheckMapVote()
 
 	if mapvoterunning or mapvoteintiated or mapvotecomplete then
 		return true
 	end
-	if Shared.GetTime() < ((kDAKMapCycle.time * 60) + (mapvoteextend * 60)) then
+	if Shared.GetTime() < ((MapCycle_GetMapCycleTime() * 60) + (mapvoteextend * 60)) then
 		// We haven't been on the current map for long enough.
 		return true
 	end
 
 end
 
-DAKRegisterEventHook(kDAKCheckMapChange, CheckMapVote, 5)
+DAKRegisterEventHook("kDAKCheckMapChange", CheckMapVote, 5)
 
 local function StartCountdown(gamerules)
 	if gamerules then
@@ -103,10 +84,11 @@ local function UpdateMapVoteCountDown()
 			end
 		end
 		
-		for i = 1, #kDAKMapCycle.maps do
+		local MapsArray = MapCycle_GetMapCycleArray
+		for i = 1, #MapsArray do
 		
 			recentlyplayed = false
-			local mapName = GetMapName(kDAKMapCycle.maps[i])
+			local mapName = GetMapName(MapsArray[i])
 			for j = 1, #kDAKSettings.PreviousMaps do
 			
 				if mapName == kDAKSettings.PreviousMaps[j] then
@@ -121,11 +103,12 @@ local function UpdateMapVoteCountDown()
 			
 		end
 		
-		if kDAKMapCycle.votemaps ~= nil and #kDAKMapCycle.votemaps > 0 then
-			for i = 1, #kDAKMapCycle.votemaps do
+		local VoteMapsArray = MapCycle_GetVoteMapCycleArray()
+		if VoteMapsArray ~= nil and #VoteMapsArray > 0 then
+			for i = 1, #VoteMapsArray do
 			
 				recentlyplayed = false
-				local mapName = GetMapName(kDAKMapCycle.votemaps[i])
+				local mapName = GetMapName(VoteMapsArray[i])
 				for j = 1, #kDAKSettings.PreviousMaps do
 				
 					if mapName == kDAKSettings.PreviousMaps[j] then
@@ -144,7 +127,7 @@ local function UpdateMapVoteCountDown()
 		if #tempMaps < kDAKConfig.MapVote.kMapsToSelect then
 		
 			for i = 1, (kDAKConfig.MapVote.kMapsToSelect - #tempMaps) do
-				if kDAKSettings.PreviousMaps[i] ~= tostring(Shared.GetMapName()) and VerifyMapInCycle(kDAKSettings.PreviousMaps[i]) and MapCycle_MeetsPlayerRequirements(kDAKSettings.PreviousMaps[i]) then
+				if kDAKSettings.PreviousMaps[i] ~= tostring(Shared.GetMapName()) and MapCycle_VerifyMapInCycle(kDAKSettings.PreviousMaps[i]) and MapCycle_MeetsPlayerRequirements(kDAKSettings.PreviousMaps[i]) then
 					table.insert(tempMaps, kDAKSettings.PreviousMaps[i])
 				end
 			end
@@ -290,7 +273,7 @@ local function ProcessandSelectMap()
 	local votepassed = false
 	local totalvotes = 0
 	
-	// This is cleared so that only valid players votes still in the game will count.
+	// This is cleared so that only valid players still in the game votes will count.
 	MapVotes = { }
 	
 	for _, player in ientitylist(playerRecords) do
@@ -387,8 +370,6 @@ local function ProcessandSelectMap()
 end
 
 local function UpdateMapVotes(deltaTime)
-
-	PROFILE("MapVote:UpdateMapVotes")
 	
 	if mapvotecomplete then
 		
@@ -403,7 +384,7 @@ local function UpdateMapVotes(deltaTime)
 			elseif not mapvoterocked then
 				MapCycle_ChangeToMap(GetMapName(MapCycle_GetNextMapInCycle()))
 			end
-			DAKDeregisterEventHook(kDAKOnServerUpdate, UpdateMapVotes)
+			DAKDeregisterEventHook("kDAKOnServerUpdate", UpdateMapVotes)
 			mapvoterocked = false
 			nextmap = nil
 			mapvotecomplete = false
@@ -416,12 +397,13 @@ local function UpdateMapVotes(deltaTime)
 	if mapvoteintiated then
 
 		if Shared.GetTime() > mapvotedelay then
+		
 			UpdateMapVoteCountDown()
 			
-			//local playerRecords = Shared.GetEntitiesWithClassname("Player")				
-			//for _, player in ientitylist(playerRecords) do
-				//DAKCreateGUIVoteBase(GetGameIdMatchingPlayer(player), OnCommandVote, OnCommandUpdateVote)
-			//end
+			local playerRecords = Shared.GetEntitiesWithClassname("Player")				
+			for _, player in ientitylist(playerRecords) do
+				DAKCreateGUIVoteBase(GetGameIdMatchingPlayer(player), OnCommandVote, OnCommandUpdateVote)
+			end
 			
 		end
 		
@@ -455,18 +437,18 @@ local function StartMapVote()
 		mapvotedelay = Shared.GetTime() + kDAKConfig.MapVote.kVoteStartDelay
 		DAKDisplayMessageToAllClients("kVoteMapBeginning", kDAKConfig.MapVote.kVoteStartDelay)
 		DAKDisplayMessageToAllClients("kVoteMapHowToVote")
-		DAKRegisterEventHook(kDAKOnServerUpdate, UpdateMapVotes, 5)
+		DAKRegisterEventHook("kDAKOnServerUpdate", UpdateMapVotes, 5)
 		
 	end
 	
 	return true
 end
 
-DAKRegisterEventHook(kDAKOverrideMapChange, StartMapVote, 5)
+DAKRegisterEventHook("kDAKOverrideMapChange", StartMapVote, 5)
 
 local function MapVoteUpdatePregame(self, timePassed)
 
-	if self:GetGameState() == kGameState.PreGame then
+	if not GetTournamentMode() and not Shared.GetCheatsEnabled() and not Shared.GetDevMode() and self:GetGameState() == kGameState.PreGame then
 	
 		local preGameTime = kDAKConfig.MapVote.kPregameLength
 		if self.timeSinceGameStateChanged > preGameTime then
@@ -484,7 +466,7 @@ local function MapVoteUpdatePregame(self, timePassed)
 
 end
 
-DAKRegisterEventHook(kDAKOnUpdatePregame, MapVoteUpdatePregame, 5)
+DAKRegisterEventHook("kDAKOnUpdatePregame", MapVoteUpdatePregame, 5)
 
 local function MapVoteSetGameState(self, state, currentstate)
 
@@ -496,7 +478,7 @@ local function MapVoteSetGameState(self, state, currentstate)
 	
 end
 
-DAKRegisterEventHook(kDAKOnSetGameState, MapVoteSetGameState, 5)
+DAKRegisterEventHook("kDAKOnSetGameState", MapVoteSetGameState, 5)
 
 local function UpdateRTV(silent, playername)
 
@@ -540,7 +522,7 @@ local function UpdateRTV(silent, playername)
 
 end
 
-DAKRegisterEventHook(kDAKOnClientDisconnect, UpdateRTV, 5)
+DAKRegisterEventHook("kDAKOnClientDisconnect", UpdateRTV, 5)
 
 local function OnCommandRTV(client)
 
@@ -573,7 +555,7 @@ Event.Hook("Console_rockthevote",               OnCommandRTV)
 local function OnCommandTimeleft(client)
 
 	if client ~= nil then
-		DAKDisplayMessageToClient(client, "kVoteMapTimeRemaining", math.max(0,((kDAKMapCycle.time * 60) - Shared.GetTime())/60))
+		DAKDisplayMessageToClient(client, "kVoteMapTimeRemaining", math.max(0,((MapCycle_GetMapCycleTime() * 60) - Shared.GetTime())/60))
 	end
 	
 end
@@ -608,7 +590,7 @@ local function OnMapVoteChatMessage(message, playerName, steamId, teamNumber, te
 
 end
 
-DAKRegisterEventHook(kDAKOnClientChatMessage, OnMapVoteChatMessage, 5)
+DAKRegisterEventHook("kDAKOnClientChatMessage", OnMapVoteChatMessage, 5)
 
 local function OnCommandStartMapVote(client)
 
@@ -645,7 +627,7 @@ local function CancelMapVote(client)
 		PlayerVotes= { }
 		
 		DAKDisplayMessageToAllClients("kVoteMapCancelled")
-		DAKDeregisterEventHook(kDAKOnServerUpdate, UpdateMapVotes)
+		DAKDeregisterEventHook("kDAKOnServerUpdate", UpdateMapVotes)
 		
 	elseif client ~= nil then
 		DAKDisplayMessageToClient(client, "kVoteMapNotRunning")

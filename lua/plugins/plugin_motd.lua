@@ -70,11 +70,9 @@ local function MOTDOnClientDisconnect(client)
 
 end
 
-DAKRegisterEventHook(kDAKOnClientDisconnect, MOTDOnClientDisconnect, 5)
+DAKRegisterEventHook("kDAKOnClientDisconnect", MOTDOnClientDisconnect, 5)
 
 local function ProcessRemainingMOTDMessages(deltatime)
-
-	PROFILE("MOTD:ProcessRemainingMOTDMessages")
 
 	if #MOTDClientTracker > 0 then
 		
@@ -93,7 +91,7 @@ local function ProcessRemainingMOTDMessages(deltatime)
 			end
 		end
 		if #MOTDClientTracker == 0 then
-			DAKDeregisterEventHook(kDAKOnServerUpdate, ProcessRemainingMOTDMessages)
+			DAKDeregisterEventHook("kDAKOnServerUpdate", ProcessRemainingMOTDMessages)
 		end
 	end
 	
@@ -117,13 +115,13 @@ local function MOTDOnClientConnect(client)
 	PEntry = ProcessMessagesforUser(PEntry)
 	if PEntry ~= nil then
 		if #MOTDClientTracker == 0 then
-			DAKRegisterEventHook(kDAKOnServerUpdate, ProcessRemainingMOTDMessages, 5)
+			DAKRegisterEventHook("kDAKOnServerUpdate", ProcessRemainingMOTDMessages, 5)
 		end
 		table.insert(MOTDClientTracker, PEntry)
 	end
 end
 
-DAKRegisterEventHook(kDAKOnClientDelayedConnect, MOTDOnClientConnect, 5)
+DAKRegisterEventHook("kDAKOnClientDelayedConnect", MOTDOnClientConnect, 5)
 
 local function OnCommandAcceptMOTD(client)
 
@@ -167,7 +165,7 @@ local function OnCommandPrintMOTD(client)
 	PEntry = ProcessMessagesforUser(PEntry)
 	if PEntry ~= nil then
 		if #MOTDClientTracker == 0 then
-			DAKRegisterEventHook(kDAKOnServerUpdate, ProcessRemainingMOTDMessages, 5)
+			DAKRegisterEventHook("kDAKOnServerUpdate", ProcessRemainingMOTDMessages, 5)
 		end
 		table.insert(MOTDClientTracker, PEntry)
 	end
@@ -197,4 +195,4 @@ local function OnMOTDChatMessage(message, playerName, steamId, teamNumber, teamO
 
 end
 
-DAKRegisterEventHook(kDAKOnClientChatMessage, OnMOTDChatMessage, 5)
+DAKRegisterEventHook("kDAKOnClientChatMessage", OnMOTDChatMessage, 5)

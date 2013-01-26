@@ -30,7 +30,7 @@ local function UpdateMenus(deltatime)
 		end
 	end
 	if #kRunningMenus == 0 then
-		DAKDeregisterEventHook(kDAKOnServerUpdate, UpdateMenus)
+		DAKDeregisterEventHook("kDAKOnServerUpdate", UpdateMenus)
 	end
 
 end
@@ -46,7 +46,7 @@ function CreateGUIMenuBase(id, OnMenuFunction, OnMenuUpdateFunction)
 	
 	local GameMenu = {UpdateTime = Shared.GetTime(), MenuFunction = OnMenuFunction, MenuUpdateFunction = OnMenuUpdateFunction, MenuBaseUpdateMessage = nil, clientGameId = id}
 	if #kRunningMenus == 0 then
-		DAKRegisterEventHook(kDAKOnServerUpdate, UpdateMenus, 7)
+		DAKRegisterEventHook("kDAKOnServerUpdate", UpdateMenus, 7)
 		//Want increased pri on this to make sure it runs before other events that may use information from it...
 	end
 	table.insert(kRunningMenus, GameMenu)

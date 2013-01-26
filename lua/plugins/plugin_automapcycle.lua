@@ -1,15 +1,15 @@
 //NS2 Automatic MapCycle
 
 local lastcheck = 0
-local checkint = 1
+local checkint = 60
 
 local function UpdateMapCycle(deltatime)
 
 	local t = Shared.GetTime()
 	if lastcheck + checkint < t then
 		lastcheck = t
-		local playerRecords = Shared.GetEntitiesWithClassname("Player")
-		if (playerRecords == nil or playerRecords:GetSize() <= kDAKConfig.AutoMapCycle.kMaximumPlayers) and t > (kDAKConfig.AutoMapCycle.kAutoMapCycleDuration * 60) then
+		local CurPlayers = Server.GetNumPlayers()
+		if CurPlayers <= kDAKConfig.AutoMapCycle.kMaximumPlayers and t > (kDAKConfig.AutoMapCycle.kAutoMapCycleDuration * 60) then
 			if kDAKConfig.AutoMapCycle.kUseStandardMapCycle then
 				MapCycle_CycleMap()
 			else
@@ -26,17 +26,17 @@ local function UpdateMapCycle(deltatime)
 					MapCycle_ChangeToMap(nextmap)
 				end
 			end
-		elseif playerRecords ~= nil and playerRecords:GetSize() > kDAKConfig.AutoMapCycle.kMaximumPlayers then
-			DAKDeregisterEventHook(kDAKOnServerUpdate, UpdateMapCycle)
+		elseif CurPlayers > kDAKConfig.AutoMapCycle.kMaximumPlayers then
+			DAKDeregisterEventHook("kDAKOnServerUpdate", UpdateMapCycle)
 		end
 	end
 	
 end
 
-DAKRegisterEventHook(kDAKOnServerUpdate, UpdateMapCycle, 5)
+DAKRegisterEventHook("kDAKOnServerUpdate", UpdateMapCycle, 5)
 
 local function AutoConcedeOnClientDisconnect(client)
-	DAKRegisterEventHook(kDAKOnServerUpdate, UpdateMapCycle, 5)
+	DAKRegisterEventHook("kDAKOnServerUpdate", UpdateMapCycle, 5)
 end
 
-DAKRegisterEventHook(kDAKOnClientDisconnect, AutoConcedeOnClientDisconnect, 5)
+DAKRegisterEventHook("kDAKOnClientDisconnect", AutoConcedeOnClientDisconnect, 5)

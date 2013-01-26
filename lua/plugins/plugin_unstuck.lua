@@ -35,8 +35,6 @@ end
 
 local function ProcessStuckUsers(deltatime)
 
-	PROFILE("Unstuck:ProcessStuckUsers")
-
 	if #UnstuckClientTracker > 0 then
 		local playerRecords = Shared.GetEntitiesWithClassname("Player")
 		for i = #UnstuckClientTracker, 1, -1 do
@@ -67,12 +65,12 @@ local function ProcessStuckUsers(deltatime)
 		end
 	end
 	if #UnstuckClientTracker == 0 then
-		DAKDeregisterEventHook(kDAKOnServerUpdate, ProcessStuckUsers)
+		DAKDeregisterEventHook("kDAKOnServerUpdate", ProcessStuckUsers)
 	end
 	
 end
 
-DAKRegisterEventHook(kDAKOnServerUpdate, ProcessStuckUsers, 5)
+DAKRegisterEventHook("kDAKOnServerUpdate", ProcessStuckUsers, 5)
 
 local function RegisterClientStuck(client)
 	if client ~= nil then
@@ -83,7 +81,7 @@ local function RegisterClientStuck(client)
 			local PEntry = { ID = client:GetUserId(), Orig = player:GetOrigin(), Time = Shared.GetTime() + kDAKConfig.Unstuck.kMinimumWaitTime }
 			DAKDisplayMessageToClient(client, "kUnstuckIn", kDAKConfig.Unstuck.kMinimumWaitTime)
 			if #UnstuckClientTracker == 0 then
-				DAKRegisterEventHook(kDAKOnServerUpdate, ProcessStuckUsers, 5)
+				DAKRegisterEventHook("kDAKOnServerUpdate", ProcessStuckUsers, 5)
 			end
 			table.insert(UnstuckClientTracker, PEntry)
 		else
@@ -108,4 +106,4 @@ local function OnUnstuckChatMessage(message, playerName, steamId, teamNumber, te
 
 end
 
-DAKRegisterEventHook(kDAKOnClientChatMessage, OnUnstuckChatMessage, 5)
+DAKRegisterEventHook("kDAKOnClientChatMessage", OnUnstuckChatMessage, 5)

@@ -26,7 +26,7 @@ local function AFKOnClientConnect(client)
 	
 end
 
-DAKRegisterEventHook(kDAKOnClientDelayedConnect, AFKOnClientConnect, 5)
+DAKRegisterEventHook("kDAKOnClientDelayedConnect", AFKOnClientConnect, 5)
 
 local function UpdateAFKClient(client, PEntry, player)
 	if player ~= nil then
@@ -89,11 +89,9 @@ local function AFKOnClientDisconnect(client)
 	
 end
 
-DAKRegisterEventHook(kDAKOnClientDisconnect, AFKOnClientDisconnect, 5)
+DAKRegisterEventHook("kDAKOnClientDisconnect", AFKOnClientDisconnect, 5)
 
 local function ProcessPlayingUsers(deltatime)
-
-	PROFILE("AFKKick:ProcessPlayingUsers")
 
 	if #AFKClientTracker > 0 and lastAFKUpdate + kDAKConfig.AFKKicker.kAFKKickCheckDelay < Shared.GetTime() then
 		local playerRecords = Shared.GetEntitiesWithClassname("Player")
@@ -123,4 +121,4 @@ local function ProcessPlayingUsers(deltatime)
 	
 end
 
-DAKRegisterEventHook(kDAKOnServerUpdate, ProcessPlayingUsers, 5)
+DAKRegisterEventHook("kDAKOnServerUpdate", ProcessPlayingUsers, 5)

@@ -87,9 +87,9 @@ if kBadges.Huze ~= nil then
 			end
 		)
 
-		DAKDeregisterEventHook(kDAKOnServerUpdate, DelayedBadgeOverride)
+		DAKDeregisterEventHook("kDAKOnServerUpdate", DelayedBadgeOverride)
 	end
 	
-	DAKRegisterEventHook(kDAKOnServerUpdate, DelayedBadgeOverride, 5)
+	DAKRegisterEventHook("kDAKOnServerUpdate", DelayedBadgeOverride, 5)
 	
 end

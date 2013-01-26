@@ -1,6 +1,6 @@
 //reservedslots config
 
-kDAKRevisions["reservedslots"] = "0.1.119a"
+kDAKRevisions["reservedslots"] = "0.1.125a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.ReservedSlots = { }
@@ -12,4 +12,16 @@ local function SetupDefaultConfig()
 	kDAKConfig.ReservedSlots.kReserveSlotKickedDisconnectReason = "Kicked due to a reserved slot."
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "reservedslots", DefaultConfig = SetupDefaultConfig })
+DAKRegisterEventHook("kDAKPluginDefaultConfigs", {PluginName = "reservedslots", DefaultConfig = SetupDefaultConfig })
+
+local function SetupDefaultLanguageStrings()
+	local DefaultLangStrings = { }
+	DefaultLangStrings["kReserveSlotServerFullDisconnectReason"] 	= "Server is full."
+	DefaultLangStrings["kReserveSlotKickedDisconnectReason"] 		= "Kicked due to a reserved slot."
+	DefaultLangStrings["kReserveSlotServerFull"] 					= "Server is full - You must have a reserved slot to connect."
+	DefaultLangStrings["kReserveSlotKickedForRoom"] 				= "**You're being kicked due to a reserved slot, this is automatically determined**"
+	DefaultLangStrings["kReserveSlotGranted"] 						= "Player %s added to reserve players list."
+	return DefaultLangStrings
+end
+
+DAKRegisterEventHook("kDAKPluginDefaultLanguageDefinitions", SetupDefaultLanguageStrings)

@@ -1,9 +1,9 @@
 //badges
 
-kDAKRevisions["badges"] = "0.1.119a"
+kDAKRevisions["badges"] = "0.1.125a"
 
 local function SetupDefaultConfig()
 	//kDAKConfig.Badges = { }
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "badges", DefaultConfig = SetupDefaultConfig })
+DAKRegisterEventHook("kDAKPluginDefaultConfigs", {PluginName = "badges", DefaultConfig = SetupDefaultConfig })

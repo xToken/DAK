@@ -35,8 +35,6 @@ end
 
 local function ProcessMessageQueue(deltatime)
 
-	PROFILE("Messages:ProcessMessageQueue")
-
 	local tt = Shared.GetTime()
 	if lastMessageTime + (kDAKConfig.Messages.kMessageInterval * 60) < tt and messagetick < tt then
 	
@@ -57,4 +55,4 @@ local function ProcessMessageQueue(deltatime)
 	
 end
 
-DAKRegisterEventHook(kDAKOnServerUpdate, ProcessMessageQueue, 5)
+DAKRegisterEventHook("kDAKOnServerUpdate", ProcessMessageQueue, 5)

@@ -1,6 +1,6 @@
 //baseadmincommands default config
 
-kDAKRevisions["baseadmincommands"] = "0.1.119a"
+kDAKRevisions["baseadmincommands"] = "0.1.125a"
 local function SetupDefaultConfig()
 	kDAKConfig.BaseAdminCommands = { }
 	kDAKConfig.BaseAdminCommands.kMapChangeDelay = 5
@@ -15,4 +15,4 @@ local function SetupDefaultConfig()
 															"Console_sv_slay", "Console_sv_password", "Console_sv_ban", "Console_sv_unban", "Console_sv_listbans"  }
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "baseadmincommands", DefaultConfig = SetupDefaultConfig })
+DAKRegisterEventHook("kDAKPluginDefaultConfigs", {PluginName = "baseadmincommands", DefaultConfig = SetupDefaultConfig })

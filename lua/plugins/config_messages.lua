@@ -1,6 +1,6 @@
 //Messages config
 
-kDAKRevisions["messages"] = "0.1.119a"
+kDAKRevisions["messages"] = "0.1.125a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.Messages = { }
@@ -10,4 +10,17 @@ local function SetupDefaultConfig()
 	kDAKConfig.Messages.kMessageStartDelay = 1
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "messages", DefaultConfig = SetupDefaultConfig })
+DAKRegisterEventHook("kDAKPluginDefaultConfigs", {PluginName = "messages", DefaultConfig = SetupDefaultConfig })
+
+local function SetupDefaultLanguageStrings()
+	local kMessages = { }
+	table.insert(kMessages, "********************************************************************")
+	table.insert(kMessages, "****************** Welcome to the XYZ NS2 Servers ******************")
+	table.insert(kMessages, "*********** You can also visit our forums at 123.NS2.COM ***********")
+	table.insert(kMessages, "********************************************************************")
+	local DefaultLangStrings = { }
+	DefaultLangStrings["kPeriodicMessages"]	= kMessages
+	return DefaultLangStrings
+end
+
+DAKRegisterEventHook("kDAKPluginDefaultLanguageDefinitions", SetupDefaultLanguageStrings)

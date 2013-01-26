@@ -110,93 +110,12 @@ end
 local function GetTimeStamp()
 	return string.format("L " .. string.format(GetDateTimeString(false)) .. " - ")
 end
-	
-//*******************************************************************************************************************************
-//PlayerID Functions
-//*******************************************************************************************************************************
-
-local function GetPlayerList()
-
-	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
-	table.sort(playerList, function(p1, p2) return p1:GetName() < p2:GetName() end)
-	return playerList
-	
-end
-
-/**
- * Iterates over all players sorted in alphabetically calling the passed in function.
- */
-local function AllPlayers(doThis)
-
-	return function(client)
-	
-		local playerList = GetPlayerList()
-		for p = 1, #playerList do
-		
-			local player = playerList[p]
-			doThis(player, client, p)
-			
-		end
-		
-	end
-	
-end
-
-local function GetPlayerMatchingSteamId(steamId)
-
-	assert(type(steamId) == "number")
-	
-	local match = nil
-	
-	local function Matches(player)
-	
-		local playerClient = Server.GetOwner(player)
-		if playerClient:GetUserId() == steamId then
-			match = player
-		end
-		
-	end
-	AllPlayers(Matches)()
-	
-	return match
-	
-end
-
-local function GetPlayerMatchingName(name)
-
-	assert(type(name) == "string")
-	
-	local match = nil
-	
-	local function Matches(player)
-	
-		if player:GetName() == name then
-			match = player
-		end
-		
-	end
-	AllPlayers(Matches)()
-	
-	return match
-	
-end
-
-local function GetPlayerMatching(id)
-
-	local idNum = tonumber(id)
-	if idNum then
-		return GetPlayerMatchingGameId(idNum) or GetPlayerMatchingSteamId(idNum)
-	elseif type(id) == "string" then
-		return GetPlayerMatchingName(id)
-	end
-	
-end
 
 //*******************************************************************************************************************************
 //Log Formatting Functions
 //*******************************************************************************************************************************
 
-local function GetClientUIDString(client)
+function GetClientUIDString(client)
 
 	if client ~= nil then
 		local player = client:GetControllingPlayer()
@@ -255,6 +174,15 @@ local function SaveEnhancedLog()
 	
 end
 
+local function UpdateServerEnhancedLogging()
+	if pendinglogsave then
+		if lastlogupdate + kDAKConfig.EnhancedLogging.kLogWriteDelay < Shared.GetTime() then
+			SaveEnhancedLog()
+			DAKDeregisterEventHook("kDAKOnServerUpdate", UpdateServerEnhancedLogging)
+		end
+	end
+end
+
 local function PrintToEnhancedLog(logstring)
 
 	if EnhancedLoggingFile == nil and Shared.GetMapName() ~= "" then
@@ -268,6 +196,7 @@ local function PrintToEnhancedLog(logstring)
 		SaveEnhancedLog()
 	else
 		pendinglogsave = true
+		DAKRegisterEventHook("kDAKOnServerUpdate", UpdateServerEnhancedLogging, 5)
 	end
 	
 	//Append doesnt crash atleast now, still doesnt work tho which is prettty meh.
@@ -316,75 +245,6 @@ function EnhancedLoggingAllAdmins(commandname, client, parm1)
 	Shared.Message(string.format(message))
 end
 
-local function OnCommandSVSwitchTeam(client, playerId, team)
-	if playerId ~= nil and team ~= nil then 
-		local switchedplayer = GetPlayerMatching(playerId)
-		local switchedclient = Server.GetOwner(switchedplayer)
-		if switchedclient ~= nil then
-			PrintToAllAdmins("sv_switchteam", client, string.format(" on %s to team %s.", GetClientUIDString(switchedclient), team))
-		end
-	end
-end
-
-local function OnCommandSVKick(client, playerId)
-	if playerId ~= nil then 
-		local kickedplayer = GetPlayerMatching(playerId)
-		local kickedclient = Server.GetOwner(kickedplayer)
-		if kickedclient ~= nil then
-			PrintToAllAdmins("sv_kick", client, string.format(" on %s.", GetClientUIDString(kickedclient)))
-		end
-	end
-end
-
-local function OnCommandSVSlay(client, playerId)
-	if playerId ~= nil then 
-		local slayedplayer = GetPlayerMatching(playerId)
-		local slayedclient = Server.GetOwner(slayedplayer)
-		if slayedclient ~= nil then
-			PrintToAllAdmins("sv_slay", client, string.format(" on %s.", GetClientUIDString(slayedclient)))
-		end
-	end
-end
-
-local function OnCommandSVBan(client, playerId, duration, ...)
-
-	if playerId ~= nil then
-		duration = tonumber(duration)
-		if duration == nil or duration <= 0 then duration = 0 end
-		local bannedplayer = GetPlayerMatching(playerId)
-		local bannedclient = Server.GetOwner(bannedplayer)
-		local args
-		if ... == nil then
-			args = ""
-		else
-			args = StringConcatArgs(...)
-		end
-		if bannedclient ~= nil then
-			PrintToAllAdmins("sv_ban", client, string.format(" on %s for %s for %s.", GetClientUIDString(bannedclient), duration, args))
-		elseif tonumber(playerId) > 0 then
-			PrintToAllAdmins("sv_ban", client, string.format(" on SteamID:%s for %s for %s.", playerId, duration, args))
-		end
-	end
-end
-
-local function OnCommandSVUnBan(client, playerId)
-	if playerId ~= nil then
-		local unbannedplayer = GetPlayerMatching(playerId)
-		local unbannedclient = Server.GetOwner(unbannedplayer)
-		if unbannedclient ~= nil then
-			PrintToAllAdmins("sv_unban", client, string.format(" on %s.", GetClientUIDString(unbannedclient)))
-		elseif playerId > 0 then
-			PrintToAllAdmins("sv_unban", client, string.format(" on SteamID:%s.", playerId))
-		end
-	end
-end
-
-Event.Hook("Console_sv_switchteam",               OnCommandSVSwitchTeam)
-Event.Hook("Console_sv_kick",               OnCommandSVKick)
-Event.Hook("Console_sv_slay",               OnCommandSVSlay)
-Event.Hook("Console_sv_ban",               OnCommandSVBan)
-Event.Hook("Console_sv_unban",               OnCommandSVUnBan)
-
 local function LogOnClientConnect(client)
 
 	if client ~= nil then
@@ -394,7 +254,7 @@ local function LogOnClientConnect(client)
 	
 end
 
-DAKRegisterEventHook(kDAKOnClientDelayedConnect, LogOnClientConnect, 5)
+DAKRegisterEventHook("kDAKOnClientDelayedConnect", LogOnClientConnect, 5)
 
 local function LogOnClientDisconnect(client)
 	local reason = ""
@@ -408,17 +268,7 @@ local function LogOnClientDisconnect(client)
 	
 end
 
-DAKRegisterEventHook(kDAKOnClientDisconnect, LogOnClientDisconnect, 5)
-
-local function UpdateServerEnhancedLogging()
-	if pendinglogsave then
-		if lastlogupdate + kDAKConfig.EnhancedLogging.kLogWriteDelay < Shared.GetTime() then
-			SaveEnhancedLog()
-		end
-	end
-end
-
-DAKRegisterEventHook(kDAKOnServerUpdate, UpdateServerEnhancedLogging, 5)
+DAKRegisterEventHook("kDAKOnClientDisconnect", LogOnClientDisconnect, 5)
 
 function OnCommandSetName(client, name)
 
@@ -552,7 +402,7 @@ function EnhancedLoggingChatMessage(message, playerName, steamId, teamNumber, te
 	end
 end
 
-DAKRegisterEventHook(kDAKOnClientChatMessage, EnhancedLoggingChatMessage, 5)
+DAKRegisterEventHook("kDAKOnClientChatMessage", EnhancedLoggingChatMessage, 5)
 
 local function EnhancedLoggingSetGameState(self, state, currentstate)
 
@@ -566,7 +416,7 @@ local function EnhancedLoggingSetGameState(self, state, currentstate)
 	
 end
 
-DAKRegisterEventHook(kDAKOnSetGameState, EnhancedLoggingSetGameState, 5)
+DAKRegisterEventHook("kDAKOnSetGameState", EnhancedLoggingSetGameState, 5)
 
 function EnhancedLoggingJoinTeam(self, player, newTeamNumber, force)
 
@@ -577,7 +427,7 @@ function EnhancedLoggingJoinTeam(self, player, newTeamNumber, force)
 	
 end
 
-DAKRegisterEventHook(kDAKOnTeamJoin, EnhancedLoggingJoinTeam, 5)
+DAKRegisterEventHook("kDAKOnTeamJoin", EnhancedLoggingJoinTeam, 5)
 
 function EnhancedLoggingEndGame(self, winningTeam)
 
@@ -592,7 +442,7 @@ function EnhancedLoggingEndGame(self, winningTeam)
 	
 end
 
-DAKRegisterEventHook(kDAKOnGameEnd, EnhancedLoggingEndGame, 5)
+DAKRegisterEventHook("kDAKOnGameEnd", EnhancedLoggingEndGame, 5)
 
 function EnhancedLoggingCastVoteByPlayer(self, voteTechId, player)
 
@@ -614,7 +464,7 @@ function EnhancedLoggingCastVoteByPlayer(self, voteTechId, player)
 	
 end
 
-DAKRegisterEventHook(kDAKOnCastVoteByPlayer, EnhancedLoggingCastVoteByPlayer, 5)
+DAKRegisterEventHook("kDAKOnCastVoteByPlayer", EnhancedLoggingCastVoteByPlayer, 5)
 
 function EnhancedLoggingOnEntityKilled(self, targetEntity, attacker, doer, point, direction)
  
@@ -636,4 +486,4 @@ function EnhancedLoggingOnEntityKilled(self, targetEntity, attacker, doer, point
 
 end
 
-DAKRegisterEventHook(kDAKOnEntityKilled, EnhancedLoggingOnEntityKilled, 5)
+DAKRegisterEventHook("kDAKOnEntityKilled", EnhancedLoggingOnEntityKilled, 5)

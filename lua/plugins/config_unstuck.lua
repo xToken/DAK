@@ -1,6 +1,6 @@
 //unstuck config
 
-kDAKRevisions["unstuck"] = "0.1.119a"
+kDAKRevisions["unstuck"] = "0.1.125a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.Unstuck = { }
@@ -10,4 +10,15 @@ local function SetupDefaultConfig()
 	kDAKConfig.Unstuck.kUnstuckChatCommands = { "stuck", "unstuck", "/stuck", "/unstuck" }
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "unstuck", DefaultConfig = SetupDefaultConfig })
+DAKRegisterEventHook("kDAKPluginDefaultConfigs", {PluginName = "unstuck", DefaultConfig = SetupDefaultConfig })
+
+local function SetupDefaultLanguageStrings()
+	local DefaultLangStrings = { }
+	DefaultLangStrings["kUnstuckMoved"] 							= "You moved since issuing unstuck command?"
+	DefaultLangStrings["kUnstuck"] 									= "Unstuck!"
+	DefaultLangStrings["kUnstuckIn"] 								= "You will be unstuck in %s seconds."
+	DefaultLangStrings["kUnstuckRecently"] 							= "You have unstucked too recently, please wait %.1f seconds."
+	return DefaultLangStrings
+end
+
+DAKRegisterEventHook("kDAKPluginDefaultLanguageDefinitions", SetupDefaultLanguageStrings)

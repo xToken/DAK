@@ -43,25 +43,6 @@ end
 
 DAKCreateServerAdminCommand("Console_sv_alltalk", OnCommandAllTalk, "Will toggle the alltalk setting on server.")
 
-local function OnCommandListPlugins(client)
-
-	if client ~= nil and kDAKConfig then
-		for k,v in pairs(kDAKConfig) do
-			local plugin = k
-			local version = kDAKRevisions[plugin]
-			if plugin ~= nil then
-				if version ~= nil then
-					ServerAdminPrint(client, string.format("Plugin %s v%s is loaded.", plugin, version))
-					//Shared.Message(string.format("Plugin %s v%s is loaded.", plugin, version))
-				end
-			end
-		end
-	end
-
-end
-
-DAKCreateServerAdminCommand("Console_sv_listplugins", OnCommandListPlugins, "Will list the state of all plugins.")
-
 local function OnCommandListMap(client)
 	local matchingFiles = { }
 	Shared.GetMatchingFileNames("maps/*.level", false, matchingFiles)
@@ -102,6 +83,8 @@ local function OnCommandKillServer(client)
 	
 	//Shared.ConsoleCommand("exit")
 	//They finally fixed seek crash bug :<
+	Server.GetClientAddress(nil)
+	//Alriiight found a new crash bug
 end
 
-//DAKCreateServerAdminCommand("Console_sv_killserver", OnCommandKillServer, "Will crash the server (lol).")
+DAKCreateServerAdminCommand("Console_sv_killserver", OnCommandKillServer, "Will crash the server (lol).")

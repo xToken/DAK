@@ -3,6 +3,46 @@
 Initial Version - Plugin versions invidually all over - normalizing for this update, along with loader version - Need to decide how to track plugin revisions - 
 should plugins be updated with each 'build' of DAK, even if there are no changes?  This seems the most logical way to proceed currently, and for the future.
 
+## v0.1.125a
+- Added some additional blocks to Pause plugin.
+- Added some team balance checks to Random plugin.
+- Corrected issue causing arrays in config files to always be updated when having less than the default # of entries.
+- Added some additional safety to sv_ commands, and also updated certain command to use logging directly rather than through hooks (commands that modified clients).
+
+## v0.1.124a
+- Corrected some additional issues with Pause plugin.
+
+## v0.1.123a
+- Added sv_nick command to change players name.
+- Updated return messages and added additional checks on most sv_ commands to prevent asserts from server console.
+- Updated plugin load function to re-run until successful in loading all plugins.
+- Setting no longer matters between map changes, plugin settings are cleared before load events.
+- Moved GetTournamentMode and GetFriendlyFire checks to DAKLoader_Server for global use.
+- Added basic TournamentMode Override checks for NS2Stats.
+- Added override for GameRules GetFriendlyFire checks.
+- Added override for FriendlyFire damage percent.
+- Updated Reserveslot and SurrenderVote plugins to sleep.
+- Removed any remaining PROFILE events.
+- Not Released.
+
+## v0.1.122a
+- Updated EventHooks to function correctly again.
+- Corrected issue with deltaTime variable passed to kDAKOnServerUpdate functions.
+- Updated language plugin logic and functionality.  Automatically creates Default.json language file, should be sorted by key names now for ease of reading/editing, and also have better spacing/line breaks.
+- Default.json is never loaded by DAK, it is mearly generated anew each map change.  The Default.json file can be used to create new language definitions.
+- Updated sv_killserver command with newly discovered server crash (meh).
+- Updated sv_status command to better handle any usage cases.
+- Updated setlanguage command to echo back valid languages when used without a language or with an invalid one.
+- Updated pause plugin with additional overrides to adjust more game events for pauses.
+- Not Released.
+
+## v0.1.121a
+- Updated and simplified tournamentmode game state monitoring, should make for easier debugging and hopefully will resolve any current issues.
+- Updates to Language system to allow plugins to register and create their own default message strings, which will be updated in the Default.json langauge definition.  This file should not be edited, and
+is the file that any custom languages should be created from.
+- Adjusted function events to be locals.
+- Not Released.
+
 ## v0.1.119a
 - Corrected missing config variables for tournamentmode plugin.
 

@@ -141,10 +141,10 @@ local function DelayedVoteManagerOverride()
 		VoteManager.kMinVotesNeeded = kDAKConfig.CommBans.kMinVotesNeeded
 		VoteManager.kTeamVotePercentage = kDAKConfig.CommBans.kTeamVotePercentage
 	end
-	DAKDeregisterEventHook(kDAKOnServerUpdate, DelayedVoteManagerOverride)
+	DAKDeregisterEventHook("kDAKOnServerUpdate", DelayedVoteManagerOverride)
 end
 
-DAKRegisterEventHook(kDAKOnServerUpdate, DelayedVoteManagerOverride, 5)
+DAKRegisterEventHook("kDAKOnServerUpdate", DelayedVoteManagerOverride, 5)
 
 function CommBansCastVoteByPlayer(self, voteTechId, player)
 	local commanders = GetEntitiesForTeam("Commander", player:GetTeamNumber())
@@ -161,7 +161,7 @@ function CommBansCastVoteByPlayer(self, voteTechId, player)
 	end
 end
 
-DAKRegisterEventHook(kDAKOnCastVoteByPlayer, CommBansCastVoteByPlayer, 5)
+DAKRegisterEventHook("kDAKOnCastVoteByPlayer", CommBansCastVoteByPlayer, 5)
 
 local function OnCommandCommBan(client, playerId, duration, ...)
 

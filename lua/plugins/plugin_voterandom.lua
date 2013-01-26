@@ -34,6 +34,9 @@ local function ShuffleTeams(ShuffleAllPlayers)
 				//Trying just making team decision based on position in array.. two randoms seems to somehow result in similar teams..
 				local gamerules = GetGamerules()
 				if gamerules and not DAKGetClientCanRunCommand(client, "sv_dontrandom") then
+					if not gamerules:GetCanJoinTeamNumber(teamnum) and gamerules:GetCanJoinTeamNumber(math.fmod(teamnum,2) + 1) then
+						teamnum = math.fmod(teamnum,2) + 1						
+					end
 					gamerules:JoinTeam(playerList[i], teamnum)
 				end
 			end
@@ -43,8 +46,6 @@ end
 
 local function RandomTeams()
 
-	PROFILE("VoteRandom:RandomTeams")
-	
 	if kVoteRandomTeamsEnabled then
 	
 		if kDAKSettings.RandomEnabledTill > Shared.GetSystemTime() or kDAKConfig.VoteRandom.kVoteRandomAlwaysEnabled then
@@ -59,12 +60,12 @@ local function RandomTeams()
 		
 	end
 	if not kVoteRandomTeamsEnabled then
-		DAKDeregisterEventHook(kDAKOnServerUpdate, RandomTeams)
+		DAKDeregisterEventHook("kDAKOnServerUpdate", RandomTeams)
 	end
 	
 end
 
-DAKRegisterEventHook(kDAKOnServerUpdate, RandomTeams, 5)
+DAKRegisterEventHook("kDAKOnServerUpdate", RandomTeams, 5)
 
 local function UpdateRandomVotes(silent, playername)
 
@@ -110,7 +111,7 @@ local function UpdateRandomVotes(silent, playername)
 			kDAKSettings.RandomEnabledTill = Shared.GetSystemTime() + (kDAKConfig.VoteRandom.kVoteRandomDuration * 60)
 			SaveDAKSettings()
 			kVoteRandomTeamsEnabled = true
-			DAKRegisterEventHook(kDAKOnServerUpdate, RandomTeams, 5)
+			DAKRegisterEventHook("kDAKOnServerUpdate", RandomTeams, 5)
 		end
 		
 	elseif not silent then
@@ -121,7 +122,7 @@ local function UpdateRandomVotes(silent, playername)
 	
 end
 
-DAKRegisterEventHook(kDAKOnClientDisconnect, UpdateRandomVotes, 5)
+DAKRegisterEventHook("kDAKOnClientDisconnect", UpdateRandomVotes, 5)
 
 local function VoteRandomClientConnect(client)
 
@@ -135,7 +136,7 @@ local function VoteRandomClientConnect(client)
 	
 end
 
-DAKRegisterEventHook(kDAKOnClientDelayedConnect, VoteRandomClientConnect, 5)
+DAKRegisterEventHook("kDAKOnClientDelayedConnect", VoteRandomClientConnect, 5)
 
 local function VoteRandomJoinTeam(self, player, newTeamNumber, force)
 	if RandomRoundRecentlyEnded + RandomNewRoundDelay > Shared.GetTime() and (newTeamNumber == 1 or newTeamNumber == 2) then
@@ -144,7 +145,7 @@ local function VoteRandomJoinTeam(self, player, newTeamNumber, force)
 	end
 end
 
-DAKRegisterEventHook(kDAKOnTeamJoin, VoteRandomJoinTeam, 5)
+DAKRegisterEventHook("kDAKOnTeamJoin", VoteRandomJoinTeam, 5)
 
 local function VoteRandomEndGame(self, winningTeam)
 	if kVoteRandomTeamsEnabled then
@@ -152,7 +153,7 @@ local function VoteRandomEndGame(self, winningTeam)
 	end
 end
 
-DAKRegisterEventHook(kDAKOnGameEnd, VoteRandomEndGame, 5)
+DAKRegisterEventHook("kDAKOnGameEnd", VoteRandomEndGame, 5)
 
 local function OnCommandVoteRandom(client)
 
@@ -195,7 +196,7 @@ local function OnVoteRandomChatMessage(message, playerName, steamId, teamNumber,
 
 end
 
-DAKRegisterEventHook(kDAKOnClientChatMessage, OnVoteRandomChatMessage, 5)
+DAKRegisterEventHook("kDAKOnClientChatMessage", OnVoteRandomChatMessage, 5)
 
 local function VoteRandomOff(client)
 
@@ -233,7 +234,7 @@ local function VoteRandomOn(client)
 			kDAKSettings.RandomEnabledTill = Shared.GetSystemTime() + (kDAKConfig.VoteRandom.kVoteRandomDuration * 60)
 			SaveDAKSettings()
 			kVoteRandomTeamsEnabled = true
-			DAKRegisterEventHook(kDAKOnServerUpdate, RandomTeams, 5)
+			DAKRegisterEventHook("kDAKOnServerUpdate", RandomTeams, 5)
 		end
 		if client ~= nil then 
 			local player = client:GetControllingPlayer()

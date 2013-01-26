@@ -1,6 +1,6 @@
 //enhanced logging default config
 
-kDAKRevisions["enhancedlogging"] = "0.1.119a"
+kDAKRevisions["enhancedlogging"] = "0.1.125a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.EnhancedLogging = { }
@@ -9,4 +9,4 @@ local function SetupDefaultConfig()
 	kDAKConfig.EnhancedLogging.kLogWriteDelay = 1
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "enhancedlogging", DefaultConfig = SetupDefaultConfig })
+DAKRegisterEventHook("kDAKPluginDefaultConfigs", {PluginName = "enhancedlogging", DefaultConfig = SetupDefaultConfig })

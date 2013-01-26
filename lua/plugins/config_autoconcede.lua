@@ -1,6 +1,6 @@
 //autoconcede default config
 
-kDAKRevisions["autoconcede"] = "0.1.119a"
+kDAKRevisions["autoconcede"] = "0.1.125a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.AutoConcede = { }
@@ -10,4 +10,14 @@ local function SetupDefaultConfig()
 	kDAKConfig.AutoConcede.kMinimumPlayers = 6
 end
 
-table.insert(kDAKPluginDefaultConfigs, {PluginName = "autoconcede", DefaultConfig = SetupDefaultConfig })
+DAKRegisterEventHook("kDAKPluginDefaultConfigs", {PluginName = "autoconcede", DefaultConfig = SetupDefaultConfig })
+
+local function SetupDefaultLanguageStrings()
+	local DefaultLangStrings = { }
+	DefaultLangStrings["kConcedeMessage"] 							= "Round ended due to imbalanced teams."
+	DefaultLangStrings["kConcedeCancelledMessage"] 					= "Teams within autoconcede limits."
+	DefaultLangStrings["kConcedeWarningMessage"] 					= "Round will end in %s seconds due to imbalanced teams."
+	return DefaultLangStrings
+end
+
+DAKRegisterEventHook("kDAKPluginDefaultLanguageDefinitions", SetupDefaultLanguageStrings)

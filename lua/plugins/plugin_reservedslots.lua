@@ -104,6 +104,29 @@ local function UpdateServerLockStatus()
 	end
 end
 
+local function CheckReserveSlotSync()
+	
+	if #disconnectclients > 0 and disconnectclienttime < Shared.GetTime() then
+		for r = #disconnectclients, 1, -1 do
+			if disconnectclients[r] ~= nil and VerifyClient(disconnectclients[r]) ~= nil then
+				DisconnectClientForReserveSlot(disconnectclients[r])
+			end
+		end
+		disconnectclients = { }
+		disconnectclienttime = 0
+	end
+
+	if lastconnect ~= 0 or lastdisconnect ~= 0 then
+		if (lastconnect >= lastdisconnect and lastconnect < Shared.GetTime()) or (lastdisconnect >= lastconnect and lastdisconnect < Shared.GetTime()) then
+			lastconnect = 0
+			lastdisconnect = 0
+			UpdateServerLockStatus()
+			DAKDeregisterEventHook("kDAKOnServerUpdate", CheckReserveSlotSync)
+		end
+	end
+	
+end
+
 local function OnReserveSlotClientConnected(client)
 
 	local MaxPlayers = Server.GetMaxPlayers()
@@ -113,6 +136,8 @@ local function OnReserveSlotClientConnected(client)
 	local reserved = CheckReserveStatus(client, false)
 
 	UpdateServerLockStatus()
+	
+	DAKRegisterEventHook("kDAKOnServerUpdate", CheckReserveSlotSync, 5)
 	
 	if serverFull and not reserved then
 	
@@ -126,6 +151,7 @@ local function OnReserveSlotClientConnected(client)
 		table.insert(disconnectclients, client)
 		disconnectclienttime = Shared.GetTime() + kDAKConfig.ReservedSlots.kDelayedKickTime
 		return true
+		
 	end
 	if serverReallyFull and reserved then
 
@@ -168,7 +194,7 @@ local function OnReserveSlotClientConnected(client)
 	
 end
 
-DAKRegisterEventHook(kDAKOnClientConnect, OnReserveSlotClientConnected, 6)
+DAKRegisterEventHook("kDAKOnClientConnect", OnReserveSlotClientConnected, 6)
 
 local function ReserveSlotClientDisconnect(client)    
 
@@ -176,33 +202,7 @@ local function ReserveSlotClientDisconnect(client)
 	
 end
 
-DAKRegisterEventHook(kDAKOnClientDisconnect, ReserveSlotClientDisconnect, 5)
-
-local function CheckReserveSlotSync()
-
-	PROFILE("ReserveSlots:CheckReserveSlotSync")
-	
-	if #disconnectclients > 0 and disconnectclienttime < Shared.GetTime() then
-		for r = #disconnectclients, 1, -1 do
-			if disconnectclients[r] ~= nil and VerifyClient(disconnectclients[r]) ~= nil then
-				DisconnectClientForReserveSlot(disconnectclients[r])
-			end
-		end
-		disconnectclients = { }
-		disconnectclienttime = 0
-	end
-
-	if lastconnect ~= 0 or lastdisconnect ~= 0 then
-		if (lastconnect >= lastdisconnect and lastconnect < Shared.GetTime()) or (lastdisconnect >= lastconnect and lastdisconnect < Shared.GetTime()) then
-			lastconnect = 0
-			lastdisconnect = 0
-			UpdateServerLockStatus()
-		end
-	end
-	
-end
-
-DAKRegisterEventHook(kDAKOnServerUpdate, CheckReserveSlotSync, 5)
+DAKRegisterEventHook("kDAKOnClientDisconnect", ReserveSlotClientDisconnect, 5)
 
 local function AddReservePlayer(client, parm1, parm2, parm3, parm4)
 

@@ -18,10 +18,12 @@ end
 
 local function UpdateSurrenderVotes()
 	local gamerules = GetGamerules()
+	local SVRunning = false
 	for i = 1, kSurrenderTeamCount do
 
 		if kSurrenderVoteArray[i].VoteSurrenderRunning ~= 0 and gamerules ~= nil and gamerules:GetGameState() == kGameState.Started and kSurrenderVoteArray[i].SurrenderVotesAlertTime + kDAKConfig.VoteSurrender.kVoteSurrenderAlertDelay < Shared.GetTime() then
 			local playerRecords =  GetEntitiesForTeam("Player", i)
+			SVRunning = true
 			local totalvotes = 0
 			for j = #kSurrenderVoteArray[i].SurrenderVotes, 1, -1 do
 				local clientid = kSurrenderVoteArray[i].SurrenderVotes[j]
@@ -81,9 +83,12 @@ local function UpdateSurrenderVotes()
 		end
 		
 	end
+	if not SVRunning then
+		DAKDeregisterEventHook("kDAKOnServerUpdate", UpdateSurrenderVotes)
+	end
 end
 
-DAKRegisterEventHook(kDAKOnServerUpdate, UpdateSurrenderVotes, 5)
+DAKRegisterEventHook("kDAKOnServerUpdate", UpdateSurrenderVotes, 5)
 
 local function ClearSurrenderVotes()
 	for i = 1, kSurrenderTeamCount do
@@ -93,7 +98,7 @@ local function ClearSurrenderVotes()
 	end
 end
 
-DAKRegisterEventHook(kDAKOnGameEnd, ClearSurrenderVotes, 5)
+DAKRegisterEventHook("kDAKOnGameEnd", ClearSurrenderVotes, 5)
 
 local function OnCommandVoteSurrender(client)
 
@@ -123,6 +128,8 @@ local function OnCommandVoteSurrender(client)
 					table.insert(kSurrenderVoteArray[teamnumber].SurrenderVotes, clientID)
 					DAKDisplayMessageToClient(client, "kSurrenderVoteToSurrender")
 				end
+				//Going to just start this, at worst it causes a single event
+				DAKRegisterEventHook("kDAKOnServerUpdate", UpdateSurrenderVotes, 5)
 			end
 		end
 	end
@@ -144,7 +151,7 @@ local function OnVoteSurrenderChatMessage(message, playerName, steamId, teamNumb
 
 end
 
-DAKRegisterEventHook(kDAKOnClientChatMessage, OnVoteSurrenderChatMessage, 5)
+DAKRegisterEventHook("kDAKOnClientChatMessage", OnVoteSurrenderChatMessage, 5)
 
 local function VoteSurrenderOff(client, teamnum)
 	local tmNum = tonumber(teamnum)
@@ -177,6 +184,7 @@ local function VoteSurrenderOn(client, teamnum)
 				PrintToAllAdmins("sv_surrendervote", client, teamnum)
 			end			
 		end
+		DAKRegisterEventHook("kDAKOnServerUpdate", UpdateSurrenderVotes, 5)
 	end
 
 end
