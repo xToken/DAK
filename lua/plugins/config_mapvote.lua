@@ -1,6 +1,6 @@
 //mapvote config
 
-kDAKRevisions["mapvote"] = "0.1.125a"
+kDAKRevisions["mapvote"] = "0.1.126a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.MapVote = { }
@@ -33,7 +33,7 @@ local function SetupDefaultLanguageStrings()
 	DefaultLangStrings["kVoteMapStarted"] 							= "******            Map vote has begun. (%s%% votes needed to win)           ******"
 	DefaultLangStrings["kVoteMapBeginning"] 						= "******                 Map vote will begin in %s seconds.                 ******"
 	DefaultLangStrings["kVoteMapHowToVote"] 						= "******     You can vote for the map you want by typing vote #     ******"
-	DefaultLangStrings["kVoteMapWinner"] 							= "******     Voting has ended, %s won with %s votes.                   ******"
+	DefaultLangStrings["kVoteMapWinner"] 							= "******       Voting has ended, %s won with %s votes.         ******"
 	DefaultLangStrings["kVoteMapMapListing"] 						= "******                vote %s for %s                              ******"
 	DefaultLangStrings["kVoteMapTie"] 								= "******  Voting has ended with a tie, A new vote will start in %s seconds  ******"
 	DefaultLangStrings["kVoteMapTieBreaker"]						= "****** Voting has ended with a tie, %s was selected as the nextmap. ******"

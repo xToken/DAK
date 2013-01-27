@@ -125,9 +125,7 @@ Thumbs.db
 
 # Folder config file
 Desktop.ini
-.publish/
-info.xml
-preview.jpg
+.*/
 
 
 #############

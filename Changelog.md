@@ -3,6 +3,11 @@
 Initial Version - Plugin versions invidually all over - normalizing for this update, along with loader version - Need to decide how to track plugin revisions - 
 should plugins be updated with each 'build' of DAK, even if there are no changes?  This seems the most logical way to proceed currently, and for the future.
 
+## v0.1.124a
+- Corrected MapCycle using EventHooks incorrectly.
+- Corrected issue with available anguages not being echoed back.
+- Corrected issue with mapvote trying to use a function instead of an array.
+
 ## v0.1.125a
 - Added some additional blocks to Pause plugin.
 - Added some team balance checks to Random plugin.

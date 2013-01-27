@@ -235,7 +235,7 @@ end
 local function OnCommandSetLanguage(client, language)
 
 	if language == nil or not GetIsLanguageValid(language) and client ~= nil then
-		local langs = table.concat(kDAKConfig.DAKLoader.kLanguageList[i], ",")
+		local langs = table.concat(kDAKConfig.DAKLoader.kLanguageList, ",")
 		DAKDisplayMessageToClient(client, "AvailableLanguages", langs)			
 	elseif client ~= nil then
 		language = string.upper(language)

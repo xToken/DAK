@@ -1,6 +1,6 @@
 //votesurrender config
 
-kDAKRevisions["votesurrender"] = "0.1.125a"
+kDAKRevisions["votesurrender"] = "0.1.126a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.VoteSurrender = { }

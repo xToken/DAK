@@ -88,7 +88,7 @@ if Server then
 	end
 	
 	function MapCycle_GetMapCycleArray()
-		return DAKMapCycle.maps
+		return DAKMapCycle.maps or nil
 	end
 	
 	function MapCycle_GetVoteMapCycleArray()
@@ -235,7 +235,7 @@ if Server then
 	
 	function MapCycle_CycleMap()
 
-		if DAKExecuteEventHooks(kDAKOverrideMapChange) then
+		if DAKExecuteEventHooks("kDAKOverrideMapChange") then
 			return false
 		end
 
@@ -255,7 +255,7 @@ if Server then
 
 	function MapCycle_TestCycleMap()
 	
-		if DAKExecuteEventHooks(kDAKCheckMapChange) then
+		if DAKExecuteEventHooks("kDAKCheckMapChange") then
 			return false
 		end
 

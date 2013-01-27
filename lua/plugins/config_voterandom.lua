@@ -1,6 +1,6 @@
 //reservedslots config
 
-kDAKRevisions["voterandom"] = "0.1.125a"
+kDAKRevisions["voterandom"] = "0.1.126a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.VoteRandom = { }

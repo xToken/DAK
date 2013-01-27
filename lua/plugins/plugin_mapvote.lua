@@ -84,25 +84,26 @@ local function UpdateMapVoteCountDown()
 			end
 		end
 		
-		local MapsArray = MapCycle_GetMapCycleArray
-		for i = 1, #MapsArray do
-		
-			recentlyplayed = false
-			local mapName = GetMapName(MapsArray[i])
-			for j = 1, #kDAKSettings.PreviousMaps do
+		local MapsArray = MapCycle_GetMapCycleArray()
+		if MapsArray ~= nil and #MapsArray > 0 then
+			for i = 1, #MapsArray do
 			
-				if mapName == kDAKSettings.PreviousMaps[j] then
-					recentlyplayed = true
+				recentlyplayed = false
+				local mapName = GetMapName(MapsArray[i])
+				for j = 1, #kDAKSettings.PreviousMaps do
+				
+					if mapName == kDAKSettings.PreviousMaps[j] then
+						recentlyplayed = true
+					end
+					
+				end
+
+				if mapName ~= tostring(Shared.GetMapName()) and not recentlyplayed and MapCycle_MeetsPlayerRequirements(mapName) then	
+					table.insert(tempMaps, mapName)
 				end
 				
 			end
-
-			if mapName ~= tostring(Shared.GetMapName()) and not recentlyplayed and MapCycle_MeetsPlayerRequirements(mapName) then	
-				table.insert(tempMaps, mapName)
-			end
-			
 		end
-		
 		local VoteMapsArray = MapCycle_GetVoteMapCycleArray()
 		if VoteMapsArray ~= nil and #VoteMapsArray > 0 then
 			for i = 1, #VoteMapsArray do

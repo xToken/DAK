@@ -25,7 +25,7 @@ if Server then
 	kDAKEvents["kDAKPluginDefaultConfigs"] = { }				//List of functions to setup default configs per plugin
 	kDAKEvents["kDAKPluginDefaultLanguageDefinitions"] = { }	//List of functions to setup language strings per plugin
 	
-	kDAKRevisions["dakloader"] = "0.1.125a"
+	kDAKRevisions["dakloader"] = "0.1.126a"
 	
 	function DAKRegisterEventHook(functionarray, eventfunction, p)
 		//Register Event in Array
