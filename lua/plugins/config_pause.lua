@@ -1,6 +1,6 @@
 //afkkick default config
 
-kDAKRevisions["pause"] = "0.1.126a"
+kDAKRevisions["pause"] = "0.1.128a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.Pause = { }

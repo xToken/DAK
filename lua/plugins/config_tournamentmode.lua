@@ -1,6 +1,6 @@
 //tournamentmode config
 
-kDAKRevisions["tournamentmode"] = "0.1.126a"
+kDAKRevisions["tournamentmode"] = "0.1.128a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.TournamentMode = { }

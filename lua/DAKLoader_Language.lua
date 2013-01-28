@@ -194,8 +194,8 @@ end
 function DAKDisplayMessageToTeam(teamnum, messageId, ...)
 	
 	if tonumber(teamnum) ~= nil then
-		local playerRecords =  GetEntitiesForTeam("Player", teamnum)
-		for _, player in ientitylist(playerRecords) do
+		local playerRecords = GetEntitiesForTeam("Player", teamnum)
+		for _, player in ipairs(playerRecords) do
 			
 			local client = Server.GetOwner(player)
 			if client ~= nil then

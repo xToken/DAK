@@ -10,6 +10,23 @@ local function DisconnectClientForIdling(client)
 	
 end
 
+function GetIsPlayerAFK(player)
+
+	local client = Server.GetOwner(player)
+	if client ~= nil then
+		for i = #AFKClientTracker, 1, -1 do
+			local PEntry = AFKClientTracker[i]
+			if PEntry ~= nil and PEntry.ID == client:GetUserId() then
+				if player:GetViewAngles() == PEntry.MVec and player:GetOrigin() == PEntry.POrig then
+					return true
+				end
+			end
+		end	
+	end
+	return false
+	
+end
+
 local function AFKOnClientConnect(client)
 
 	if client:GetIsVirtual() then
@@ -47,12 +64,11 @@ local function UpdateAFKClient(client, PEntry, player)
 				PEntry.Warn1 = false
 				DAKDisplayMessageToClient(client, "kAFKKickReturnMessage")
 			end
-			return PEntry			
+			return PEntry
 		end
 		
 		if PEntry.kick and PEntry.Time < Shared.GetTime() then
-			Shared.Message(string.format(kDAKConfig.AFKKicker.kAFKKickMessage, player:GetName(), kDAKConfig.AFKKicker.kAFKKickDelay))
-			EnhancedLog(string.format(kDAKConfig.AFKKicker.kAFKKickMessage, player:GetName(), kDAKConfig.AFKKicker.kAFKKickDelay))
+			DAKDisplayMessageToClient(client, "kAFKKickMessage", player:GetName(), kDAKConfig.AFKKicker.kAFKKickDelay)
 			DisconnectClientForIdling(client)
 			return nil
 		end
@@ -81,8 +97,12 @@ local function AFKOnClientDisconnect(client)
 
 	if #AFKClientTracker > 0 then
 		for i = 1, #AFKClientTracker do
-			if AFKClientTracker[i] ~= nil and client == AFKClientTracker[i] then
-				AFKClientTracker[i] = nil
+			local PEntry = AFKClientTracker[i]
+			if PEntry ~= nil and client ~= nil then
+				if PEntry.ID == client:GetUserId() then
+					AFKClientTracker[i] = nil
+					break
+				end
 			end
 		end
 	end

@@ -25,7 +25,7 @@ if Server then
 	kDAKEvents["kDAKPluginDefaultConfigs"] = { }				//List of functions to setup default configs per plugin
 	kDAKEvents["kDAKPluginDefaultLanguageDefinitions"] = { }	//List of functions to setup language strings per plugin
 	
-	kDAKRevisions["dakloader"] = "0.1.126a"
+	kDAKRevisions["dakloader"] = "0.1.128a"
 	
 	function DAKRegisterEventHook(functionarray, eventfunction, p)
 		//Register Event in Array
@@ -91,6 +91,13 @@ if Server then
 	function DAKCreateGUIVoteBase(id, OnMenuFunction, OnMenuUpdateFunction)
 		if DAKIsPluginEnabled("guimenubase") then
 			return CreateGUIMenuBase(id, OnMenuFunction, OnMenuUpdateFunction)
+		end
+		return false
+	end
+	
+	function DAKIsPlayerAFK(player)
+		if DAKIsPluginEnabled("afkkick") then
+			return GetIsPlayerAFK(player)
 		end
 		return false
 	end

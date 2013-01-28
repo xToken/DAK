@@ -3,7 +3,12 @@
 Initial Version - Plugin versions invidually all over - normalizing for this update, along with loader version - Need to decide how to track plugin revisions - 
 should plugins be updated with each 'build' of DAK, even if there are no changes?  This seems the most logical way to proceed currently, and for the future.
 
-## v0.1.124a
+## v0.1.128a
+- Corrected send team message issues with language plugin causing issues with surrendervote.
+- Corrected issue with the AFKKick plugin causing asserts.
+- Corrected issue with disconnects and AFK plugin not being cleaned up.
+
+## v0.1.126a
 - Corrected MapCycle using EventHooks incorrectly.
 - Corrected issue with available anguages not being echoed back.
 - Corrected issue with mapvote trying to use a function instead of an array.

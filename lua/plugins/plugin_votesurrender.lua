@@ -23,13 +23,14 @@ local function UpdateSurrenderVotes()
 
 		if kSurrenderVoteArray[i].VoteSurrenderRunning ~= 0 and gamerules ~= nil and gamerules:GetGameState() == kGameState.Started and kSurrenderVoteArray[i].SurrenderVotesAlertTime + kDAKConfig.VoteSurrender.kVoteSurrenderAlertDelay < Shared.GetTime() then
 			local playerRecords =  GetEntitiesForTeam("Player", i)
+			local playerCount = #playerRecords
 			SVRunning = true
 			local totalvotes = 0
 			for j = #kSurrenderVoteArray[i].SurrenderVotes, 1, -1 do
 				local clientid = kSurrenderVoteArray[i].SurrenderVotes[j]
 				local stillplaying = false
 			
-				for k = 1, #playerRecords do
+				for k = 1, playerCount do
 					local player = playerRecords[k]
 					if player ~= nil then
 						local client = Server.GetOwner(player)
@@ -48,10 +49,10 @@ local function UpdateSurrenderVotes()
 				end
 			
 			end
-			if totalvotes >= math.ceil((#playerRecords * (kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage / 100))) then
+			if totalvotes >= math.ceil((playerCount * (kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage / 100))) then
 				
 				DAKDisplayMessageToAllClients("kSurrenderTeamQuit", ToString(i))
-				for l = 1, #playerRecords do
+				for l = 1, playerCount do
 					if playerRecords[l] ~= nil then
 						local gamerules = GetGamerules()
 						if gamerules then
@@ -66,7 +67,7 @@ local function UpdateSurrenderVotes()
 
 			else
 				if kSurrenderVoteArray[i].SurrenderVotesAlertTime == 0 then
-					DAKDisplayMessageToTeam(i, "kSurrenderVoteStarted", math.ceil((#playerRecords * (kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage / 100))))
+					DAKDisplayMessageToTeam(i, "kSurrenderVoteStarted", math.ceil((playerCount * (kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage / 100))))
 					kSurrenderVoteArray[i].SurrenderVotesAlertTime = Shared.GetTime()
 				elseif kSurrenderVoteArray[i].VoteSurrenderRunning + kDAKConfig.VoteSurrender.kVoteSurrenderVotingTime < Shared.GetTime() then
 					DAKDisplayMessageToTeam(i, "kSurrenderVoteExpired")
@@ -74,7 +75,7 @@ local function UpdateSurrenderVotes()
 					kSurrenderVoteArray[i].VoteSurrenderRunning = 0
 					kSurrenderVoteArray[i].SurrenderVotes = { }
 				else
-					DAKDisplayMessageToTeam(i, "kSurrenderVoteUpdate", totalvotes, math.ceil((#playerRecords * (kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage / 100))), 
+					DAKDisplayMessageToTeam(i, "kSurrenderVoteUpdate", totalvotes, math.ceil((playerCount * (kDAKConfig.VoteSurrender.kVoteSurrenderMinimumPercentage / 100))), 
 					 math.ceil((kSurrenderVoteArray[i].VoteSurrenderRunning + kDAKConfig.VoteSurrender.kVoteSurrenderVotingTime) - Shared.GetTime()))
 					kSurrenderVoteArray[i].SurrenderVotesAlertTime = Shared.GetTime()
 				end
