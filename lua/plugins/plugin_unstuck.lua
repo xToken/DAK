@@ -74,7 +74,6 @@ DAKRegisterEventHook("kDAKOnServerUpdate", ProcessStuckUsers, 5)
 
 local function RegisterClientStuck(client)
 	if client ~= nil then
-		
 		local ID = client:GetUserId()
 		if LastUnstuckTracker[ID] == nil or LastUnstuckTracker[ID] + kDAKConfig.Unstuck.kTimeBetweenUntucks < Shared.GetTime() then
 			local player = client:GetControllingPlayer()

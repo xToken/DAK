@@ -5,6 +5,7 @@ local gamepaused = false
 local gamepausedtime = 0
 local gamepausedinittime = 0
 local gamepausedreadymessagetime = 0
+local gamepausedpausingteam = 0
 local gamepausedstates = { team1pauses = 0, team2pauses = 0, team1resume = false, team2resume = false }
 
 local originalNS2PlayingTeamUpdateResourceTowers
@@ -55,6 +56,9 @@ originalNS2AlienTeamUpdate = Class_ReplaceMethod("AlienTeam", "Update",
 			//Push out alien respawn time.
 			if self.timeNextWave ~= nil then
 				self.timeNextWave = self.timeNextWave + timePassed
+			end
+			if self.timeOfLastAutoHeal ~= nil then
+				self.timeOfLastAutoHeal = self.timeOfLastAutoHeal + timePassed
 			end
 		end
 		originalNS2AlienTeamUpdate(self, timePassed)
@@ -443,6 +447,19 @@ originalNS2AiAttacksMixinOnTag = Class_ReplaceMethod("AiAttacksMixin", "OnTag",
 	end
 )
 
+local originalNS2MinimapMoveMixinUpdateMove
+
+originalNS2MinimapMoveMixinUpdateMove = Class_ReplaceMethod("MinimapMoveMixin", "UpdateMove", 
+	function(self, input)
+
+		if GetTournamentMode() and gamepaused then
+			return
+		end
+		originalNS2MinimapMoveMixinUpdateMove(self, input)		
+
+	end
+)
+
 local function PausedJoinTeam(self, player, newTeamNumber, force)
 	if GetTournamentMode() and gamepaused and (newTeamNumber ~= 1 and newTeamNumber ~= 2) then
 		return true
@@ -668,7 +685,8 @@ local function UpdateMoveState(deltatime)
 		gamepausedtime = 0
 		DAKDeregisterEventHook("kDAKOnServerUpdateEveryFrame", UpdateMoveState)
 		DAKDeregisterEventHook("kDAKOnTeamJoin", PausedJoinTeam)
-		DAKDisplayMessageToAllClients("kPauseResumeMessage")
+		DAKDisplayMessageToAllClients("kPauseResumeMessage", gamepausedpausingteam, (kDAKConfig.Pause.kPauseMaxPauses - (ConditionalValue(gamepausedpausingteam == 1, gamepausedstates.team1pauses, gamepausedstates.team2pauses))))
+		gamepausedpausingteam = 0
 	end
 	//Kinda a crap/slow way of doing this, but if the server is paused we really dont care about server performance so kinda a moot point.  Do need to make sure that this 
 	//encompasses all things that need to be blocked - there may be some exceptions.  Cant really fake gametime unless I adjust the starting point forward accordingly, which really isnt correct.
@@ -677,7 +695,7 @@ end
 local function UpdateServerPauseState()
 	local tt = Shared.GetTime()
 	if gamepausedinittime - tt > 0 then
-		DAKDisplayMessageToAllClients("kPauseWarningMessage", (gamepausedinittime - tt))
+		DAKDisplayMessageToAllClients("kPauseWarningMessage", ConditionalValue(gamepaused, "resume", "pause"), (gamepausedinittime - tt))
 	else
 		if not gamepaused then
 			//What needs to be blocked - played movement, commander abilities.  Researches paused, res income blocked.  Cant join spec.
@@ -766,6 +784,7 @@ local function OnCommandPause(client)
 					gamepausedstates.team1resume = false
 					gamepausedstates.team2resume = false
 					gamepausedinittime = Shared.GetTime() + kDAKConfig.Pause.kPauseChangeDelay
+					gamepausedpausingteam = teamnumber
 					DAKRegisterEventHook("kDAKOnServerUpdate", UpdateServerPauseState, 5)
 					DAKDisplayMessageToAllClients("kPausePlayerMessage", player:GetName())
 				else

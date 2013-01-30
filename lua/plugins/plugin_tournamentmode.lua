@@ -171,6 +171,10 @@ end
 local function EnableOfficialMode(client)
 	DAKDisplayMessageToAllClients("kTournamentModeOfficialsMode")
 	//eventually add additional req. for offical matches
+	//Update certain console commands on clients to force consistency
+	//Server.SendCommand(player, "net_lag 0")
+	//Server.SendCommand(player, "r_pq true")
+	//Server.SendCommand(player, "r_particles true")
 end
 
 local function OnCommandTournamentMode(client, state, ffstate, newmode)

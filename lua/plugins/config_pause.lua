@@ -13,9 +13,9 @@ DAKRegisterEventHook("kDAKPluginDefaultConfigs", {PluginName = "pause", DefaultC
 
 local function SetupDefaultLanguageStrings()
 	local DefaultLangStrings = { }
-	DefaultLangStrings["kPauseResumeMessage"] 					= "Game Resumed."
+	DefaultLangStrings["kPauseResumeMessage"] 					= "Game Resumed.  Team %s has %s pauses remaining"
 	DefaultLangStrings["kPausePausedMessage"] 					= "Game Paused."
-	DefaultLangStrings["kPauseWarningMessage"] 					= "Game will pause in %.1f seconds."
+	DefaultLangStrings["kPauseWarningMessage"] 					= "Game will %s in %.1f seconds."
 	DefaultLangStrings["kPausePlayerMessage"] 					= "%s executed a game pause."
 	DefaultLangStrings["kPauseTeamReadiedMessage"] 				= "%s readied for Team %s, resuming game."
 	DefaultLangStrings["kPauseTeamReadyMessage"] 				= "%s readied for Team %s, waiting for Team %s."

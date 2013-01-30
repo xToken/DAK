@@ -55,7 +55,9 @@ if Server then
 			if #kDAKEvents[event] > 0 then
 				local funcarray = kDAKEvents[event]
 				for i = #funcarray, 1, -1 do
-					if funcarray[i].func(...) then return true end
+					if type(funcarray[i].func) == "function" then
+						if funcarray[i].func(...) then return true end
+					end
 				end
 			end
 		end
@@ -98,6 +100,8 @@ if Server then
 	function DAKIsPlayerAFK(player)
 		if DAKIsPluginEnabled("afkkick") then
 			return GetIsPlayerAFK(player)
+		elseif player ~= nil and player:GetAFKTime() > 30 then
+			return true
 		end
 		return false
 	end
@@ -106,7 +110,7 @@ if Server then
 	
 		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
 		for i = #playerList, 1, -1 do
-			if playerList[i]:GetTeamNumber() ~= 0 then
+			if playerList[i]:GetTeamNumber() ~= 0 or DAKIsPlayerAFK(playerList[i]) then
 				table.remove(playerList, i)
 			end
 		end
