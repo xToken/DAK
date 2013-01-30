@@ -4,10 +4,10 @@ local AFKClientTracker = { }
 local lastAFKUpdate = 0
 
 local function DisconnectClientForIdling(client)
-
-	client.disconnectreason = string.format(kDAKConfig.AFKKicker.kAFKKickDisconnectReason, kDAKConfig.AFKKicker.kAFKKickDelay)
+	local language = DAKGetClientLanguageSetting(client)
+	local kAFKKickDisconnectReason = DAKGetLanguageSpecificMessage("kAFKKickDisconnectReason", language)
+	client.disconnectreason = string.format(kAFKKickDisconnectReason, kDAKConfig.AFKKicker.kAFKKickDelay)
 	Server.DisconnectClient(client)
-	
 end
 
 function GetIsPlayerAFK(player)
