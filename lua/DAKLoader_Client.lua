@@ -17,8 +17,7 @@ originalNS2PlayerOnInit = Class_ReplaceMethod("Player", "OnInitLocalClient",
 		originalNS2PlayerOnInit(self)
 		if self.guivotebase == nil then
             self.guivotebase = GetGUIManager():CreateGUIScriptSingle("gui/GUIMenuBase")
-        end
-		
+        end		
 		
 	end
 )

@@ -146,7 +146,7 @@ end
 
 DAKRegisterEventHook("kDAKOnServerUpdate", DelayedVoteManagerOverride, 5)
 
-function CommBansCastVoteByPlayer(self, voteTechId, player)
+local function CommBansCastVoteByPlayer(self, voteTechId, player)
 	local commanders = GetEntitiesForTeam("Commander", player:GetTeamNumber())
 	if table.count(commanders) >= 1 then
 		local targetCommander = commanders[1]
@@ -224,7 +224,7 @@ end
 
 DAKCreateServerAdminCommand("Console_sv_uncommban", OnCommandUnCommBan, "<steam id>, Removes the player matching the passed in Steam Id from the commander ban list")
 
-function GetCommBannedPlayersList()
+local function GetCommBannedPlayersList()
 
 	local returnList = { }
 	

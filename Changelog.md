@@ -3,6 +3,11 @@
 Initial Version - Plugin versions invidually all over - normalizing for this update, along with loader version - Need to decide how to track plugin revisions - 
 should plugins be updated with each 'build' of DAK, even if there are no changes?  This seems the most logical way to proceed currently, and for the future.
 
+## v0.1.131a
+- Fixed assert regarding missing function for logging certain sv_ actions.
+- Fixed possible exploit regarding player names.
+- Corrected logging issue with commander eject votes.
+
 ## v0.1.130a
 - Added VoteRandomOnGameStart flag to voterandom plugin - will random any players left in RR on round start.
 - Added DAKIsPlayerAFK global function to check if players are AFK, uses afkkick plugin.  As a failback it will also check the default NS2's afk variables.  Updated random functions to check for non-afk players.

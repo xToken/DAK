@@ -1,12 +1,13 @@
 //motd config
 
-kDAKRevisions["motd"] = "0.1.128a"
+kDAKRevisions["motd"] = "0.1.131a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.MOTD = { }
 	kDAKConfig.MOTD.kMOTDMessageDelay = 6
 	kDAKConfig.MOTD.kMOTDMessageRevision = 1
 	kDAKConfig.MOTD.kMOTDMessagesPerTick = 5
+	kDAKConfig.MOTD.kMOTDOnConnectURL = "www.unknownworlds.com/ns2"
 	kDAKConfig.MOTD.kAcceptMOTDChatCommands = { "acceptmotd" }
 	kDAKConfig.MOTD.kPrintMOTDChatCommands = { "printmotd" }
 end

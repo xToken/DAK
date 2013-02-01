@@ -25,7 +25,7 @@ if Server then
 	kDAKEvents["kDAKPluginDefaultConfigs"] = { }				//List of functions to setup default configs per plugin
 	kDAKEvents["kDAKPluginDefaultLanguageDefinitions"] = { }	//List of functions to setup language strings per plugin
 	
-	kDAKRevisions["dakloader"] = "0.1.128a"
+	kDAKRevisions["dakloader"] = "0.1.131a"
 	
 	function DAKRegisterEventHook(functionarray, eventfunction, p)
 		//Register Event in Array
@@ -73,79 +73,10 @@ if Server then
 		return nil
 	end
 	
-	//Hooks for logging functions
-	function EnhancedLog(message)
-	
-		if DAKIsPluginEnabled("enhancedlogging") then
-			EnhancedLogMessage(message)
-		end
-	
-	end
-		
-	function PrintToAllAdmins(commandname, client, parm1)
-	
-		if DAKIsPluginEnabled("enhancedlogging") then
-			EnhancedLoggingAllAdmins(commandname, client, parm1)
-		end
-	
-	end
-
-	function DAKCreateGUIVoteBase(id, OnMenuFunction, OnMenuUpdateFunction)
-		if DAKIsPluginEnabled("guimenubase") then
-			return CreateGUIMenuBase(id, OnMenuFunction, OnMenuUpdateFunction)
-		end
-		return false
-	end
-	
-	function DAKIsPlayerAFK(player)
-		if DAKIsPluginEnabled("afkkick") then
-			return GetIsPlayerAFK(player)
-		elseif player ~= nil and player:GetAFKTime() > 30 then
-			return true
-		end
-		return false
-	end
-
-	function ShufflePlayerList()
-	
-		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
-		for i = #playerList, 1, -1 do
-			if playerList[i]:GetTeamNumber() ~= 0 or DAKIsPlayerAFK(playerList[i]) then
-				table.remove(playerList, i)
-			end
-		end
-		for i = 1, (#playerList) do
-			r = math.random(1, #playerList)
-			local iplayer = playerList[i]
-			playerList[i] = playerList[r]
-			playerList[r] = iplayer
-		end
-		return playerList
-		
-	end
-	
-	function GetTournamentMode()
-		local OverrideTournamentModes = false
-		if RBPSconfig then
-			//Gonna do some basic NS2Stats detection here
-			OverrideTournamentModes = RBPSconfig.tournamentMode
-		end
-		if kDAKSettings.TournamentMode == nil then
-			kDAKSettings.TournamentMode = false
-		end
-		return kDAKSettings.TournamentMode or OverrideTournamentModes
-	end
-	
-	function GetFriendlyFire()
-		if kDAKSettings.FriendlyFire == nil then
-			kDAKSettings.FriendlyFire = false
-		end
-		return kDAKSettings.FriendlyFire
-	end
-	
 	Script.Load("lua/dkjson.lua")
 	Script.Load("lua/DAKLoader_Class.lua")
 	Script.Load("lua/DAKLoader_ServerAdmin.lua")
+	Script.Load("lua/DAKLoader_Globals.lua")
 	Script.Load("lua/DAKLoader_Config.lua")
 	Script.Load("lua/DAKLoader_Settings.lua")
 	

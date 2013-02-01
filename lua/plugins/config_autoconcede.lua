@@ -1,6 +1,6 @@
 //autoconcede default config
 
-kDAKRevisions["autoconcede"] = "0.1.128a"
+kDAKRevisions["autoconcede"] = "0.1.131a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.AutoConcede = { }

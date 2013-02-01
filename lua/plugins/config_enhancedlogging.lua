@@ -1,6 +1,6 @@
 //enhanced logging default config
 
-kDAKRevisions["enhancedlogging"] = "0.1.128a"
+kDAKRevisions["enhancedlogging"] = "0.1.131a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.EnhancedLogging = { }

@@ -1,6 +1,6 @@
 //CommBans default config
 
-kDAKRevisions["commbans"] = "0.1.128a"
+kDAKRevisions["commbans"] = "0.1.131a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.CommBans = { }

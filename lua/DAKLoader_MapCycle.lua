@@ -40,7 +40,7 @@ if Server then
 		return map
 	end
 	
-	function MapCycle_MeetsPlayerRequirements(map)
+	function MapCycle_GetMapMeetsPlayerRequirements(map)
 		local CurPlayers = Server.GetNumPlayers()
 		for i = #DAKMapCycle.maps, 1, -1 do
 			if GetMapName(DAKMapCycle.maps[i]) == map then
@@ -196,7 +196,7 @@ if Server then
 					if mapIndex > numMaps then
 						mapIndex = 1
 					end
-					if MapCycle_MeetsPlayerRequirements(GetMapName(DAKMapCycle.maps[mapIndex])) then
+					if MapCycle_GetMapMeetsPlayerRequirements(GetMapName(DAKMapCycle.maps[mapIndex])) then
 						map = DAKMapCycle.maps[mapIndex]
 						break
 					end
@@ -222,7 +222,7 @@ if Server then
 				if mapIndex > numMaps then
 					mapIndex = 1
 				end
-				if MapCycle_MeetsPlayerRequirements(GetMapName(DAKMapCycle.maps[mapIndex])) then
+				if MapCycle_GetMapMeetsPlayerRequirements(GetMapName(DAKMapCycle.maps[mapIndex])) then
 					map = DAKMapCycle.maps[mapIndex]
 					break
 				end

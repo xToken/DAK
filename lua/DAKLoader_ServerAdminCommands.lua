@@ -57,20 +57,6 @@ end
 
 DAKCreateServerAdminCommand("Console_sv_maps", OnCommandListMap, "Will list all the maps currently on the server.")
 
-/*local function OnCommandCheats(client)
-	if client ~= nil then
-		local statuschange = ConditionalValue(Shared.GetCheatsEnabled(), 0, 1)
-		ServerAdminPrint(client, string.format("Cheats have been %s.", ConditionalValue(statuschange == 1,"enabled", "disabled")))
-		Shared.ConsoleCommand("cheats " .. statuschange)
-		local player = client:GetControllingPlayer()
-		if player ~= nil then
-			PrintToAllAdmins("sv_cheats", client, " " .. statuschange)
-		end
-	end
-end
-
-DAKCreateServerAdminCommand("Console_sv_cheats", OnCommandCheats, "Will enable/disable cheats.")*/
-
 local function OnCommandKillServer(client)
 
 	if client ~= nil then 

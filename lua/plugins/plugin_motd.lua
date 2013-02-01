@@ -99,6 +99,10 @@ end
 
 local function MOTDOnClientConnect(client)
 
+	if client == nil then
+		return false
+	end
+	
 	if client:GetIsVirtual() then
 		return false
 	end
@@ -110,6 +114,11 @@ local function MOTDOnClientConnect(client)
 	if IsAcceptedClient(client) then
 		return false
 	end
+	
+	local player = client:GetControllingPlayer()
+	if player ~= nil and kDAKConfig.MOTD.kMOTDOnConnectURL ~= "" then
+		Server.SendCommand(player, string.format("! SetMenuWebView(%s, function return Vector(Client.GetScreenWidth() * 0.8, Client.GetScreenHeight() * 0.8, 0) end )", kDAKConfig.MOTD.kMOTDOnConnectURL))
+	end	
 	
 	local PEntry = { ID = client:GetUserId(), Client = client, Message = 1, Time = 0 }
 	PEntry = ProcessMessagesforUser(PEntry)

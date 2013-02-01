@@ -115,22 +115,6 @@ end
 //Log Formatting Functions
 //*******************************************************************************************************************************
 
-function GetClientUIDString(client)
-
-	if client ~= nil then
-		local player = client:GetControllingPlayer()
-		local name = "N/A"
-		local teamnumber = 0
-		if player ~= nil then
-			name = player:GetName()
-			teamnumber = player:GetTeamNumber()
-		end
-		return string.format("<%s><%s><%s><%s>", name, ToString(GetGameIdMatchingClient(client)), client:GetUserId(), teamnumber)
-	end
-	return ""
-	
-end
-
 local function GetClientIPAddress(client)
 
 	if client ~= nil then
@@ -454,8 +438,14 @@ function EnhancedLoggingCastVoteByPlayer(self, voteTechId, player)
 			local targetCommander = commanders[playerIndex]
 			if targetCommander ~= nil then
 				local targetClient = Server.GetOwner(targetCommander)
+<<<<<<< HEAD
 				if targetClient then
 					PrintToEnhancedLog(GetTimeStamp() .. GetClientUIDString(targetClient) .. " voted to eject " .. GetClientUIDString(targetClient))
+=======
+				local Client = Server.GetOwner(player)
+				if targetClient and Client then
+					PrintToEnhancedLog(GetTimeStamp() .. GetClientUIDString(Client) .. " voted to eject " .. GetClientUIDString(targetClient))
+>>>>>>> v131a Publish
 				end
 			end
 		end
