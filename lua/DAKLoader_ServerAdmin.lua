@@ -135,79 +135,75 @@ function DAKGetClientIsInGroup(client, gpName)
 				end
 			end
 		end
-		
-<<<<<<< HEAD
         return level
     end
+end
 	
-	function AddSteamIDToGroup(steamId, groupNameToAdd)
-        for name, user in pairs(settings.users) do
-            if user.id == steamId then
-				for g = 1, #user.groups do
-					if user.groups[g] == groupNameToAdd then
-						groupNameToAdd = nil
-					end
+function AddSteamIDToGroup(steamId, groupNameToAdd)
+	for name, user in pairs(settings.users) do
+		if user.id == steamId then
+			for g = 1, #user.groups do
+				if user.groups[g] == groupNameToAdd then
+					groupNameToAdd = nil
 				end
-				if groupNameToAdd ~= nil then
-					table.insert(user.groups, groupNameToAdd)
-				end
-				break
-            end
-        end
-    end
-	
-	function RemoveSteamIDFromGroup(steamId, groupNameToRemove)
-        for name, user in pairs(settings.users) do
-            if user.id == steamId then
-				for r = #user.groups, 1, -1 do
-					if user.groups[r] ~= nil then
-						if user.groups[r] == groupNameToRemove then
-							table.remove(user.groups, r)
-						end
-					end
-				end
-            end
-        end
-    end
-	
-	local function GetClientLevel(client)
-        local steamId = client:GetUserId()
-		if steamId == nil then return 0 end
-        return GetSteamIDLevel(steamId)
-    end
-	
-	local function GetPlayerLevel(player)
-		local client = Server.GetOwner(player)
-		if client == nil then return 0 end
-        local steamId = client:GetUserId()
-		if steamId == nil then return 0 end
-        return GetSteamIDLevel(steamId)
-    end
-	
-	local function GetObjectLevel(target)
-		if tonumber(target) ~= nil then
-			return GetSteamIDLevel(tonumber(target))
-		elseif VerifyClient(target) ~= nil then
-			return GetClientLevel(target)
-		elseif Server.GetOwner(target) ~= nil then
-			return GetPlayerLevel(target)
+			end
+			if groupNameToAdd ~= nil then
+				table.insert(user.groups, groupNameToAdd)
+			end
+			break
 		end
-		return 0
 	end
-	
-	function DAKGetLevelSufficient(client, targetclient)
-		if client == nil then return true end
-		if targetclient == nil then return false end
-		return GetObjectLevel(client) >= GetObjectLevel(targetclient)
+end
+
+function RemoveSteamIDFromGroup(steamId, groupNameToRemove)
+	for name, user in pairs(settings.users) do
+		if user.id == steamId then
+			for r = #user.groups, 1, -1 do
+				if user.groups[r] ~= nil then
+					if user.groups[r] == groupNameToRemove then
+						table.remove(user.groups, r)
+					end
+				end
+			end
+		end
 	end
-	
-	//Internal Globals
-	function DAKCreateServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
-		//Prefered function for creating ServerAdmin commands, not checked against blacklist
-		CreateBaseServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
-=======
->>>>>>> v131a Publish
+end
+
+local function GetClientLevel(client)
+	local steamId = client:GetUserId()
+	if steamId == nil then return 0 end
+	return GetSteamIDLevel(steamId)
+end
+
+local function GetPlayerLevel(player)
+	local client = Server.GetOwner(player)
+	if client == nil then return 0 end
+	local steamId = client:GetUserId()
+	if steamId == nil then return 0 end
+	return GetSteamIDLevel(steamId)
+end
+
+local function GetObjectLevel(target)
+	if tonumber(target) ~= nil then
+		return GetSteamIDLevel(tonumber(target))
+	elseif VerifyClient(target) ~= nil then
+		return GetClientLevel(target)
+	elseif Server.GetOwner(target) ~= nil then
+		return GetPlayerLevel(target)
 	end
+	return 0
+end
+
+function DAKGetLevelSufficient(client, targetclient)
+	if client == nil then return true end
+	if targetclient == nil then return false end
+	return GetObjectLevel(client) >= GetObjectLevel(targetclient)
+end
+
+//Internal Globals
+function DAKCreateServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
+	//Prefered function for creating ServerAdmin commands, not checked against blacklist
+	CreateBaseServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
 end
 	
 function AddSteamIDToGroup(steamId, groupNameToAdd)
