@@ -1,6 +1,6 @@
 //mapvote config
 
-kDAKRevisions["mapvote"] = "0.1.131a"
+kDAKRevisions["mapvote"] = "0.1.203a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.MapVote = { }

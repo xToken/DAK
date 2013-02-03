@@ -1,6 +1,6 @@
 //unstuck config
 
-kDAKRevisions["unstuck"] = "0.1.131a"
+kDAKRevisions["unstuck"] = "0.1.203a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.Unstuck = { }

@@ -3,6 +3,9 @@
 Initial Version - Plugin versions invidually all over - normalizing for this update, along with loader version - Need to decide how to track plugin revisions - 
 should plugins be updated with each 'build' of DAK, even if there are no changes?  This seems the most logical way to proceed currently, and for the future.
 
+## v0.1.203a
+- Added ability for custom event hooks to be created - Automatically created on register of non-existing hook.
+
 ## v0.1.131a
 - Fixed assert regarding missing function for logging certain sv_ actions.
 - Fixed possible exploit regarding player names.

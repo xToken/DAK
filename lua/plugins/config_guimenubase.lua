@@ -1,6 +1,6 @@
 //GUIMenuBase config
 
-kDAKRevisions["guimenubase"] = "0.1.131a"
+kDAKRevisions["guimenubase"] = "0.1.203a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.GUIMenuBase = { }

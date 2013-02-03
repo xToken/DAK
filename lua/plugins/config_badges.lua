@@ -1,6 +1,6 @@
 //badges
 
-kDAKRevisions["badges"] = "0.1.131a"
+kDAKRevisions["badges"] = "0.1.203a"
 
 local function SetupDefaultConfig()
 	//kDAKConfig.Badges = { }

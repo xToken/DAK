@@ -1,6 +1,6 @@
 //motd config
 
-kDAKRevisions["motd"] = "0.1.131a"
+kDAKRevisions["motd"] = "0.1.203a"
 
 local function SetupDefaultConfig()
 	kDAKConfig.MOTD = { }

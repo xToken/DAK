@@ -25,12 +25,15 @@ if Server then
 	kDAKEvents["kDAKPluginDefaultConfigs"] = { }				//List of functions to setup default configs per plugin
 	kDAKEvents["kDAKPluginDefaultLanguageDefinitions"] = { }	//List of functions to setup language strings per plugin
 	
-	kDAKRevisions["dakloader"] = "0.1.131a"
-	
+	kDAKRevisions["dakloader"] = "0.1.203a"
+
 	function DAKRegisterEventHook(functionarray, eventfunction, p)
 		//Register Event in Array
 		p = tonumber(p)
 		if p == nil then p = 5 end
+		if kDAKEvents[functionarray] == nil then
+			kDAKEvents[functionarray] = { }
+		end
 		if functionarray ~= nil and kDAKEvents[functionarray] ~= nil then
 			table.insert(kDAKEvents[functionarray], {func = eventfunction, priority = p})
 			table.sort(kDAKEvents[functionarray], function(f1, f2) return f1.priority < f2.priority end)
