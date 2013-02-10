@@ -214,22 +214,28 @@ end
 function GUIMenuBase:DisplayUpdate()
     if self.lastupdate ~= nil then
         self.mainmenu:SetIsVisible(true)
+		Print("Displayed")
     end
 end
 
 function GUIMenuBase:OnClose()
 	self.mainmenu:SetIsVisible(false)
+	Print("Hidden")
 	self.lastupdate = nil
 end
 
 function GUIMenuBase:Update(deltaTime)
-	if self.lastupdate ~= nil and self.lastupdate.menutime < Shared.GetTime() + GUIMenuBase.kUpdateLifetime then
+	if self.lastupdate ~= nil and self.lastupdate.menutime + GUIMenuBase.kUpdateLifetime < Shared.GetTime() then
 		self:OnClose()
 	end
 end
 
 function GUIMenuBase:OverrideInput(input)
-
+	
+	Print("Override Test")
+	if self.lastupdate ~= nil then
+		Print(ToString(self.lastupdate.inputallowed))
+	end
 	if self.lastupdate ~= nil and self.lastupdate.inputallowed then
 		local weaponSwitchCommands = { Move.Weapon1, Move.Weapon2, Move.Weapon3, Move.Weapon4, Move.Weapon5 }
 		for index, weaponSwitchCommand in ipairs(weaponSwitchCommands) do

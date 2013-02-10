@@ -1,6 +1,0 @@
-<game>
-	<name>ns2</name>
-	<description>DAK Admin Kit</description>
-	<client>lua/DAKLoader_Client.lua</client>
-	<server>lua/DAKLoader_Server.lua</server>
-</game>

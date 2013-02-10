@@ -1,0 +1,163 @@
+//DAK loader/Base Config
+
+DAK.config = nil //variable storing all configuration items for mods
+
+local ConfigFileName = "config://DAKConfig.json"
+
+local function tablemerge(tab1, tab2)
+	if tab1 == nil then
+		tab1 = { }
+	end
+	if tab2 ~= nil then
+		for k, v in pairs(tab2) do
+			if (type(v) == "table") and (type(tab1[k] or false) == "table") and table.getn(v) == 0 then
+				tablemerge(tab1[k], tab2[k])
+			else
+				tab1[k] = v
+			end
+		end
+	end
+	return tab1
+end
+
+local function LoadDAKConfig()
+	local ConfigFile = io.open(ConfigFileName, "r")
+	if ConfigFile then
+		Shared.Message("Loading DAK configuration.")
+		if DAK.config ~= nil then
+			local config = json.decode(ConfigFile:read("*all"))
+			DAK.config = tablemerge(DAK.config, config)
+		else
+			DAK.config = json.decode(ConfigFile:read("*all"))
+		end
+		ConfigFile:close()
+	end
+end
+
+local function SaveDAKConfig()
+	//Write config to file
+	local ConfigFile = io.open(ConfigFileName, "w+")
+	if ConfigFile then
+		ConfigFile:write(json.encode(DAK.config, { indent = true, level = 1 }))
+		Shared.Message("Saving DAK configuration.")
+		ConfigFile:close()
+	end
+end
+
+local function GenerateDefaultDAKConfig(Plugin, Save)
+
+	if DAK.config == nil then
+		DAK.config = { }
+	end
+	
+	if Plugin == "loader" or Plugin == "ALL" then
+		//Base DAK Config
+		local DefaultConfig = { }
+		DefaultConfig.DelayedClientConnect = 2
+		DefaultConfig.DelayedServerUpdate = 1
+		DefaultConfig.PluginsList = { "afkkick", "baseadmincommands", "mapvote", "motd",
+												 "unstuck", "voterandom", "votesurrender" }
+		DefaultConfig.GamerulesExtensions = true
+		DefaultConfig.GamerulesClassName = "NS2Gamerules"
+		
+		DAK.config["loader"] = tablemerge(DAK.config["loader"], DefaultConfig)
+		
+		DefaultConfig = { }
+		DefaultConfig.MapChangeDelay = 5
+		DefaultConfig.ReconnectTime = 120
+		DefaultConfig.UpdateDelay = 60
+		DefaultConfig.QueryTimeout = 10
+		DefaultConfig.QueryURL = ""
+		
+		DAK.config["serveradmin"] = tablemerge(DAK.config["serveradmin"], DefaultConfig)
+		
+		DefaultConfig = { }
+		DefaultConfig.LanguageList = { "EN", "Default" }
+		DefaultConfig.LanguageChatCommands = { "/lang" }
+		DefaultConfig.DefaultLanguage = "EN"
+		DefaultConfig.MessageSender = "Admin"
+				
+		DAK.config["language"] = tablemerge(DAK.config["language"], DefaultConfig)
+		
+		DefaultConfig = { }
+		DefaultConfig.Enabled = false
+		DefaultConfig.Interp = 100
+		
+		DAK.config["overrideinterp"] = tablemerge(DAK.config["overrideinterp"], DefaultConfig)
+		
+		//Base DAK Config
+	end
+	
+	//Generate default configs for all plugins
+	local funcarray = DAK:ReturnEventArray("PluginDefaultConfigs")
+	if funcarray ~= nil then
+		for i = 1, #funcarray do
+			PluginDefaultConfig = funcarray[i].func
+			if Plugin == PluginDefaultConfig.PluginName or Plugin == "ALL" then
+				if DAK.config[PluginDefaultConfig.PluginName] == nil then
+					DAK.config[PluginDefaultConfig.PluginName] = { }
+				end
+				tablemerge(DAK.config[PluginDefaultConfig.PluginName], PluginDefaultConfig.DefaultConfig())
+			end
+		end
+	end
+	
+	if Save then
+		SaveDAKConfig()
+	end
+	
+end
+
+local function LoadDAKPluginConfigs()
+
+	LoadDAKConfig()
+	//Load current config - if its invalid or non-existant, create default so that default plugins are loaded
+	if DAK.config == nil or DAK.config == { } then
+		GenerateDefaultDAKConfig("loader", false)
+	end
+	
+	//Load config files for plugins specified - if a plugin isnt loaded than its config will not be generated.
+	if DAK.config and DAK.config.loader and DAK.config.loader.PluginsList then
+		for i = 1, #DAK.config.loader.PluginsList do
+			local plugin = DAK.config.loader.PluginsList[i]
+			if plugin ~= nil and plugin ~= "" then
+				local filename = string.format("lua/configs/%s.lua", plugin)
+				Script.Load(filename)
+			end
+		end
+	end
+	
+	//Generate Default Config, then reload active config
+	//Seems confusing, but should insure any new vars are added to existing configs.
+	//This also insures that any new plugins get their config options created.
+	GenerateDefaultDAKConfig("ALL", false)
+	LoadDAKConfig()
+	SaveDAKConfig()
+	
+end
+
+LoadDAKPluginConfigs()
+			
+local function OnCommandLoadDAKConfig(client)
+
+	if client ~= nil then
+		LoadDAKConfig()
+		DAK:ExecuteEventHooks("OnConfigReloaded")
+		Shared.Message(string.format("%s reloaded DAK config", client:GetUserId()))
+		ServerAdminPrint(client, string.format("DAK Config reloaded."))
+		PrintToAllAdmins("sv_reloadconfig", client)
+	end
+	
+end
+
+DAK:CreateServerAdminCommand("Console_sv_reloadconfig", OnCommandLoadDAKConfig, "Will reload the configuration files.")
+
+local function OnCommandDefaultPluginConfig(client, plugin)
+	if client ~= nil and plugin ~= nil then
+		ServerAdminPrint(client, string.format("Defaulting %s config", plugin))
+		GenerateDefaultDAKConfig(plugin, true)
+		PrintToAllAdmins("sv_defaultconfig", client, plugin)
+	end
+end
+
+DAK:CreateServerAdminCommand("Console_sv_defaultconfig", OnCommandDefaultPluginConfig, "<Plugin Name> Will default the config for the plugin passed, or ALL.")

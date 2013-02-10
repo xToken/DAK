@@ -3,6 +3,24 @@
 Initial Version - Plugin versions invidually all over - normalizing for this update, along with loader version - Need to decide how to track plugin revisions - 
 should plugins be updated with each 'build' of DAK, even if there are no changes?  This seems the most logical way to proceed currently, and for the future.
 
+## v0.1.210a
+- Added connection time caching.
+- Updated reserveslot plugin to use connection time instead of score.
+- Re-added MaximumSlot setting for reserveslot plugin, only used if changed from 0.
+
+## v0.1.209a
+- Completed network message function replacement system.
+- Fixed bugs with gameIDs and gagged players.
+- Added DAK:ExecutePluginGlobalFunction for any cross plugin calls to insure safety.
+- Removed a couple globals which can be replaced by the above.
+
+## v0.1.207a
+- Moved many functions under a global DAK variable, offers greater unity and cohesion
+- Added ability to replace network message functions
+- Added ability to remove server admin commands, and to re-register them.
+- Added events for plugin initialization OnPluginInitialized (occurs on first server update event), OnPluginUnloaded (occurs when plugins are reloaded) and OnConfigReloaded (occurs when config is reloaded).
+- Changed default config setup functions to expect an array to be returned with the config values.
+
 ## v0.1.203a
 - Added ability for custom event hooks to be created - Automatically created on register of non-existing hook.
 
