@@ -266,7 +266,7 @@ function DAK:RemoveConnectionTimeTracker(client)
 end
 
 function DAK:GetClientConnectionTime(client)
-	if client ~= nil then
+	if client ~= nil and DAK.settings.connectedclients ~= nil then
 		local steamId = client:GetUserId()
 		if steamId ~= nil then
 			for r = #DAK.settings.connectedclients, 1, -1 do
@@ -276,6 +276,7 @@ function DAK:GetClientConnectionTime(client)
 			end
 		end
 	end
+	return 0
 end
 
 function DAK:PrintToAllAdmins(commandname, client, parm1)

@@ -351,12 +351,14 @@ local function DelayedServerCommandRegistration()
 		end
 	end
 	if Shared.GetTime() > DAK.config.serveradmin.ReconnectTime then
-		for r = #DAK.settings.connectedclients, 1, -1 do
-			if DAK.settings.connectedclients[r] ~= nil and DAK:GetClientMatchingSteamId(DAK.settings.connectedclients[r].id) == nil then
-				DAK.settings.connectedclients[r] = nil
+		if DAK.settings.connectedclients ~= nil then
+			for r = #DAK.settings.connectedclients, 1, -1 do
+				if DAK.settings.connectedclients[r] ~= nil and DAK:GetClientMatchingSteamId(DAK.settings.connectedclients[r].id) == nil then
+					DAK.settings.connectedclients[r] = nil
+				end
 			end
+			DAK:SaveSettings()
 		end
-		DAK:SaveSettings()
 		DAK:DeregisterEventHook("OnServerUpdate", DelayedServerCommandRegistration)
 	end
 end
