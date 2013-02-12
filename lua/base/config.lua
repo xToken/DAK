@@ -65,6 +65,7 @@ local function GenerateDefaultDAKConfig(Plugin, Save)
 		DefaultConfig = { }
 		DefaultConfig.MapChangeDelay = 5
 		DefaultConfig.ReconnectTime = 120
+		DefaultConfig.ServerTimeZoneAdjustment = 0
 		DefaultConfig.UpdateDelay = 60
 		DefaultConfig.QueryTimeout = 10
 		DefaultConfig.QueryURL = ""
@@ -140,24 +141,23 @@ LoadDAKPluginConfigs()
 			
 local function OnCommandLoadDAKConfig(client)
 
-	if client ~= nil then
-		LoadDAKConfig()
-		DAK:ExecuteEventHooks("OnConfigReloaded")
-		Shared.Message(string.format("%s reloaded DAK config", client:GetUserId()))
-		ServerAdminPrint(client, string.format("DAK Config reloaded."))
-		PrintToAllAdmins("sv_reloadconfig", client)
-	end
+	LoadDAKConfig()
+	DAK:ExecuteEventHooks("OnConfigReloaded")
+	ServerAdminPrint(client, string.format("DAK Config reloaded."))
+	DAK:PrintToAllAdmins("sv_reloadconfig", client)
 	
 end
 
 DAK:CreateServerAdminCommand("Console_sv_reloadconfig", OnCommandLoadDAKConfig, "Will reload the configuration files.")
 
 local function OnCommandDefaultPluginConfig(client, plugin)
-	if client ~= nil and plugin ~= nil then
+
+	if plugin ~= nil then
 		ServerAdminPrint(client, string.format("Defaulting %s config", plugin))
 		GenerateDefaultDAKConfig(plugin, true)
-		PrintToAllAdmins("sv_defaultconfig", client, plugin)
+		DAK:PrintToAllAdmins("sv_defaultconfig", client, plugin)
 	end
+	
 end
 
 DAK:CreateServerAdminCommand("Console_sv_defaultconfig", OnCommandDefaultPluginConfig, "<Plugin Name> Will default the config for the plugin passed, or ALL.")

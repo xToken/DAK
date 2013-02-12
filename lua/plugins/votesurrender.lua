@@ -139,35 +139,18 @@ end
 
 Event.Hook("Console_surrender",               OnCommandVoteSurrender)
 
-local function OnVoteSurrenderChatMessage(message, playerName, steamId, teamNumber, teamOnly, client)
-
-	if client and steamId and steamId ~= 0 then
-		for c = 1, #DAK.config.votesurrender.kSurrenderChatCommands do
-			local chatcommand = DAK.config.votesurrender.kSurrenderChatCommands[c]
-			if string.upper(message) == string.upper(chatcommand) then
-				OnCommandVoteSurrender(client)
-			end
-		end
-	end
-
-end
-
-DAK:RegisterEventHook("OnClientChatMessage", OnVoteSurrenderChatMessage, 5)
+DAK:RegisterChatCommand(DAK.config.votesurrender.kSurrenderChatCommands, OnCommandVoteSurrender, false)
 
 local function VoteSurrenderOff(client, teamnum)
+
 	local tmNum = tonumber(teamnum)
 	if tmNum ~= nil and ValidateTeamNumber(tmNum) and kVoteSurrenderRunning[tmNum] ~= 0 then
 		kSurrenderVoteArray[tmNum].SurrenderVotesAlertTime = 0
 		kSurrenderVoteArray[tmNum].VoteSurrenderRunning = 0
 		kSurrenderVoteArray[tmNum].SurrenderVotes = { }
 		DAK:DisplayMessageToTeam(tmNum, "SurrenderVoteCancelled", tmNum)
-		if client ~= nil then 
-			ServerAdminPrint(client, string.format("Surrender vote cancelled for team %s.", ToString(tmNum)))
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				DAK:PrintToAllAdmins("sv_cancelsurrendervote", client, teamnum)
-			end
-		end
+		ServerAdminPrint(client, string.format("Surrender vote cancelled for team %s.", ToString(tmNum)))
+		DAK:PrintToAllAdmins("sv_cancelsurrendervote", client, teamnum)
 	end
 
 end
@@ -178,13 +161,8 @@ local function VoteSurrenderOn(client, teamnum)
 	local tmNum = tonumber(teamnum)
 	if tmNum ~= nil and ValidateTeamNumber(tmNum) and kVoteSurrenderRunning[tmNum] == 0 then
 		kSurrenderVoteArray[tmNum].VoteSurrenderRunning = Shared.GetTime()
-		if client ~= nil then
-			ServerAdminPrint(client, string.format("Surrender vote started for team %s.", ToString(tmNum)))
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				DAK:PrintToAllAdmins("sv_surrendervote", client, teamnum)
-			end			
-		end
+		ServerAdminPrint(client, string.format("Surrender vote started for team %s.", ToString(tmNum)))
+		DAK:PrintToAllAdmins("sv_surrendervote", client, teamnum)
 		DAK:RegisterEventHook("OnServerUpdate", UpdateSurrenderVotes, 5)
 	end
 

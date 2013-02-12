@@ -552,10 +552,9 @@ local function OnCommandStartMapVote(client)
 	else
 	
 		StartMapVote()
+		DAK:PrintToAllAdmins("sv_votemap", client)
 		
 	end
-
-	DAK:PrintToAllAdmins("sv_votemap", client)
 
 end
 
@@ -576,11 +575,11 @@ local function CancelMapVote(client)
 		
 		DAK:DisplayMessageToAllClients("VoteMapCancelled")
 		DAK:DeregisterEventHook("OnServerUpdate", UpdateMapVotes)
+		DAK:PrintToAllAdmins("sv_cancelmapvote", client)
 		
 	elseif client ~= nil then
 		DAK:DisplayMessageToClient(client, "VoteMapNotRunning")
 	end
-	DAK:PrintToAllAdmins("sv_cancelmapvote", client)
 	
 end
 

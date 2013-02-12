@@ -92,17 +92,4 @@ end
 Event.Hook("Console_stuck",               RegisterClientStuck)
 Event.Hook("Console_unstuck",               RegisterClientStuck)
 
-local function OnUnstuckChatMessage(message, playerName, steamId, teamNumber, teamOnly, client)
-
-	if client and steamId and steamId ~= 0 then
-		for c = 1, #DAK.config.unstuck.kUnstuckChatCommands do
-			local chatcommand = DAK.config.unstuck.kUnstuckChatCommands[c]
-			if string.upper(message) == string.upper(chatcommand) then
-				RegisterClientStuck(client)
-			end
-		end
-	end
-
-end
-
-DAK:RegisterEventHook("OnClientChatMessage", OnUnstuckChatMessage, 5)
+DAK:RegisterChatCommand(DAK.config.unstuck.kUnstuckChatCommands, RegisterClientStuck, false)

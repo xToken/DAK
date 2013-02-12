@@ -3,6 +3,11 @@
 Initial Version - Plugin versions invidually all over - normalizing for this update, along with loader version - Need to decide how to track plugin revisions - 
 should plugins be updated with each 'build' of DAK, even if there are no changes?  This seems the most logical way to proceed currently, and for the future.
 
+## v0.1.211a
+- Corrected a couple depreciated calls to functions that have been moved under globals.
+- Cleaned up calls to PrintToAllAdmins function, and also replaced default ServerAdminPrint with a slightly modified one.  Am considering using PrintToAllAdmins to replace ServerAdminPrint in functions, but
+sometimes it is preferrable to print a slightly different message to client executing the command.
+
 ## v0.1.210a
 - Added connection time caching.
 - Updated reserveslot plugin to use connection time instead of score.

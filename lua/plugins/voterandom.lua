@@ -24,8 +24,9 @@ end
 LoadVoteRandom()
 
 local function ShuffleTeams()
+
+	local playersrandomed = 0
 	local playerList = DAK:ShuffledPlayerList()
-	
 	for i = 1, (#playerList) do
 		local teamnum = math.fmod(i,2) + 1
 		local client = Server.GetOwner(playerList[i])
@@ -37,9 +38,12 @@ local function ShuffleTeams()
 					teamnum = math.fmod(teamnum,2) + 1						
 				end
 				gamerules:JoinTeam(playerList[i], teamnum)
+				playersrandomed = playersrandomed + 1
 			end
 		end
 	end
+	return playersrandomed
+	
 end
 
 local function RandomTeams()
@@ -192,20 +196,7 @@ end
 Event.Hook("Console_voterandom",               OnCommandVoteRandom)
 Event.Hook("Console_random",               OnCommandVoteRandom)
 
-local function OnVoteRandomChatMessage(message, playerName, steamId, teamNumber, teamOnly, client)
-
-	if client and steamId and steamId ~= 0 then
-		for c = 1, #DAK.config.voterandom.kVoteRandomChatCommands do
-			local chatcommand = DAK.config.voterandom.kVoteRandomChatCommands[c]
-			if string.upper(message) == string.upper(chatcommand) then
-				OnCommandVoteRandom(client)
-			end
-		end
-	end
-
-end
-
-DAK:RegisterEventHook("OnClientChatMessage", OnVoteRandomChatMessage, 5)
+DAK:RegisterChatCommand(DAK.config.voterandom.kVoteRandomChatCommands, OnCommandVoteRandom, false)
 
 local function VoteRandomOff(client)
 
@@ -215,12 +206,7 @@ local function VoteRandomOff(client)
 		DAK.settings.RandomEnabledTill = 0
 		DAK:SaveSettings()
 		DAK:DisplayMessageToAllClients("VoteRandomDisabled")
-		if client ~= nil then 
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				DAK:PrintToAllAdmins("sv_randomoff", client)
-			end
-		end
+		DAK:PrintToAllAdmins("sv_randomoff", client)
 	end
 
 end
@@ -233,11 +219,9 @@ local function VoteRandomOn(client)
 		
 		if DAK.config.voterandom.kVoteRandomInstantly then
 			DAK:DisplayMessageToAllClients("VoteRandomEnabled")
-			if Server then
-				Shared.ConsoleCommand("sv_rrall")
-				Shared.ConsoleCommand("sv_reset")
-				ShuffleTeams()
-			end
+			Shared.ConsoleCommand("sv_rrall")
+			Shared.ConsoleCommand("sv_reset")
+			DAK:PrintToAllAdmins("sv_randomon", nil, string.format("%s players were randomed.", ShuffleTeams()))
 		else
 			DAK:DisplayMessageToAllClients("VoteRandomEnabledDuration", DAK.config.voterandom.kVoteRandomDuration)
 			DAK.settings.RandomEnabledTill = Shared.GetSystemTime() + (DAK.config.voterandom.kVoteRandomDuration * 60)
@@ -245,12 +229,8 @@ local function VoteRandomOn(client)
 			kVoteRandomTeamsEnabled = true
 			DAK:RegisterEventHook("OnServerUpdate", RandomTeams, 5)
 		end
-		if client ~= nil then 
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				DAK:PrintToAllAdmins("sv_randomon", client)
-			end
-		end
+		DAK:PrintToAllAdmins("sv_randomon", client)
+		
 	end
 
 end

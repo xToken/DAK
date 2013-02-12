@@ -33,8 +33,8 @@ end
 function DAK:GetDateTimeString(fileformat)
 
 	local TIMEZONE = 0
-	if self.config.enhancedlogging.kServerTimeZoneAdjustment then
-		TIMEZONE = self.config.enhancedlogging.kServerTimeZoneAdjustment
+	if self.config.serveradmin.ServerTimeZoneAdjustment and type(self.config.serveradmin.ServerTimeZoneAdjustment) == "number" then
+		TIMEZONE = self.config.serveradmin.ServerTimeZoneAdjustment
 	end
 	local st = Shared.GetSystemTime() + (TIMEZONE * 3600)
 	local DST = 0
@@ -304,7 +304,9 @@ function DAK:PrintToAllAdmins(commandname, client, parm1)
 	
 	DAK:ExecutePluginGlobalFunction("enhancedlogging", EnhancedLogMessage, message)
 	
-	Shared.Message(string.format(message))
+	if client ~= nil then
+		Shared.Message(string.format(message))
+	end
 	
 end
 

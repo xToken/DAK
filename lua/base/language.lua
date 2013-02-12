@@ -251,25 +251,11 @@ end
 
 Event.Hook("Console_setlanguage",                 OnCommandSetLanguage)
 
-local function OnLanguageChatMessage(message, playerName, steamId, teamNumber, teamOnly, client)
-
-	if client and steamId and steamId ~= 0 then
-		for c = 1, #DAK.config.language.LanguageChatCommands do
-			local chatcommand = DAK.config.language.LanguageChatCommands[c]
-			if string.upper(string.sub(message,1,string.len(chatcommand))) == string.upper(chatcommand) then
-				OnCommandSetLanguage(client, string.sub(message,-2))
-				return true
-			end
-		end
-	end
-
-end
-
-DAK:RegisterEventHook("OnClientChatMessage", OnLanguageChatMessage, 5)
+DAK:RegisterChatCommand(DAK.config.language.LanguageChatCommands, OnCommandSetLanguage, true)
 
 local function SetClientLanguage(client, playerId, language)
 
-	local player = GetPlayerMatching(playerId)
+	local player = DAK:GetPlayerMatching(playerId)
 	if player ~= nil then
 		local client = Server.GetOwner(player)
 		if client ~= nil then

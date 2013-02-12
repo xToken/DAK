@@ -365,23 +365,54 @@ end
 
 DAK:RegisterEventHook("OnServerUpdate", DelayedServerCommandRegistration, 5)
 
+local function DelayedEventHooks()
+
+	local kMaxPrintLength = 128
+
+    function ServerAdminPrint(client, message)
+    
+        if client then
+        
+            // First we must split up the message into a list of messages no bigger than kMaxPrintLength each.
+            local messageList = { }
+            while string.len(message) > kMaxPrintLength do
+            
+                local messagePart = string.sub(message, 0, kMaxPrintLength)
+                table.insert(messageList, messagePart)
+                message = string.sub(message, kMaxPrintLength + 1)
+                
+            end
+            table.insert(messageList, message)
+            
+            for m = 1, #messageList do
+                Server.SendNetworkMessage(client:GetControllingPlayer(), "ServerAdminPrint", { message = messageList[m] }, true)
+            end
+			
+		else
+		
+			Shared.Message(message)
+            
+        end
+        
+    end
+
+end
+
+DAK:RegisterEventHook("OnPluginInitialized", DelayedEventHooks, 5)
+
 local function OnCommandListAdmins(client)
 
 	if DAK.adminsettings ~= nil then
 		if DAK.adminsettings.groups ~= nil then
 			for group, commands in pairs(DAK.adminsettings.groups) do
-				if client ~= nil then
-					ServerAdminPrint(client, string.format(group .. " - " .. ToString(commands)))
-				end		
+				ServerAdminPrint(client, string.format(group .. " - " .. ToString(commands)))
 			end
 		end
 
 		if DAK.adminsettings.users ~= nil then
 			for name, user in pairs(DAK.adminsettings.users) do
-				local online = GetClientMatchingSteamId(user.id) ~= nil
-				if client ~= nil then
-					ServerAdminPrint(client, string.format(name .. " - " .. ToString(user) .. ConditionalValue(online, " - Online", " - Offline")))
-				end		
+				local online = DAK:GetClientMatchingSteamId(user.id) ~= nil
+				ServerAdminPrint(client, string.format(name .. " - " .. ToString(user) .. ConditionalValue(online, " - Online", " - Offline")))
 			end
 		end
 	end
@@ -392,20 +423,25 @@ DAK:CreateServerAdminCommand("Console_sv_listadmins", OnCommandListAdmins, "Will
 
 local function OnCommandWho(client)
 
-	if DAK.adminsettings ~= nil then	
+	local onlineusers = false
+	if DAK.adminsettings ~= nil then
 		if DAK.adminsettings.users ~= nil then
 			for name, user in pairs(DAK.adminsettings.users) do
-				local uclient = GetClientMatchingSteamId(user.id)
+				local uclient = DAK:GetClientMatchingSteamId(user.id)
 				local online = (uclient ~= nil)
 				if online then
 					local player = uclient:GetControllingPlayer()
 					if player ~= nil then
 						local pname = player:GetName()
 						ServerAdminPrint(client, string.format(pname .. " - " .. name .. " - " .. ToString(user)))
+						onlineusers = true
 					end	
 				end
 			end
 		end
+	end
+	if not onlineusers then
+		ServerAdminPrint(client, string.format("No admins online."))
 	end
 	
 end

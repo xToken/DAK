@@ -8,15 +8,10 @@ local function OnCommandRCON(client, ...)
 
 	 local rconcommand = StringConcatArgs(...)
 	 if rconcommand ~= nil and client ~= nil then
-		Shared.Message(string.format("%s executed command %s.", client:GetUserId(), rconcommand))
+		//Shared.Message(string.format("%s executed command %s.", client:GetUserId(), rconcommand))
 		Shared.ConsoleCommand(rconcommand)
 		ServerAdminPrint(client, string.format("Command %s executed.", rconcommand))
-		if client ~= nil then 
-			local player = client:GetControllingPlayer()
-			if player ~= nil then
-				DAK:PrintToAllAdmins("sv_rcon", client, " " .. rconcommand)
-			end
-		end
+		DAK:PrintToAllAdmins("sv_rcon", client, " " .. rconcommand)
 	end
 
 end
@@ -25,19 +20,15 @@ DAK:CreateServerAdminCommand("Console_sv_rcon", OnCommandRCON, "<command> Will e
 
 local function OnCommandAllTalk(client)
 
-	if client ~= nil then
-		if DAK.settings then
-			DAK.settings.AllTalk = not DAK.settings.AllTalk
-		else
-			DAK.settings = { }
-			DAK.settings.AllTalk = true
-		end
-		ServerAdminPrint(client, string.format("AllTalk has been %s.", ConditionalValue(DAK.settings.AllTalk,"enabled", "disabled")))
-		local player = client:GetControllingPlayer()
-		if player ~= nil then
-			DAK:PrintToAllAdmins("sv_alltalk", client)
-		end
+	if DAK.settings then
+		DAK.settings.AllTalk = not DAK.settings.AllTalk
+	else
+		DAK.settings = { }
+		DAK.settings.AllTalk = true
 	end
+	
+	ServerAdminPrint(client, string.format("AllTalk has been %s.", ConditionalValue(DAK.settings.AllTalk,"enabled", "disabled")))
+	DAK:PrintToAllAdmins("sv_alltalk", client)
 
 end
 
@@ -59,15 +50,9 @@ DAK:CreateServerAdminCommand("Console_sv_maps", OnCommandListMap, "Will list all
 
 local function OnCommandKillServer(client)
 
-	if client ~= nil then 
-		ServerAdminPrint(client, string.format("Command sv_killserver executed."))
-		local player = client:GetControllingPlayer()
-		if player ~= nil then
-			DAK:PrintToAllAdmins("sv_killserver", client)
-		end
-	end
+	ServerAdminPrint(client, string.format("Command sv_killserver executed."))
+	DAK:PrintToAllAdmins("sv_killserver", client)
 	
-	//Shared.ConsoleCommand("exit")
 	//They finally fixed seek crash bug :<
 	Server.GetClientAddress(nil)
 	//Alriiight found a new crash bug

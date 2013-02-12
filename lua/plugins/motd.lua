@@ -183,25 +183,5 @@ end
 
 Event.Hook("Console_printmotd",                 OnCommandPrintMOTD)
 
-local function OnMOTDChatMessage(message, playerName, steamId, teamNumber, teamOnly, client)
-
-	if client and steamId and steamId ~= 0 then
-		for c = 1, #DAK.config.motd.kAcceptMOTDChatCommands do
-			local chatcommand = DAK.config.motd.kAcceptMOTDChatCommands[c]
-			if string.upper(message) == string.upper(chatcommand) then
-				OnCommandAcceptMOTD(client)
-				return true
-			end
-		end
-		for c = 1, #DAK.config.motd.kPrintMOTDChatCommands do
-			local chatcommand = DAK.config.motd.kPrintMOTDChatCommands[c]
-			if string.upper(message) == string.upper(chatcommand) then
-				OnCommandPrintMOTD(client)
-				return true
-			end
-		end
-	end
-
-end
-
-DAK:RegisterEventHook("OnClientChatMessage", OnMOTDChatMessage, 5)
+DAK:RegisterChatCommand(DAK.config.motd.kAcceptMOTDChatCommands, OnCommandAcceptMOTD, false)
+DAK:RegisterChatCommand(DAK.config.motd.kPrintMOTDChatCommands, OnCommandPrintMOTD, false)

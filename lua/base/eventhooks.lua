@@ -168,13 +168,8 @@ local function DelayedEventHooks()
 	originalNS2GRGetFriendlyFire = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "GetFriendlyFire", 
 		function(self)
 		
-			if DAK.settings.FriendlyFire == nil then
-				DAK.settings.FriendlyFire = false
-			end
-			if DAK.settings.FriendlyFire then
-				return DAK.settings.FriendlyFire
-			end
-			return originalNS2GRGetFriendlyFire( self )
+			return DAK:GetFriendlyFire()
+			//return originalNS2GRGetFriendlyFire( self )
 		
 		end
 	)
@@ -210,6 +205,7 @@ local function DelayedEventHooks()
 
 			local client = DAK:GetClientMatchingSteamId(steamId)
 			DAK:ExecuteChatCommands(client, message)
+			//Leaving this for now as there are times when greater control is needed/useful.
 			DAK:ExecuteEventHooks("OnClientChatMessage", message, playerName, steamId, teamNumber, teamOnly, client)
 
 		end

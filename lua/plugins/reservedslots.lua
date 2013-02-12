@@ -205,13 +205,14 @@ local function AddReservePlayer(client, parm1, parm2, parm3, parm4)
 
 	local idNum = tonumber(parm2)
 	local exptime = tonumber(parm4)
-	if client ~= nil and parm1 and idNum then
+	if parm1 and idNum then
 		local ReservePlayer = { name = ToString(parm1), id = idNum, reason = ToString(parm3 or ""), time = ConditionalValue(exptime, exptime, 0) }
 		table.insert(ReservedPlayers, ReservePlayer)
 		DAK:PrintToAllAdmins("sv_addreserve", client, ToString(parm1) .. ToString(parm2) .. ToString(parm3) .. ToString(parm4))
-		DAK:DisplayMessageToClient(client, "ReserveSlotGranted", ToString(parm2))
+		if client ~= nil then
+			DAK:DisplayMessageToClient(client, "ReserveSlotGranted", ToString(parm2))
+		end
 	end
-	
 	SaveReservedPlayers()
 end
 

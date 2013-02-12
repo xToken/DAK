@@ -1,6 +1,6 @@
 //motd config
 
-DAK.revisions["motd"] = "0.1.210a"
+DAK.revisions["motd"] = "0.1.211a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }

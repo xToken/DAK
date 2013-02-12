@@ -46,14 +46,8 @@ local function ResetDAKSetting(client, setting)
 	end
 	
 	DAK:SaveSettings()
-
-	if client ~= nil then 
-		ServerAdminPrint(client, string.format("Setting %s cleared.", setting))
-		local player = client:GetControllingPlayer()
-		if player ~= nil then
-			PrintToAllAdmins("sv_resetsettings", client, " " .. setting)
-		end
-	end
+	ServerAdminPrint(client, string.format("Setting %s cleared.", setting))
+	DAK:PrintToAllAdmins("sv_resetsettings", client, " " .. setting)
 end
 
 DAK:CreateServerAdminCommand("Console_sv_resetsettings", ResetDAKSetting, "<optional setting name> Resets specified setting, or all DAK settings.")

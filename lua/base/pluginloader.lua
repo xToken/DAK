@@ -34,20 +34,12 @@ DAK:CreateServerAdminCommand("Console_sv_reloadplugins", ResetandLoadPlugins, "R
 
 local function OnCommandListPlugins(client)
 
-	if client then
-		ServerAdminPrint(client, string.format("loader v%s is installed.", DAK.revisions["loader"]))	
-	else
-		Shared.Message(string.format("loader v%s is installed.", DAK.revisions["loader"]))
-	end
+	ServerAdminPrint(client, string.format("loader v%s is installed.", DAK.revisions["loader"]))	
 	for i = 1, #DAK.config.loader.PluginsList do
 		local Plugin = DAK.config.loader.PluginsList[i]
 		if Plugin ~= nil then
 			local message = string.format("Plugin %s v%s is loaded.", Plugin, DAK.revisions[Plugin])
-			if client then
-				ServerAdminPrint(client, message)	
-			else
-				Shared.Message(message)
-			end
+			ServerAdminPrint(client, message)	
 		end
 	end
 

@@ -212,22 +212,13 @@ local function OnCommandTournamentMode(client, state, ffstate, newmode)
 	end
 	if state ~= nil and state ~= DAK.settings.TournamentMode then
 		DAK.settings.TournamentMode = state
-		if client ~= nil then
-			ServerAdminPrint(client, "TournamentMode " .. ConditionalValue(DAK.settings.TournamentMode, "enabled", "disabled"))
-		else
-			Shared.Message("TournamentMode " .. ConditionalValue(DAK.settings.TournamentMode, "enabled", "disabled"))
-		end
+		ServerAdminPrint(client, "TournamentMode " .. ConditionalValue(DAK.settings.TournamentMode, "enabled", "disabled"))
 		DAK:SaveSettings()
 		alert = true
 	end
 	if ffstate ~= nil and ffstate ~= DAK.settings.FriendlyFire then
 		DAK.settings.FriendlyFire = ffstate
-		if client ~= nil then
-			ServerAdminPrint(client, "FriendlyFire " .. ConditionalValue(DAK.settings.FriendlyFire, "enabled", "disabled"))
-		else
-			Shared.Message("FriendlyFire " .. ConditionalValue(DAK.settings.FriendlyFire, "enabled", "disabled"))
-		end
-		
+		ServerAdminPrint(client, "FriendlyFire " .. ConditionalValue(DAK.settings.FriendlyFire, "enabled", "disabled"))		
 		DAK:SaveSettings()
 		alert = true
 	end
@@ -240,17 +231,13 @@ local function OnCommandTournamentMode(client, state, ffstate, newmode)
 		TournamentModeSettings.official = newmode
 		alert = true
 	end
-	if client ~= nil then 		
-		local player = client:GetControllingPlayer()
-		if player ~= nil then
-			DAK:PrintToAllAdmins("sv_tournamentmode", client, " " .. ToString(state) .. " " .. ToString(ffstate) .. " " .. ToString(newmode))
-		end
-		if not alert then
-			ServerAdminPrint(client, string.format("Tournamentmode set to - " .. ToString(DAK.settings.TournamentMode)
-				.. " FriendlyFire set to - " .. ToString(DAK.settings.FriendlyFire)
-				.. " Official set to - ".. ToString(TournamentModeSettings.official)))
-		end
+	if not alert then 		
+		ServerAdminPrint(client, string.format("Tournamentmode set to - " .. ToString(DAK.settings.TournamentMode)
+			.. " FriendlyFire set to - " .. ToString(DAK.settings.FriendlyFire)
+			.. " Official set to - ".. ToString(TournamentModeSettings.official)))
 	end
+	DAK:PrintToAllAdmins("sv_tournamentmode", client, ToString(state) .. " " .. ToString(ffstate) .. " " .. ToString(newmode))
+	
 end
 
 DAK:CreateServerAdminCommand("Console_sv_tournamentmode", OnCommandTournamentMode, "<state> <ffstate> <mode> Enable/Disable tournament mode, friendlyfire or change mode (PCW/OFFICIAL).")
@@ -261,20 +248,15 @@ local function OnCommandSetupCaptain(client, teamnum, captain)
 	local cp = tonumber(captain)
 	assert(type(tmNum) == "number")
 	assert(type(cp) == "number")
-	if tmNum == 1 or tmNum == 2 and client then
-		if GetClientMatchingGameId(cp) then
-			TournamentModeSettings[tmNum].captain = GetClientMatchingGameId(cp):GetUserId()
+	if tmNum == 1 or tmNum == 2 then
+		if DAK:GetClientMatchingGameId(cp) then
+			TournamentModeSettings[tmNum].captain = DAK:GetClientMatchingGameId(cp):GetUserId()
 		else
 			TournamentModeSettings[tmNum].captain = captain
 		end
 		ServerAdminPrint(client, string.format("Team captain for team %s set to %s", tmNum, TournamentModeSettings[tmNum].captain))
 	end
-	if client ~= nil then 
-		local player = client:GetControllingPlayer()
-		if player ~= nil then
-			DAK:PrintToAllAdmins("sv_setcaptain", client, " " .. ToString(tmNum) .. " " .. ToString(cp))
-		end
-	end
+	DAK:PrintToAllAdmins("sv_setcaptain", client, " " .. ToString(tmNum) .. " " .. ToString(cp))
 	
 end
 
@@ -288,12 +270,8 @@ local function OnCommandForceStartRound(client)
 		StartCountdown(gamerules)
 	end
 	
-	if client ~= nil then 
-		local player = client:GetControllingPlayer()
-		if player ~= nil then
-			DAK:PrintToAllAdmins("sv_forceroundstart", client)
-		end
-	end
+	DAK:PrintToAllAdmins("sv_forceroundstart", client)
+	
 end
 
 DAK:CreateServerAdminCommand("Console_sv_forceroundstart", OnCommandForceStartRound, "Force start a round in tournamentmode.")
@@ -303,12 +281,8 @@ local function OnCommandCancelRoundStart(client)
 	CheckCancelGameStart()
 	ClearTournamentModeState()
 	
-	if client ~= nil then 
-		local player = client:GetControllingPlayer()
-		if player ~= nil then
-			DAK:PrintToAllAdmins("sv_cancelroundstart", client)
-		end
-	end
+	DAK:PrintToAllAdmins("sv_cancelroundstart", client)
+
 end
 
 DAK:CreateServerAdminCommand("Console_sv_cancelroundstart", OnCommandCancelRoundStart, "Cancel the start of a round in tournamentmode.")
@@ -360,18 +334,5 @@ local function OnCommandReady(client)
 end
 
 Event.Hook("Console_ready",                 OnCommandReady)
-	
-local function OnTournamentModeChatMessage(message, playerName, steamId, teamNumber, teamOnly, client)
 
-	if client and steamId and steamId ~= 0 then
-		for c = 1, #DAK.config.tournamentmode.kReadyChatCommands do
-			local chatcommand = DAK.config.tournamentmode.kReadyChatCommands[c]
-			if string.upper(message) == string.upper(chatcommand) then
-				OnCommandReady(client)
-			end
-		end
-	end
-
-end
-
-DAK:RegisterEventHook("OnClientChatMessage", OnTournamentModeChatMessage, 5)
+DAK:RegisterChatCommand(DAK.config.tournamentmode.kReadyChatCommands, OnCommandReady, false)

@@ -1,6 +1,6 @@
 //tournamentmode config
 
-DAK.revisions["tournamentmode"] = "0.1.210a"
+DAK.revisions["tournamentmode"] = "0.1.211a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }

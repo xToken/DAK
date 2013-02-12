@@ -35,15 +35,7 @@ local function PrintStatus(player, client, index)
 		Shared.Message("playerClient is nil in PrintStatus, alert Brian")
 	else
 		
-		if client == nil then
-			local playerAddressString = IPAddressToString(Server.GetClientAddress(playerClient))
-			Shared.Message(player:GetName() .. " : Game Id = " 
-			.. ToString(DAK:GetGameIdMatchingClient(playerClient))
-			.. " : Steam Id = " .. playerClient:GetUserId()
-			.. " : Team = " .. player:GetTeamNumber()
-			.. " : Address = " .. playerAddressString
-			.. " : Connection Time = " .. DAK:GetClientConnectionTime(playerClient))
-		elseif DAK:GetClientCanRunCommand(client, "sv_status") then
+		if DAK:GetClientCanRunCommand(client, "sv_status") then
 			local playerAddressString = IPAddressToString(Server.GetClientAddress(playerClient))
 			ServerAdminPrint(client, player:GetName() .. " : Game Id = " 
 			.. ToString(DAK:GetGameIdMatchingClient(playerClient))
@@ -65,33 +57,33 @@ end
 DAK:CreateServerAdminCommand("Console_sv_status", AllPlayers(PrintStatus), "Lists player Ids and names for use in sv commands", true)
 
 local function OnCommandChangeMap(client, mapName)
+
 	DAK:PrintToAllAdmins("sv_changemap", client, mapName)
 
 	if MapCycle_VerifyMapName(mapName) then
 		MapCycle_ChangeToMap(mapName)
 	else
-		if client ~= nil then
-			DAK:DisplayMessageToClient(client, "InvalidMap")
-		end
+		DAK:DisplayMessageToClient(client, "InvalidMap")
 	end
 	
 end
 DAK:CreateServerAdminCommand("Console_sv_changemap", OnCommandChangeMap, "<map name> Switches to the map specified")
 
 local function OnCommandSVReset(client)
+
 	DAK:PrintToAllAdmins("sv_reset", client)
 	local gamerules = GetGamerules()
 	if gamerules then
 		gamerules:ResetGame()
 	end
-	if client then
-		ServerAdminPrint(client, string.format("Game was reset."))
-	end
+	ServerAdminPrint(client, string.format("Game was reset."))
+	
 end
 
 DAK:CreateServerAdminCommand("Console_sv_reset", OnCommandSVReset, "Resets the game round")
 
 local function OnCommandSVrrall(client)
+
 	DAK:PrintToAllAdmins("sv_rrall", client)
 	local playerList = GetPlayerList()
 	for i = 1, (#playerList) do
@@ -100,14 +92,14 @@ local function OnCommandSVrrall(client)
 			gamerules:JoinTeam(playerList[i], kTeamReadyRoom)
 		end
 	end
-	if client then
-		ServerAdminPrint(client, string.format("All players were moved to the ReadyRoom."))
-	end
+	ServerAdminPrint(client, string.format("All players were moved to the ReadyRoom."))
+	
 end
 	
 DAK:CreateServerAdminCommand("Console_sv_rrall", OnCommandSVrrall, "Forces all players to go to the Ready Room")
 
 local function OnCommandSVRandomall(client)
+
 	DAK:PrintToAllAdmins("sv_randomall", client)
 	local playerList = DAK:ShuffledPlayerList()
 	for i = 1, (#playerList) do
@@ -123,9 +115,8 @@ local function OnCommandSVRandomall(client)
 			end
 		end
 	end
-	if client then
-		ServerAdminPrint(client, string.format("Teams were Randomed."))
-	end
+	ServerAdminPrint(client, string.format("Teams were Randomed."))
+	
 end
 
 DAK:CreateServerAdminCommand("Console_sv_randomall", OnCommandSVRandomall, "Forces all players to join a random team")
@@ -135,15 +126,13 @@ local function SwitchTeam(client, playerId, team)
 	local player = DAK:GetPlayerMatching(playerId)
 	local teamNumber = tonumber(team)
 	
-	if not DAK:GetLevelSufficient(client,player) then
+	if not DAK:GetLevelSufficient(client, player) then
 		return
 	end
 	
 	if type(teamNumber) ~= "number" or teamNumber < 0 or teamNumber > 3 then
 	
-		if client then
-			ServerAdminPrint(client, "Invalid team number")
-		end
+		ServerAdminPrint(client, "Invalid team number")
 		return
 		
 	end
@@ -153,14 +142,12 @@ local function SwitchTeam(client, playerId, team)
 		if gamerules then
 			gamerules:JoinTeam(player, teamNumber)
 		end
-		if client then
-			local switchedclient = Server.GetOwner(player)
-			if switchedclient then
-				DAK:PrintToAllAdmins("sv_switchteam", client, string.format("on %s to team %s.", DAK:GetClientUIDString(switchedclient), teamNumber))
-			end
-			ServerAdminPrint(client, string.format("Player %s was moved to team %s.", player:GetName(), teamNumber))
+		ServerAdminPrint(client, string.format("Player %s was moved to team %s.", player:GetName(), teamNumber))
+		local switchedclient = Server.GetOwner(player)
+		if switchedclient then
+			DAK:PrintToAllAdmins("sv_switchteam", client, string.format("on %s to team %s.", DAK:GetClientUIDString(switchedclient), teamNumber))
 		end
-	elseif not player and client then
+	elseif not player then
 		ServerAdminPrint(client, "No matching player.")
 	end
 	
@@ -177,11 +164,9 @@ local function Eject(client, playerId)
 	end
 	
 	if player and player:isa("Commander") then
-		if client then
-			ServerAdminPrint(client, "Player " .. player:GetName() .. "was ejected.")
-		end
+		ServerAdminPrint(client, "Player " .. player:GetName() .. "was ejected.")
 		player:Eject()
-	elseif client then
+	else
 		ServerAdminPrint(client, "No matching player.")
 	end
 	
@@ -200,14 +185,12 @@ local function Kick(client, playerId)
 	if player then
 		local kickedclient = Server.GetOwner(player)
 		if kickedclient then
-			if client then
-				ServerAdminPrint(client, "Player " .. player:GetName() .. " was kicked.")
-				DAK:PrintToAllAdmins("sv_kick", client, string.format("on %s.", DAK:GetClientUIDString(kickedclient)))
-			end
+			ServerAdminPrint(client, "Player " .. player:GetName() .. " was kicked.")
+			DAK:PrintToAllAdmins("sv_kick", client, string.format("on %s.", DAK:GetClientUIDString(kickedclient)))
 			kickedclient.disconnectreason = "Kicked"
 			Server.DisconnectClient(kickedclient)
 		end
-	elseif client then
+	else
 		ServerAdminPrint(client, "No matching player.")
 	end
 	
@@ -313,14 +296,12 @@ local function Slay(client, playerId)
 	
 	if player then
 		player:Kill(nil, nil, player:GetOrigin())
-		if client then
-			local slayedclient = Server.GetOwner(player)
-			if slayedclient then
-				DAK:PrintToAllAdmins("sv_slay", client, string.format("on %s.", DAK:GetClientUIDString(slayedclient)))
-			end
-			ServerAdminPrint(client, "Player " .. player:GetName() .. " was slayed.")
+		ServerAdminPrint(client, "Player " .. player:GetName() .. " was slayed.")
+		local slayedclient = Server.GetOwner(player)
+		if slayedclient then
+			DAK:PrintToAllAdmins("sv_slay", client, string.format("on %s.", DAK:GetClientUIDString(slayedclient)))
 		end
-	elseif client ~= nil then
+	else
 		ServerAdminPrint(client, "No matching player.")
 	end
 	
@@ -330,6 +311,7 @@ DAK:CreateServerAdminCommand("Console_sv_slay", Slay, "<player id>, Kills player
 
 local function SetPassword(client, newPassword)
 	Server.SetPassword(newPassword or "")
+	ServerAdminPrint(client, "Server password changed to ********.")
 	DAK:PrintToAllAdmins("sv_password", client, newPassword)		
 end
 
@@ -567,11 +549,8 @@ local function Ban(client, playerId, duration, ...)
 				SaveBannedPlayers()
 			end
 			
-			if client then
-				ServerAdminPrint(client, player:GetName() .. " has been banned.")
-				DAK:PrintToAllAdmins("sv_ban", client, string.format("on %s for %s for %s.", DAK:GetClientUIDString(bannedclient), duration, args))
-			end
-			
+			ServerAdminPrint(client, player:GetName() .. " has been banned.")
+			DAK:PrintToAllAdmins("sv_ban", client, string.format("on %s for %s for %s.", DAK:GetClientUIDString(bannedclient), duration, args))
 			bannedclient.disconnectreason = "Banned"
 			Server.DisconnectClient(bannedclient)
 			
@@ -597,12 +576,10 @@ local function Ban(client, playerId, duration, ...)
 			SaveBannedPlayers()
 		end
 		
-		if client then
-			ServerAdminPrint(client, "Player with SteamId " .. playerId .. " has been banned.")
-			DAK:PrintToAllAdmins("sv_ban", client, string.format("on SteamID:%s for %s for %s.", playerId, duration, args))
-		end
+		ServerAdminPrint(client, "Player with SteamId " .. playerId .. " has been banned.")
+		DAK:PrintToAllAdmins("sv_ban", client, string.format("on SteamID:%s for %s for %s.", playerId, duration, args))
 		
-	elseif client ~= nil then
+	else
 		ServerAdminPrint(client, "No matching player.")
 	end
 	
@@ -620,9 +597,7 @@ local function UnBan(client, steamId)
 		if bannedPlayers[p].id == steamId then
 		
 			table.remove(bannedPlayers, p)
-			if client then
-				ServerAdminPrint(client, "Removed " .. steamId .. " from the ban list.")
-			end
+			ServerAdminPrint(client, "Removed " .. steamId .. " from the ban list.")
 			found = true
 			
 		end
@@ -634,9 +609,7 @@ local function UnBan(client, steamId)
 		if bannedPlayersWeb[p].id == steamId then
 		
 			table.remove(bannedPlayersWeb, p)
-			if client then
-				ServerAdminPrint(client, "Removed " .. steamId .. " from the ban list.")
-			end
+			ServerAdminPrint(client, "Removed " .. steamId .. " from the ban list.")
 			foundweb = true
 			
 		end
@@ -644,11 +617,10 @@ local function UnBan(client, steamId)
 	end
 	
 	if found then
-		if client then
-			DAK:PrintToAllAdmins("sv_unban", client, string.format(" on SteamID:%s.", steamId))
-		end
+		DAK:PrintToAllAdmins("sv_unban", client, string.format(" on SteamID:%s.", steamId))
 		SaveBannedPlayers()
 	end
+	
 	if foundweb then
 		//Submit unban with key
 		//DAK.config.baseadmincommands.kUnBanSubmissionURL
@@ -656,6 +628,7 @@ local function UnBan(client, steamId)
 		//OnPlayerUnBannedResponse
 		//Shared.SendHTTPRequest(DAK.config.baseadmincommands.kUnBanSubmissionURL, "GET", OnPlayerUnBannedResponse)
 	end
+	
 	if not found and not foundweb then
 		ServerAdminPrint(client, "No matching Steam Id in ban list.")
 	end
@@ -712,9 +685,7 @@ local function UpdateNick(client, playerId, nick)
     if player and nick ~= nil then
 		local oldname = player:GetName()
         player:SetName(nick)
-		if client then
-			ServerAdminPrint(client, string.format("Player's name was changed from %s to %s.", oldname, player:GetName()))
-		end
+		ServerAdminPrint(client, string.format("Player's name was changed from %s to %s.", oldname, player:GetName()))
 		DAK:PrintToAllAdmins("sv_nick", client, string.format(" on %s to %s.", oldname, player:GetName()))
     else
         ServerAdminPrint(client, "No matching player.")
@@ -819,9 +790,7 @@ local function OnCommandGagPlayer(client, playerId, duration)
 		if targetclient then
 			DAK:AddClientToGaggedList(targetclient, duration)
 			DAK:DisplayMessageToClient(targetclient, "GaggedMessage")
-			if client then
-				ServerAdminPrint(client, string.format("Player %s was gagged for %.1f minutes.", player:GetName(), (duration / 60)))
-			end
+			ServerAdminPrint(client, string.format("Player %s was gagged for %.1f minutes.", player:GetName(), (duration / 60)))
 			DAK:PrintToAllAdmins("sv_gag", client, string.format("Player %s was gagged for %.1f minutes.", player:GetName(), (duration / 60)))
 		end
 	else
@@ -841,9 +810,7 @@ local function OnCommandUnGagPlayer(client, playerId)
 		if targetclient then
 			DAK:RemoveClientFromGaggedList(targetclient)
 			DAK:DisplayMessageToClient(targetclient, "UngaggedMessage")
-			if client then
-				ServerAdminPrint(client, string.format("Player %s was ungagged.", player:GetName()))
-			end
+			ServerAdminPrint(client, string.format("Player %s was ungagged.", player:GetName()))
 			DAK:PrintToAllAdmins("sv_gag", client, string.format("Player %s was ungagged.", player:GetName()))
 		end
 	else
