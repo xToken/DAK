@@ -550,7 +550,7 @@ local function Ban(client, playerId, duration, ...)
 			end
 			
 			ServerAdminPrint(client, player:GetName() .. " has been banned.")
-			DAK:PrintToAllAdmins("sv_ban", client, string.format("on %s for %s for %s.", DAK:GetClientUIDString(bannedclient), duration, args))
+			DAK:PrintToAllAdmins("sv_ban", client, string.format("on %s for %s for %s.", DAK:GetClientUIDString(bannedclient), duration, StringConcatArgs(...)))
 			bannedclient.disconnectreason = "Banned"
 			Server.DisconnectClient(bannedclient)
 			
