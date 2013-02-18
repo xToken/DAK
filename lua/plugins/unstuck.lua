@@ -12,8 +12,8 @@ local function UnstuckClient(client, player, PEntry)
 		if player:GetIsAlive() then
 			TechID = player:GetTechId()
 		end
-		PEntry.Orig.x = PEntry.Orig.x + (Sign(math.random(-1,1)) * DAK.config.unstuck.kUnstuckAmount)
-		PEntry.Orig.z = PEntry.Orig.z + (Sign(math.random(-1,1)) * DAK.config.unstuck.kUnstuckAmount)
+		PEntry.Orig.x = PEntry.Orig.x + (math.random(-1,1) * DAK.config.unstuck.kUnstuckAmount)
+		PEntry.Orig.z = PEntry.Orig.z + (math.random(-1,1) * DAK.config.unstuck.kUnstuckAmount)
 		local extents = LookupTechData(TechID, kTechDataMaxExtents)
 		local capsuleHeight, capsuleRadius = GetTraceCapsuleFromExtents(extents)
 		local range = 6
