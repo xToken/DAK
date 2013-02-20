@@ -139,6 +139,18 @@ local function DelayedEventHooks()
 		end
 	)
 	
+	local originalNS2GRCheckGameStart
+	
+	originalNS2GRCheckGameStart = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "CheckGameStart", 
+		function(self)
+
+			if not DAK:ExecuteEventHooks("CheckGameStart", self) then
+				originalNS2GRCheckGameStart(self)
+			end
+		
+		end
+	)
+	
 	local originalNS2GRCastVoteByPlayer
 		
 	originalNS2GRCastVoteByPlayer = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "CastVoteByPlayer", 
@@ -219,14 +231,18 @@ if DAK.config and DAK.config.loader and DAK.config.loader.GamerulesExtensions th
 	DAK:RegisterEventHook("OnPluginInitialized", DelayedEventHooks, 10)
 end
 	
-if DAK.config and DAK.config and DAK.config.overrideinterp and DAK.config.overrideinterp.Enabled then
-
-	local function SetInterpOnClientConnected(client)
-		if DAK.config.overrideinterp.Enabled then
-			Shared.ConsoleCommand(string.format("interp %f", (DAK.config.overrideinterp.Interp/1000)))
+local function SetServerConfigOnClientConnected(client)
+	if DAK.config and DAK.config and DAK.config.serverconfig then 
+		if DAK.config.serverconfig.Interp ~= 100 then
+			Shared.ConsoleCommand(string.format("interp %f", (DAK.config.serverconfig.Interp/1000)))
+		end
+		if DAK.config.serverconfig.UpdateRate ~= 20 then
+			//Shared.ConsoleCommand(string.format("cr %f", DAK.config.serverconfig.UpdateRate))
+		end
+		if DAK.config.serverconfig.MoveRate ~= 30 then
+			Shared.ConsoleCommand(string.format("mr %f", DAK.config.serverconfig.MoveRate))
 		end
 	end
-
-	DAK:RegisterEventHook("OnClientConnect", SetInterpOnClientConnected, 5)
-	
 end
+
+DAK:RegisterEventHook("OnClientConnect", SetServerConfigOnClientConnected, 5)

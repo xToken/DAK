@@ -503,7 +503,7 @@ local function UpdateEntStates(deltatime)
 				player:PrimaryAttackEnd()
 				player:SecondaryAttackEnd()
 			end
-			if player:GetIsCommander() then
+			if player:GetIsCommander() and player.cachedorigin ~= nil then
 				player:SetOrigin(player.cachedorigin)
 			elseif player:isa("Alien") and player.cachedabilityEnergyOnChange ~= nil then
 				player:SetEnergy(player.cachedabilityEnergyOnChange)
@@ -646,7 +646,7 @@ local function ResumeEntStates()
 	for _, player in ientitylist(playerRecords) do
 		if player ~= nil then
 			player:RetrieveMove()
-			if player:GetIsCommander() then
+			if player:GetIsCommander() and player.cachedorigin ~= nil then
 				player:SetOrigin(player.cachedorigin)
 			elseif player:isa("JetpackMarine") then
 				player.timeJetpackingChanged = Shared.GetTime()
@@ -747,9 +747,9 @@ local function UpdateMoveState(deltatime)
 		//Going to check and reblock player movement every second or so - trying every frame, might as well.
 		if gamestate.gamepausedmessagetime + DAK.config.pause.kPausedReadyNotificationDelay < Shared.GetTime() then
 			if gamestate.team2resume and not gamestate.team1resume then
-				DAK:DisplayMessageToAllClients("PauseTeamReadyPeriodicMessage", 2, 1)
+				DAK:DisplayMessageToAllClients("PauseTeamReadyPeriodicMessage", DAK.config.loader.TeamTwoName, DAK.config.loader.TeamOneName)
 			elseif gamestate.team1resume and not gamestate.team2resume then
-				DAK:DisplayMessageToAllClients("PauseTeamReadyPeriodicMessage", 1, 2)
+				DAK:DisplayMessageToAllClients("PauseTeamReadyPeriodicMessage", DAK.config.loader.TeamOneName, DAK.config.loader.TeamTwoName)
 			elseif not gamestate.team1resume and not gamestate.team2resume then
 				DAK:DisplayMessageToAllClients("PauseNoTeamReadyMessage")
 			end
@@ -759,7 +759,7 @@ local function UpdateMoveState(deltatime)
 			gamestate.gamepausedmessagetime = Shared.GetTime()
 		end
 		UpdateEntStates(deltatime)
-		if DAK.config.pause.kPausedMaxDuration ~= 0 and (Shared.GetTime() - gamestate.gamepausedtime) >= DAK.config.pause.kPausedMaxDuration then
+		if DAK.config.pause.kPausedMaxDuration ~= 0 and (Shared.GetTime() - gamestate.gamepausedtime) >= DAK.config.pause.kPausedMaxDuration and gamestate.gamepausedcountdown == 0 then
 			RegisterUpdateServerPauseState()
 			gamestate.gamepausedcountdown = Shared.GetTime() + DAK.config.pause.kPauseChangeDelay
 		end
@@ -767,7 +767,9 @@ local function UpdateMoveState(deltatime)
 		ResumeEntStates()
 		DAK:DeregisterEventHook("OnServerUpdateEveryFrame", UpdateMoveState)
 		DAK:DeregisterEventHook("OnTeamJoin", PausedJoinTeam)
-		DAK:DisplayMessageToAllClients("PauseResumeMessage", gamestate.gamepausingteam, (DAK.config.pause.kPauseMaxPauses - (ConditionalValue(gamestate.gamepausingteam == 1, gamestate.team1pauses, gamestate.team2pauses))))
+		if gamestate.gamepausingteam ~= 0 then
+			DAK:DisplayMessageToAllClients("PauseResumeMessage", ConditionalValue(gamestate.gamepausingteam == 1,DAK.config.loader.TeamOneName ,DAK.config.loader.TeamTwoName), (DAK.config.pause.kPauseMaxPauses - (ConditionalValue(gamestate.gamepausingteam == 1, gamestate.team1pauses, gamestate.team2pauses))))
+		end
 		gamestate.gamepausedtime = 0
 		gamestate.gamepausingteam = 0
 	end
@@ -839,6 +841,7 @@ local function OnCommandPause(client)
 end
 
 Event.Hook("Console_pause",               OnCommandPause)
+DAK:RegisterChatCommand(DAK.config.pause.kPauseChatCommands, OnCommandPause, false)
 
 local function OnCommandUnPause(client)
 	
@@ -853,13 +856,13 @@ local function OnCommandUnPause(client)
 					gamestate.team2resume = not gamestate.team2resume
 				end
 				if gamestate.team2resume and not gamestate.team1resume then
-					DAK:DisplayMessageToAllClients("PauseTeamReadyMessage", player:GetName(), 2, 1)
+					DAK:DisplayMessageToAllClients("PauseTeamReadyMessage", player:GetName(), DAK.config.loader.TeamTwoName, DAK.config.loader.TeamOneName)
 				elseif gamestate.team1resume and not gamestate.team2resume then
-					DAK:DisplayMessageToAllClients("PauseTeamReadyMessage", player:GetName(), 1, 2)
+					DAK:DisplayMessageToAllClients("PauseTeamReadyMessage", player:GetName(), DAK.config.loader.TeamOneName, DAK.config.loader.TeamTwoName)
 				elseif not gamestate.team1resume and not gamestate.team2resume then
 					DAK:DisplayMessageToAllClients("PauseNoTeamReadyMessage")
 				else
-					DAK:DisplayMessageToAllClients("PauseTeamReadiedMessage", player:GetName(), teamnumber)
+					DAK:DisplayMessageToAllClients("PauseTeamReadiedMessage", player:GetName(), ConditionalValue(teamnumber == 1,DAK.config.loader.TeamOneName ,DAK.config.loader.TeamTwoName))
 					DAK:RegisterEventHook("OnServerUpdate", UpdateServerPauseState, 5)
 					gamestate.gamepausedcountdown = Shared.GetTime() + DAK.config.pause.kPauseChangeDelay
 				end
@@ -870,12 +873,15 @@ local function OnCommandUnPause(client)
 end
 
 Event.Hook("Console_unpause",               OnCommandUnPause)
+DAK:RegisterChatCommand(DAK.config.pause.kUnPauseChatCommands, OnCommandUnPause, false)
 
 local function OnCommandAdminPause(client)
 	
 	if DAK:GetTournamentMode() then
 		if gamestate.gamepausedcountdown == 0 then
 			DAK:RegisterEventHook("OnServerUpdate", UpdateServerPauseState, 5)
+			gamestate.team1resume = false
+			gamestate.team2resume = false
 			gamestate.gamepausedcountdown = Shared.GetTime() + DAK.config.pause.kPauseChangeDelay
 		else
 			DAK:DeregisterEventHook("OnServerUpdate", UpdateServerPauseState)

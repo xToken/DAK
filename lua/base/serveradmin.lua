@@ -103,6 +103,8 @@ end
 
 function DAK:GetClientCanRunCommand(client, commandName)
 
+	//ServerConsole can run anything
+	if client == nil then return true end
 	// Convert to the old Steam Id format.
 	local steamId = client:GetUserId()
 	for name, user in pairs(DAK.adminsettings.users) do

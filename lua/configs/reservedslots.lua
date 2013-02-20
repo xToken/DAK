@@ -1,13 +1,13 @@
 //reservedslots config
 
-DAK.revisions["reservedslots"] = "0.1.211a"
+DAK.revisions["reservedslots"] = "0.1.219a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }
 	DefaultConfig.kMaximumSlots = 0
 	DefaultConfig.kReservedSlots = 2
 	DefaultConfig.kMinimumSlots = 1
-	DefaultConfig.kDelayedSyncTime = 3
+	DefaultConfig.kDelayedSyncTime = 1
 	DefaultConfig.kDelayedKickTime = 2
 	DefaultConfig.kReservePassword = ""
 	DefaultConfig.kReserveSlotKickedDisconnectReason = "Kicked due to a reserved slot."

@@ -76,7 +76,7 @@ end
 local function CheckOccupiedReserveSlots()
 	//check for current number of occupied reserveslots
 	local reserveCount = 0
-	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
+	local playerList = GetPlayerList()
 	for r = #playerList, 1, -1 do
 		if playerList[r] ~= nil then
 			local plyr = playerList[r]
@@ -96,7 +96,9 @@ end
 
 local function UpdateServerLockStatus()
 	if DAK.config.reservedslots.kReservePassword ~= "" then
-		if ConditionalValue(DAK.config.reservedslots.kMaximumSlots ~= 0, DAK.config.reservedslots.kMaximumSlots, Server.GetMaxPlayers()) - (Server.GetNumPlayers() - CheckOccupiedReserveSlots()) <= (DAK.config.reservedslots.kReservedSlots + DAK.config.reservedslots.kMinimumSlots) then
+		local MaxPlayers = ConditionalValue(DAK.config.reservedslots.kMaximumSlots ~= 0, DAK.config.reservedslots.kMaximumSlots, Server.GetMaxPlayers())
+		local CurPlayers = #GetPlayerList()
+		if MaxPlayers - (CurPlayers - CheckOccupiedReserveSlots()) <= (DAK.config.reservedslots.kReservedSlots + DAK.config.reservedslots.kMinimumSlots) then
 			Server.SetPassword(DAK.config.reservedslots.kReservePassword)
 		else
 			Server.SetPassword("")
@@ -130,7 +132,7 @@ end
 local function OnReserveSlotClientConnected(client)
 
 	local MaxPlayers = ConditionalValue(DAK.config.reservedslots.kMaximumSlots ~= 0, DAK.config.reservedslots.kMaximumSlots, Server.GetMaxPlayers())
-	local CurPlayers = Server.GetNumPlayers()
+	local CurPlayers = #GetPlayerList()
 	local serverFull = MaxPlayers - (CurPlayers - CheckOccupiedReserveSlots()) < (DAK.config.reservedslots.kReservedSlots + DAK.config.reservedslots.kMinimumSlots)
 	local serverReallyFull = MaxPlayers - CurPlayers < DAK.config.reservedslots.kMinimumSlots
 	local reserved = CheckReserveStatus(client, false)
@@ -157,7 +159,7 @@ local function OnReserveSlotClientConnected(client)
 
 		local playertokick
 		local connectiontime = 0
-		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
+		local playerList = GetPlayerList()
 				
 		for r = #playerList, 1, -1 do
 			if playerList[r] ~= nil then

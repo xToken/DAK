@@ -168,14 +168,15 @@ end
 function DAK:ReplaceNetworkMessageFunction(netmsg, func)
 	if netmsg ~= nil then
 		local loc = self:RetrieveNetworkMessageLocation(netmsg)
-		self.networkmessagehooks[loc] = func
+		self.networkmessagefunctions[loc] = func
 		return loc
 	end
 	return 0
 end
 
 function DAK:ExecuteNetworkMessageFunction(loc, ...)
-	return self.networkmessagehooks[loc](...)
+	DAK:ExecuteEventHooks(self.registerednetworkmessages[loc], ...)
+	return self.networkmessagefunctions[loc](...)
 end
 
 function DAK:RegisterChatCommand(commandstrings, eventfunction, arguments)

@@ -59,6 +59,8 @@ local function GenerateDefaultDAKConfig(Plugin, Save)
 												 "unstuck", "voterandom", "votesurrender" }
 		DefaultConfig.GamerulesExtensions = true
 		DefaultConfig.GamerulesClassName = "NS2Gamerules"
+		DefaultConfig.TeamOneName = "Marines"
+		DefaultConfig.TeamTwoName = "Aliens"
 		
 		DAK.config["loader"] = tablemerge(DAK.config["loader"], DefaultConfig)
 		
@@ -81,10 +83,11 @@ local function GenerateDefaultDAKConfig(Plugin, Save)
 		DAK.config["language"] = tablemerge(DAK.config["language"], DefaultConfig)
 		
 		DefaultConfig = { }
-		DefaultConfig.Enabled = false
 		DefaultConfig.Interp = 100
+		DefaultConfig.UpdateRate = 20
+		DefaultConfig.MoveRate = 30
 		
-		DAK.config["overrideinterp"] = tablemerge(DAK.config["overrideinterp"], DefaultConfig)
+		DAK.config["serverconfig"] = tablemerge(DAK.config["serverconfig"], DefaultConfig)
 		
 		//Base DAK Config
 	end

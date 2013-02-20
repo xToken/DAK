@@ -1,6 +1,6 @@
 //baseadmincommands default config
 
-DAK.revisions["baseadmincommands"] = "0.1.211a"
+DAK.revisions["baseadmincommands"] = "0.1.219a"
 local function SetupDefaultConfig()
 	local DefaultConfig = { }
 	DefaultConfig.kMapChangeDelay = 5

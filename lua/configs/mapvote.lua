@@ -1,6 +1,6 @@
 //mapvote config
 
-DAK.revisions["mapvote"] = "0.1.211a"
+DAK.revisions["mapvote"] = "0.1.219a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }
@@ -15,6 +15,7 @@ local function SetupDefaultConfig()
 	DefaultConfig.kRTVMinimumPercentage = 50
 	DefaultConfig.kExtendDuration = 15
 	DefaultConfig.kPregameLength = 15
+	DefaultConfig.kMaxGameNotStartedTime = 0
 	DefaultConfig.kPregameNotifyDelay = 5
 	DefaultConfig.kMaximumExtends = 3
 	DefaultConfig.kMaximumTies = 1

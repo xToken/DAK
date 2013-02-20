@@ -7,13 +7,13 @@ if Server then
 
 	DAK.revisions = { }							//List used to track revisions of plugins
 	DAK.events = { }							//List used to track events, used by event hook system.
-	DAK.networkmessagehooks = { }				//List used to track network message functions, can be used to replace functions raised on network message recieving.
+	DAK.networkmessagefunctions = { }			//List used to track network message functions, can be used to replace functions raised on network message recieving.
 	DAK.registerednetworkmessages = { }			//List used to track network messages to their corresponding functions.
 	DAK.chatcommands = { }						//List of chat commands.
 	DAK.gameid = { }							//Used to track client joins for game IDs
 	DAK.gaggedplayers = { }						//Used to track gagged clients
 
-	DAK.revisions["loader"] = "0.1.211a"
+	DAK.revisions["loader"] = "0.1.219a"
 	
 	Script.Load("lua/dkjson.lua")
 	Script.Load("lua/base/class.lua")

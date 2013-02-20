@@ -1,6 +1,6 @@
 //afkkick default config
 
-DAK.revisions["afkkick"] = "0.1.211a"
+DAK.revisions["afkkick"] = "0.1.219a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }

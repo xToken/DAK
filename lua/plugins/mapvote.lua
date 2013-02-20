@@ -454,6 +454,37 @@ end
 
 DAK:RegisterEventHook("OnSetGameState", MapVoteSetGameState, 5)
 
+local function MapVoteCheckGameStart(self)
+
+	if self:GetGameState() == kGameState.NotStarted or self:GetGameState() == kGameState.PreGame then
+		if DAK.config.mapvote.kMaxGameNotStartedTime ~= 0 and self.gamenotstartedtime ~= nil and self.gamenotstartedtime + DAK.config.mapvote.kMaxGameNotStartedTime < Shared.GetTime() then
+	
+			local team1Players = self.team1:GetNumPlayers()
+			local team2Players = self.team2:GetNumPlayers()
+			
+			if (team1Players > 0 and team2Players > 0) or (Shared.GetCheatsEnabled() and (team1Players > 0 or team2Players > 0)) then
+			
+				if self:GetGameState() == kGameState.NotStarted then
+					self:SetGameState(kGameState.PreGame)
+				end
+				
+			elseif self:GetGameState() == kGameState.PreGame then
+				self:SetGameState(kGameState.NotStarted)
+			end
+			
+			return true
+		elseif self.gamenotstartedtime == nil then
+			self.gamenotstartedtime = Shared.GetTime()
+		end
+	
+	elseif self.gamenotstartedtime ~= nil then
+		self.gamenotstartedtime = nil
+	end
+	
+end
+
+DAK:RegisterEventHook("CheckGameStart", MapVoteCheckGameStart, 5)
+
 local function UpdateRTV(silent, playername)
 
 	local playerRecords = Shared.GetEntitiesWithClassname("Player")

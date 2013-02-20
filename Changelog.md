@@ -3,6 +3,14 @@
 Initial Version - Plugin versions invidually all over - normalizing for this update, along with loader version - Need to decide how to track plugin revisions - 
 should plugins be updated with each 'build' of DAK, even if there are no changes?  This seems the most logical way to proceed currently, and for the future.
 
+## v0.1.219a
+- Added ability to hook network messages, simply register an eventhook with the network messages name, and it will be executed before the network message function is.
+- Added option to set move rate via config on client connect.
+- Added option to set client update rate (if added as configurable) on client connect.
+- Changed reserveslot plugin back to using playerlist instead of Server.GetNumPlayers().
+- Fixed issue with sv_status command run on serverconsole.
+- Added kMaxGameNotStartedTime to mapvote plugin, which when changed from 0 will automatically start the game after X seconds even without a commander for both sides.
+
 ## v0.1.211a
 - Corrected a couple depreciated calls to functions that have been moved under globals.
 - Cleaned up calls to PrintToAllAdmins function, and also replaced default ServerAdminPrint with a slightly modified one.  Am considering using PrintToAllAdmins to replace ServerAdminPrint in functions, but
