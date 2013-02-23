@@ -1,7 +1,5 @@
 //NS2 Tournament Mod Server side script
 
-kFriendlyFireScalar = DAK.config.tournamentmode.kTournamentModeFriendlyFirePercent
-
 local TournamentModeSettings = { countdownstarted = false, countdownstarttime = 0, countdownstartcount = 0, lastmessage = 0, official = false}
 
 local function LoadTournamentMode()
@@ -149,6 +147,8 @@ end
 DAK:RegisterEventHook("OnUpdatePregame", UpdatePregame, 6)
 	
 local function OnPluginInitialized()
+
+	kFriendlyFireScalar = DAK.config.tournamentmode.kTournamentModeFriendlyFirePercent
 
 	if DAK.config.tournamentmode.kTournamentModeOverrideCanJoinTeam then
 		local originalNS2GRGetCanJoinTeamNumber

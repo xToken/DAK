@@ -1,6 +1,6 @@
 //reservedslots config
 
-DAK.revisions["reservedslots"] = "0.1.219a"
+DAK.revisions["reservedslots"] = "0.1.223a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }

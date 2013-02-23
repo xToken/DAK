@@ -3,6 +3,14 @@
 Initial Version - Plugin versions invidually all over - normalizing for this update, along with loader version - Need to decide how to track plugin revisions - 
 should plugins be updated with each 'build' of DAK, even if there are no changes?  This seems the most logical way to proceed currently, and for the future.
 
+## v0.1.223a
+- Corrected issue with FriendlyFire override not working, also issue with friendlyfire % not working.
+- Updated pause plugin to correct all remaining known issues.
+- Adjusted reserveslot plugin to work better with new, earlier event hooks. 
+- Corrected issues with reserveslot player calculations.
+- Added logging messages when server lock status is changed.
+- Added a periodic check to the reserve slot lock status.
+
 ## v0.1.219a
 - Added ability to hook network messages, simply register an eventhook with the network messages name, and it will be executed before the network message function is.
 - Added option to set move rate via config on client connect.

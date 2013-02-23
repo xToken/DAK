@@ -186,6 +186,10 @@ local function DelayedEventHooks()
 		end
 	)
 	
+	function GetFriendlyFire()
+		return DAK:GetFriendlyFire()
+	end
+	
 	local originalNS2GRGetCanPlayerHearPlayer
 	
 	originalNS2GRGetCanPlayerHearPlayer = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "GetCanPlayerHearPlayer", 

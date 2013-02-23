@@ -1,6 +1,6 @@
 //votesurrender config
 
-DAK.revisions["votesurrender"] = "0.1.219a"
+DAK.revisions["votesurrender"] = "0.1.223a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }

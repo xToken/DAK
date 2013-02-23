@@ -1,5 +1,4 @@
 //NS2 Pause Plugin
-//Comm can scroll using Minimap
 
 local gamestate = {
 gamepaused = false,
@@ -198,7 +197,7 @@ local function OnPluginInitialized()
 			if self.adjustedcreationtime + kItemStayTime <= Shared.GetTime() then
 				originalNS2PickupableMixin_DestroySelf(self)
 			else
-				self:AddTimedCallback(PickupableMixin._DestroySelf, math.max(self.adjustedcreationtime + kItemStayTime - Shared.GetTime() + 0.1, 0.1))
+				self:AddTimedCallback(PickupableMixin._DestroySelf, math.max(self.adjustedcreationtime + kItemStayTime - Shared.GetTime() + 0.5, 0.5))
 			end
 			
 		end
@@ -223,7 +222,7 @@ local function OnPluginInitialized()
 			if self.adjustedcreationtime + kItemStayTime <= Shared.GetTime() then
 				originalNS2PickupableMixin_DestroySelf(self)
 			else
-				self:AddTimedCallback(PickupableMixin._DestroySelf, math.max(self.adjustedcreationtime + kItemStayTime - Shared.GetTime() + 0.1, 0.1))
+				self:AddTimedCallback(PickupableMixin._DestroySelf, math.max(self.adjustedcreationtime + kItemStayTime - Shared.GetTime() + 0.5, 0.5))
 			end
 			
 		end
@@ -467,6 +466,58 @@ local function OnPluginInitialized()
 		end
 	)
 	
+	local originalNS2PlayerOnProcessMove
+
+	originalNS2PlayerOnProcessMove = Class_ReplaceMethod("Player", "OnProcessMove", 
+		function(self, input)
+
+			//if DAK:GetTournamentMode() and GetIsGamePaused() then
+				//return
+			//end
+			originalNS2PlayerOnProcessMove(self, input)		
+
+		end
+	)
+	
+	local originalNS2PlayerOnUpdatePlayer
+
+	originalNS2PlayerOnUpdatePlayer = Class_ReplaceMethod("Player", "OnUpdatePlayer", 
+		function(self, deltaTime)
+
+			if DAK:GetTournamentMode() and GetIsGamePaused() then
+				return
+			end
+			originalNS2PlayerOnUpdatePlayer(self, deltaTime)		
+
+		end
+	)
+	
+	local originalNS2TeamSpectatorOnProcessMove
+
+	originalNS2TeamSpectatorOnProcessMove = Class_ReplaceMethod("TeamSpectator", "OnProcessMove", 
+		function(self, input)
+
+			if DAK:GetTournamentMode() and GetIsGamePaused() then
+				return
+			end
+			originalNS2TeamSpectatorOnProcessMove(self, input)		
+
+		end
+	)
+	
+	local originalNS2EmbryoUpdateGestation
+
+	originalNS2EmbryoUpdateGestation = Class_ReplaceMethod("Embryo", "UpdateGestation", 
+		function(self, deltaTime)
+
+			if DAK:GetTournamentMode() and GetIsGamePaused() then
+				return true
+			end
+			return originalNS2EmbryoUpdateGestation(self, deltaTime)
+			
+		end
+	)
+	
 end
 
 if DAK.config and DAK.config.loader and DAK.config.loader.GamerulesExtensions then
@@ -493,20 +544,25 @@ function GetIsGamePaused()
 	return gamestate.gamepaused
 end
 
-//This runs every tick to procedurally push out the lifetimes of any relevant ents
+//This runs every tick to procedurally update any timerelevant fields of any relevant ents to insure they remain in the appropriate state.
 local function UpdateEntStates(deltatime)
 	local playerRecords = Shared.GetEntitiesWithClassname("Player")
 	for _, player in ientitylist(playerRecords) do
 		if player ~= nil then
-			if not player.isMoveBlocked then
-				player:BlockMove()
+			if not player.countingDown then
+				player.countingDown = true
+				player.followMoveEnabled = false
 				player:PrimaryAttackEnd()
-				player:SecondaryAttackEnd()
+				player.cachedorigin = player:GetOrigin()
+				player.cachedvelocity = player:GetVelocity()
+				if(player.secondaryAttackLastFrame ~= nil and player.secondaryAttackLastFrame) then
+					player:SecondaryAttackEnd()
+				end
 			end
-			if player:GetIsCommander() and player.cachedorigin ~= nil then
-				player:SetOrigin(player.cachedorigin)
-			elseif player:isa("Alien") and player.cachedabilityEnergyOnChange ~= nil then
-				player:SetEnergy(player.cachedabilityEnergyOnChange)
+			player:SetOrigin(player.cachedorigin)
+			player:SetVelocity(player.cachedvelocity)
+			if player:isa("Alien") then
+				player.timeAbilityEnergyChanged = Shared.GetTime()
 			elseif player:isa("JetpackMarine") then
 				player.timeJetpackingChanged = Shared.GetTime()
 			end
@@ -595,6 +651,18 @@ local function UpdateEntStates(deltatime)
 			stunnedEnt.stunTime = stunnedEnt.stunTime + deltatime
 		end
 	end
+	//Beep beep boom
+	local Mines = Shared.GetEntitiesWithClassname("Mine")
+	for _, Mine in ientitylist(Mines) do
+		Mine.active = false
+	end
+	//Hydras
+	local Hydras = Shared.GetEntitiesWithClassname("Hydra")
+	for _, hydra in ientitylist(Hydras) do
+		if hydra.timeOfNextFire ~= nil then 
+			hydra.timeOfNextFire = hydra.timeOfNextFire + deltatime
+		end
+	end
 	//Update DOTS (only BB???) lifetime  - MOAR DOTS
 	local Dots = Shared.GetEntitiesWithClassname("DotMarker")
 	for _, dot in ientitylist(Dots) do
@@ -645,16 +713,15 @@ local function ResumeEntStates()
 	local playerRecords = Shared.GetEntitiesWithClassname("Player")
 	for _, player in ientitylist(playerRecords) do
 		if player ~= nil then
-			player:RetrieveMove()
-			if player:GetIsCommander() and player.cachedorigin ~= nil then
-				player:SetOrigin(player.cachedorigin)
-			elseif player:isa("JetpackMarine") then
+			player.countingDown = false
+			player.followMoveEnabled = true
+			player:SetOrigin(player.cachedorigin)
+			player:SetVelocity(player.cachedvelocity)
+			if player:isa("JetpackMarine") then
 				player.timeJetpackingChanged = Shared.GetTime()
-			elseif player:isa("Alien") and player.cachedabilityEnergyOnChange ~= nil then
-				player:SetEnergy(player.cachedabilityEnergyOnChange)
+			elseif player:isa("Alien") then
+				player.timeAbilityEnergyChanged = Shared.GetTime()
 			end
-			player.cachedorigin = nil
-			player.cachedabilityEnergyOnChange = nil
 		end
 	end
 	//Resume the annoying noise
@@ -683,6 +750,18 @@ local function ResumeEntStates()
 	for _, cloak in ipairs(cloakers) do
 		if cloak.cachedcloakedFraction then
 			cloak.cloakedFraction = cloak.cachedcloakedFraction
+		end
+	end
+	//Beep beep boom
+	local Mines = Shared.GetEntitiesWithClassname("Mine")
+	for _, Mine in ientitylist(Mines) do
+		if Mine.wasactive then
+			Mine.active = true
+		else
+			local activateFunc = function(self)
+                                 self.active = true
+                             end
+			Mine:AddTimedCallback(activateFunc, kMineActiveTime)
 		end
 	end
 	//Update Next Thinks
@@ -716,6 +795,12 @@ local function SaveEntStates()
 	for _, Sentry in ientitylist(Sentries) do
 		Sentry.attacking = false
 	end
+	//Beep beep boom
+	local Mines = Shared.GetEntitiesWithClassname("Mine")
+	for _, Mine in ientitylist(Mines) do
+		Mine.wasactive = Mine.active
+		Mine.active = false
+	end
 	//Cloaking
 	local cloakers = GetEntitiesWithMixin("Cloakable")
 	for _, cloak in ipairs(cloakers) do
@@ -725,17 +810,18 @@ local function SaveEntStates()
 	local playerRecords = Shared.GetEntitiesWithClassname("Player")
 	for _, player in ientitylist(playerRecords) do
 		if player ~= nil then
-			player:BlockMove()
 			player:PrimaryAttackEnd()
+			player.countingDown = true
+			player.followMoveEnabled = false
+			player.cachedorigin = player:GetOrigin()
+			player.cachedvelocity = player:GetVelocity()
 			if(player.secondaryAttackLastFrame ~= nil and player.secondaryAttackLastFrame) then
 				player:SecondaryAttackEnd()
 			end
-			if player:GetIsCommander() then
-				player.cachedorigin = player:GetOrigin()
-			elseif player:isa("JetpackMarine") then
+			if player:isa("JetpackMarine") then
 				player.timeJetpackingChanged = Shared.GetTime()
 			elseif player:isa("Alien") then
-				player.cachedabilityEnergyOnChange = player.abilityEnergyOnChange
+				player.timeAbilityEnergyChanged = Shared.GetTime()
 			end
 		end
 	end
@@ -745,7 +831,7 @@ local function UpdateMoveState(deltatime)
 
 	if GetIsGamePaused() then
 		//Going to check and reblock player movement every second or so - trying every frame, might as well.
-		if gamestate.gamepausedmessagetime + DAK.config.pause.kPausedReadyNotificationDelay < Shared.GetTime() then
+		if gamestate.gamepausedmessagetime + DAK.config.pause.kPausedReadyNotificationDelay < Shared.GetTime() and gamestate.gamepausedcountdown == 0 then
 			if gamestate.team2resume and not gamestate.team1resume then
 				DAK:DisplayMessageToAllClients("PauseTeamReadyPeriodicMessage", DAK.config.loader.TeamTwoName, DAK.config.loader.TeamOneName)
 			elseif gamestate.team1resume and not gamestate.team2resume then
@@ -783,6 +869,7 @@ local function UpdateServerPauseState()
 		DAK:DisplayMessageToAllClients("PauseWarningMessage", ConditionalValue(GetIsGamePaused(), "resume", "pause"), (gamestate.gamepausedcountdown - tt))
 	else
 		if not GetIsGamePaused() then
+			SaveEntStates()
 			DAK:RegisterEventHook("OnServerUpdateEveryFrame", UpdateMoveState, 5)
 			DAK:RegisterEventHook("OnTeamJoin", PausedJoinTeam, 5)
 			DAK:DisplayMessageToAllClients("PausePausedMessage")
@@ -807,7 +894,7 @@ end
 
 local function OnCommandPause(client)
 	
-	if DAK:GetTournamentMode() and client ~= nil then
+	if DAK:GetTournamentMode() and client ~= nil and GetGamerules():GetGameStarted() then
 		local player = client:GetControllingPlayer()
 		if player ~= nil and not GetIsGamePaused() then
 			local teamnumber = player:GetTeamNumber()
@@ -819,7 +906,7 @@ local function OnCommandPause(client)
 						validpause = true
 					end
 				else
-					if gamestate.team1pauses < DAK.config.pause.kPauseMaxPauses then
+					if gamestate.team2pauses < DAK.config.pause.kPauseMaxPauses then
 						gamestate.team2pauses = gamestate.team2pauses + 1
 						validpause = true
 					end
@@ -877,7 +964,7 @@ DAK:RegisterChatCommand(DAK.config.pause.kUnPauseChatCommands, OnCommandUnPause,
 
 local function OnCommandAdminPause(client)
 	
-	if DAK:GetTournamentMode() then
+	if DAK:GetTournamentMode() and GetGamerules():GetGameStarted() then
 		if gamestate.gamepausedcountdown == 0 then
 			DAK:RegisterEventHook("OnServerUpdate", UpdateServerPauseState, 5)
 			gamestate.team1resume = false

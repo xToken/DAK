@@ -1,6 +1,6 @@
 //autoconcede default config
 
-DAK.revisions["autoconcede"] = "0.1.219a"
+DAK.revisions["autoconcede"] = "0.1.223a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }
