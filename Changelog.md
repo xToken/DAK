@@ -8,6 +8,7 @@ should plugins be updated with each 'build' of DAK, even if there are no changes
 - Added some events to pause plugin for new features.
 - Added descent to default mapcycle
 - Added config utility file to simply config saves/loads.
+- Corrected issues with default and custom languages 
 
 ## v0.1.223a
 - Corrected issue with FriendlyFire override not working, also issue with friendlyfire % not working.
