@@ -6,17 +6,9 @@ local mapCycleFileName = "config://MapCycle.json"
 	
 local function LoadMapCycle()
 
-	Shared.Message("Loading " .. mapCycleFileName)
-	
-	local configFile = io.open(mapCycleFileName, "r")
-	if configFile then
-		local fileContents = configFile:read("*all")
-		DAK.mapcycle = json.decode(fileContents) or { maps = { "ns2_docking", "ns2_summit", "ns2_tram", "ns2_veil" }, time = 30, mode = "order", mods = { "5f4f178" } }
-		io.close(configFile)
-	else
-		local defaultConfig = { maps = { "ns2_docking", "ns2_summit", "ns2_tram", "ns2_veil" }, time = 30, mode = "order", mods = { "5f4f178" } }
-		DAK.mapcycle = defaultConfig
-	end
+	local defaultConfig = { maps = { "ns2_docking", "ns2_descent", "ns2_summit", "ns2_tram", "ns2_veil" }, time = 30, mode = "order", mods = { "5f4f178" } }
+	DAK:WriteDefaultConfigFile(mapCycleFileName, defaultConfig)
+	DAK.mapcycle = DAK:LoadConfigFile(mapCycleFileName) or defaultConfig
 	assert(type(DAK.mapcycle.time) == 'number')
 	assert(type(DAK.mapcycle.maps) == 'table')
 	
@@ -25,9 +17,7 @@ end
 LoadMapCycle()
 
 local function SaveMapCycle()
-	local configFile = io.open(mapCycleFileName, "w+")
-	configFile:write(json.encode(DAK.mapcycle, { indent = true, level = 1 }))
-	io.close(configFile)
+	DAK:SaveConfigFile(mapCycleFileName, DAK.mapcycle)
 end	
 
 local function GetMapName(map)

@@ -4,30 +4,31 @@ local CommBans = { }
 local CommBansFileName = "config://CommBans.json"
 
 local function LoadCommanderBannedPlayers()
-
-	Shared.Message("Loading " .. CommBansFileName)
-	
-	CommBans = { }
-	
-	// Load the ban settings from file if the file exists.
-	local CommBansFile = io.open(CommBansFileName, "r")
-	if CommBansFile then
-		CommBans = json.decode(CommBansFile:read("*all")) or { }
-		CommBansFile:close()
-	end
-	
+	CommBans = DAK:ConvertOldBansFormat(DAK:LoadConfigFile(CommBansFileName)) or { }
 end
 
 LoadCommanderBannedPlayers()
 
 local function SaveCommanderBannedPlayers()
+	DAK:SaveConfigFile(CommBansFileName, CommBans)
+end
 
-	local CommBansFile = io.open(CommBansFileName, "w+")
-	if CommBansFile then
-		CommBansFile:write(json.encode(CommBans))
-		CommBansFile:close()
+local function IsCommBanned(playerId)
+	playerId = tostring(playerId)
+	if playerId ~= nil then
+		local bentry = CommBans[playerId]
+		if bentry ~= nil then
+			local now = Shared.GetSystemTime()
+			if bentry.time == 0 or now < bentry.time then
+				return true
+			else
+				LoadCommanderBannedPlayers()
+				CommBans[playerId] = nil
+				SaveCommanderBannedPlayers()
+			end
+		end
 	end
-	
+	return false
 end
 
 local function OnPluginInitialized()
@@ -39,23 +40,7 @@ local function OnPluginInitialized()
 
 			local banned = false //Innocent until proven guilty
 			banned = originalNS2GRGetPlayerBannedFromCommand( self, playerId )
-			
-			for b = #CommBans, 1, -1 do
-				local cban = CommBans[b]
-				if cban.id == playerId then
-					// Check if enough time has passed on a temporary comm ban.
-					local now = Shared.GetSystemTime()
-					if cban.time == 0 or now < cban.time then
-						banned = true
-					else
-						// No longer banned.
-						LoadCommanderBannedPlayers()
-						table.remove(CommBans, b)
-						SaveCommanderBannedPlayers()
-					end
-				end
-			end
-			return banned
+			return banned or IsCommBanned(playerId)
 		end
 	)
 	
@@ -93,7 +78,7 @@ end
 
 DAK:RegisterEventHook("OnCastVoteByPlayer", CommBansCastVoteByPlayer, 5)
 
-local function OnCommandCommBan(client, playerId, duration, ...)
+local function OnCommandCommBan(client, playerId, pname, duration, ...)
 
 	local player = DAK:GetPlayerMatching(playerId)
 	local bannedUntilTime = Shared.GetSystemTime()
@@ -103,83 +88,54 @@ local function OnCommandCommBan(client, playerId, duration, ...)
 	else
 		bannedUntilTime = bannedUntilTime + (duration * 60)
 	end
-	if not DAK:GetLevelSufficient(client, playerId) then
-		return
-	end
+	
 	if player then
+		playerId = Server.GetOwner(player):GetUserId()
+		if pname == nil then pname = player:GetName() end
+	end
 	
-		LoadCommanderBannedPlayers()
-		table.insert(CommBans, { name = player:GetName(), id = Server.GetOwner(player):GetUserId(), reason = StringConcatArgs(...), time = bannedUntilTime })
-		SaveCommanderBannedPlayers()
-		ServerAdminPrint(client, player:GetName() .. " has been banned from the command chair")
+	if tonumber(playerId) > 0 then
+		if not DAK:GetLevelSufficient(client, playerId) then
+			return
+		end
 		
-	elseif tonumber(playerId) > 0 then
-	
+		local bentry = { name = pname, reason = StringConcatArgs(...), time = bannedUntilTime }
 		LoadCommanderBannedPlayers()
-		table.insert(CommBans, { name = "Unknown", id = tonumber(playerId), reason = StringConcatArgs(...), time = bannedUntilTime })
+		CommBans[tostring(playerId)] = bentry
 		SaveCommanderBannedPlayers()
 		ServerAdminPrint(client, "Player with SteamId " .. playerId .. " has been banned from the command chair")
-		
 	else
 		ServerAdminPrint(client, "No matching player")
 	end
 	
 end
 
-DAK:CreateServerAdminCommand("Console_sv_commban", OnCommandCommBan, "<player id> <duration in minutes> <reason text>, Bans the player from commanding, pass in 0 for duration to ban forever")
+DAK:CreateServerAdminCommand("Console_sv_commban", OnCommandCommBan, "<player id> <name> <duration in minutes> <reason text>, Bans the player from commanding, pass in 0 for duration to ban forever")
 
 local function OnCommandUnCommBan(client, steamId)
 
-	local found = false
-	LoadCommanderBannedPlayers()
-	for p = #CommBans, 1, -1 do
-	
-		if CommBans[p].id == steamId then
-		
-			table.remove(CommBans, p)
-			ServerAdminPrint(client, "Removed " .. steamId .. " from the commander ban list")
-			found = true
-			
+	steamId = tostring(steamId)
+	if steamId ~= nil then
+		LoadCommanderBannedPlayers()
+		if CommBans[steamId] ~= nil then
+			CommBans[steamId] = nil
+			SaveCommanderBannedPlayers()
+			ServerAdminPrint(client, "Player with SteamId " .. steamId .. " has been unbanned from the command chair.")
+		else
+			ServerAdminPrint(client, "No matching Steam Id in commander ban list")
 		end
-		
 	end
-	
-	if found then
-		SaveCommanderBannedPlayers()
-	else
-		ServerAdminPrint(client, "No matching Steam Id in commander ban list")
-	end
-	
 end
 
 DAK:CreateServerAdminCommand("Console_sv_uncommban", OnCommandUnCommBan, "<steam id>, Removes the player matching the passed in Steam Id from the commander ban list")
 
-local function GetCommBannedPlayersList()
-
-	local returnList = { }
-	
-	for p = 1, #CommBans do
-	
-		local cban = CommBans[p]
-		table.insert(returnList, { name = cban.name, id = cban.id, reason = cban.reason, time = cban.time })
-		
-	end
-	
-	return returnList
-	
-end
-
 local function ListCommanderBans(client)
 
-	if #CommBans == 0 then
-		ServerAdminPrint(client, "No players are currently commander banned")
-	end
+	ServerAdminPrint(client, "Current CommanderBans Listing:")
+	for id, entry in pairs(CommBans) do
 	
-	for p = 1, #CommBans do
-	
-		local cban = CommBans[p]
-		local timeLeft = cban.time == 0 and "Forever" or (((cban.time - Shared.GetSystemTime()) / 60) .. " minutes")
-		ServerAdminPrint(client, "Name: " .. cban.name .. " Id: " .. cban.id .. " Time Remaining: " .. timeLeft .. " Reason: " .. (cban.reason or "Not provided"))
+		local timeLeft = entry.time == 0 and "Forever" or (((entry.time - Shared.GetSystemTime()) / 60) .. " minutes")
+		ServerAdminPrint(client, "Name: " .. entry.name .. " Id: " .. id .. " Time Remaining: " .. timeLeft .. " Reason: " .. (entry.reason or "Not provided"))
 		
 	end
 	

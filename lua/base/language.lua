@@ -1,7 +1,6 @@
 //DAK loader/Base Config
 
 local LanguageStrings = { }
-local ClientLanguages = { }
 local defaultlang = "Default"
 
 if DAK.settings.clientlanguages == nil then
@@ -46,12 +45,7 @@ local function LoadLanguageDefinitions()
 		if DAK.config.language.LanguageList[i] ~= defaultlang then
 			local lang = DAK.config.language.LanguageList[i]
 			if lang ~= nil then
-				local filename = string.format("config://lang\\%s.json", lang)
-				local DAKLangFile = io.open(filename, "r")
-				if DAKLangFile then
-					LanguageStrings[lang] = json.decode(DAKLangFile:read("*all"))
-					DAKLangFile:close()
-				end
+				LanguageStrings[lang] = DAK:LoadConfigFile(string.format("config://lang\\%s.json", lang)) or { }
 			end
 		end
 	end
@@ -62,6 +56,10 @@ local function SaveDefaultLanguageDefinition()
 	local DAKDefaultLangFile = io.open(string.format("config://lang\\%s.json", defaultlang), "w+")
 	if DAKDefaultLangFile then
 		DAKDefaultLangFile:write("{\n")
+		DAKDefaultLangFile:write("\"_COMMENTS\":" .. [[		"This file should not be edited, it is re-created every map change.  To edit default messages, You will want to make a copy of this file, and rename
+	it to EN.json.  By Default, EN is the default language for all players, and will be used as the primary source.  This file is only used if the EN.json file doesnt have the needed strings
+	or doesnt exist.  You can also configure additional languages by creating multiple versions of this file, and adding them in the config.  Clients can set their language ingame with \lang. 
+	You can delete this line in your custom files]] .. ".\",\n")
 		for k, v in pairsKeySorted(LanguageStrings[defaultlang]) do
 			if (type(v) == "table") then
 				DAKDefaultLangFile:write(string.format("\"%s\":\t\t\t\t\t\t\t\[\n", k))
@@ -131,23 +129,19 @@ end
 
 local function ClientLanguageOverride(client)
 	if client ~= nil then
-		local clientID = client:GetUserId()
-		if ClientLanguages[clientID] ~= nil then return ClientLanguages[clientID] end
-		if client ~= nil and clientID ~= nil then
-			for r = #DAK.settings.clientlanguages, 1, -1 do
-				if DAK.settings.clientlanguages[r] ~= nil and DAK.settings.clientlanguages[r].id == clientID and GetIsLanguageValid(DAK.settings.clientlanguages[r].lang) then
-					ClientLanguages[clientID] = DAK.settings.clientlanguages[r].lang
-					return DAK.settings.clientlanguages[r].lang
-				end
+		local clientID = tostring(client:GetUserId())
+		if clientID ~= nil then
+			if DAK.settings.clientlanguages[clientID] == nil or not GetIsLanguageValid(DAK.settings.clientlanguages[clientID]) then
+				DAK.settings.clientlanguages[clientID] = DAK.config.language.DefaultLanguage
 			end
+			return DAK.settings.clientlanguages[clientID]
 		end
-		ClientLanguages[clientID] = DAK.config.language.LanguageList
 	end
-	return DAK.config.language.LanguageList
+	return DAK.config.language.DefaultLanguage
 end
 
 function DAK:GetLanguageSpecificMessage(messageId, lang)
-	if lang == nil or not GetIsLanguageValid(lang) then lang = DAK.config.language.LanguageList end
+	if lang == nil or not GetIsLanguageValid(lang) then lang = DAK.config.language.DefaultLanguage end
 	if LanguageStrings[lang] ~= nil then
 		local ltable = LanguageStrings[lang]
 		if ltable[messageId] ~= nil then
@@ -160,6 +154,7 @@ function DAK:GetLanguageSpecificMessage(messageId, lang)
 			return ltable[messageId]
 		end
 	end
+	Shared.Message(string.format("Invalid MessageId provided - %s", messageId))
 	return ""
 end
 
@@ -210,38 +205,18 @@ function DAK:DisplayMessageToTeam(teamnum, messageId, ...)
 end
 
 local function UpdateClientLanguageSetting(clientID, language)
-	local updated = false
-	if tonumber(clientID) == nil then return end
-	clientID = tonumber(clientID)
 	if clientID ~= nil then
-		for r = #DAK.settings.clientlanguages, 1, -1 do
-			if DAK.settings.clientlanguages[r] ~= nil and DAK.settings.clientlanguages[r].id == clientID then
-				ClientLanguages[clientID] = language
-				DAK.settings.clientlanguages[r].lang = language
-				updated = true
-				break
-			end
-		end
+		DAK.settings.clientlanguages[tostring(clientID)] = language
 	end
-	
-	if not updated then
-		local NewClient = { }
-		NewClient.id = clientID
-		NewClient.lang = language
-		ClientLanguages[clientID] = language
-		table.insert(DAK.settings.clientlanguages, NewClient)
-	end
-	
 	DAK:SaveSettings()
 end
 
 local function OnCommandSetLanguage(client, language)
-
+	language = string.upper(language)
 	if language == nil or not GetIsLanguageValid(language) and client ~= nil then
 		local langs = table.concat(DAK.config.language.LanguageList, ",")
 		DAK:DisplayMessageToClient(client, "AvailableLanguages", langs)			
 	elseif client ~= nil then
-		language = string.upper(language)
 		local clientID = client:GetUserId()
 		UpdateClientLanguageSetting(clientID, language)
 		DAK:DisplayMessageToClient(client, "SetLanguage", language)		

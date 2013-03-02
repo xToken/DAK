@@ -192,7 +192,6 @@ function DAK:ExecuteSpecificChatCommand(client, message, chatcommand)
 				local chatcomm = chatcommand.commands[j]
 				if string.upper(string.sub(message, 1, string.len(chatcomm))) == string.upper(chatcomm) then
 					if chatcommand.args then
-						Print(ToString(string.sub(message, string.len(chatcomm) + 2)))
 						chatcommand.func(client, string.sub(message, string.len(chatcomm) + 2))
 					else
 						chatcommand.func(client)
@@ -235,32 +234,23 @@ function DAK:ExecutePluginGlobalFunction(plugin, func, ...)
 end
 
 function DAK:UpdateConnectionTimeTracker(client)
-	if self.settings.connectedclients == nil then
-		self.settings.connectedclients = { }
+	if DAK.settings.connectedclients == nil then
+		DAK.settings.connectedclients = { }
 	end
 	if client ~= nil then
-		local steamId = client:GetUserId()
-		for r = #DAK.settings.connectedclients, 1, -1 do
-			if self.settings.connectedclients[r] ~= nil and self.settings.connectedclients[r].id == steamId then
-				return
-			end
+		local steamId = tostring(client:GetUserId())
+		if DAK.settings.connectedclients[steamId] == nil then
+			DAK.settings.connectedclients[steamId] = Shared.GetSystemTime()
+			DAK:SaveSettings()
 		end
-		local newrec = {id = steamId, conntime = Shared.GetSystemTime()}
-		table.insert(self.settings.connectedclients, newrec)
-		DAK:SaveSettings()
 	end
 end
 
 function DAK:RemoveConnectionTimeTracker(client)
 	if client ~= nil and self.settings.connectedclients ~= nil then
-		local steamId = client:GetUserId()
+		local steamId = tostring(client:GetUserId())
 		if steamId ~= nil then
-			for r = #DAK.settings.connectedclients, 1, -1 do
-				if self.settings.connectedclients[r] ~= nil and self.settings.connectedclients[r].id == steamId then
-					self.settings.connectedclients[r] = nil
-					break
-				end
-			end
+			DAK.settings.connectedclients[steamId] = nil
 			DAK:SaveSettings()
 		end
 	end
@@ -268,13 +258,9 @@ end
 
 function DAK:GetClientConnectionTime(client)
 	if client ~= nil and DAK.settings.connectedclients ~= nil then
-		local steamId = client:GetUserId()
+		local steamId = tostring(client:GetUserId())
 		if steamId ~= nil then
-			for r = #DAK.settings.connectedclients, 1, -1 do
-				if self.settings.connectedclients[r] ~= nil and self.settings.connectedclients[r].id == steamId then
-					return math.floor(Shared.GetSystemTime() - self.settings.connectedclients[r].conntime)
-				end
-			end
+			return math.floor(Shared.GetSystemTime() - DAK.settings.connectedclients[steamId])
 		end
 	end
 	return 0
@@ -544,4 +530,20 @@ function DAK:GetPlayerMatchingName(name)
 	
 	return nil
 	
+end
+
+function DAK:ConvertOldBansFormat(bandata)
+	local newdata = { }
+	if bandata ~= nil then
+		for id, entry in pairs(bandata) do
+			if entry ~= nil then
+				if entry.id ~= nil then
+					newdata[entry.id] = { name = entry.name or "Unavailable", reason = entry.reason or "NotProvided", time = entry.time or 0 }
+				elseif id ~= nil then
+					newdata[id] = { name = entry.name or "Unavailable", reason = entry.reason or "NotProvided", time = entry.time or 0 }
+				end			
+			end
+		end
+	end
+	return newdata
 end

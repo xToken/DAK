@@ -21,27 +21,15 @@ local function tablemerge(tab1, tab2)
 end
 
 local function LoadDAKConfig()
-	local ConfigFile = io.open(ConfigFileName, "r")
-	if ConfigFile then
-		Shared.Message("Loading DAK configuration.")
-		if DAK.config ~= nil then
-			local config = json.decode(ConfigFile:read("*all"))
-			DAK.config = tablemerge(DAK.config, config)
-		else
-			DAK.config = json.decode(ConfigFile:read("*all"))
-		end
-		ConfigFile:close()
+	if DAK.config ~= nil then
+		DAK.config = tablemerge(DAK.config, DAK:LoadConfigFile(ConfigFileName) or { })
+	else
+		DAK.config = DAK:LoadConfigFile(ConfigFileName) or { }
 	end
 end
 
 local function SaveDAKConfig()
-	//Write config to file
-	local ConfigFile = io.open(ConfigFileName, "w+")
-	if ConfigFile then
-		ConfigFile:write(json.encode(DAK.config, { indent = true, level = 1 }))
-		Shared.Message("Saving DAK configuration.")
-		ConfigFile:close()
-	end
+	DAK:SaveConfigFile(ConfigFileName, DAK.config)
 end
 
 local function GenerateDefaultDAKConfig(Plugin, Save)
@@ -71,6 +59,10 @@ local function GenerateDefaultDAKConfig(Plugin, Save)
 		DefaultConfig.UpdateDelay = 60
 		DefaultConfig.QueryTimeout = 10
 		DefaultConfig.QueryURL = ""
+		DefaultConfig.BansQueryURL = ""
+		DefaultConfig.BanSubmissionURL = ""
+		DefaultConfig.UnBanSubmissionURL = ""
+		DefaultConfig.CryptographyKey = ""
 		
 		DAK.config["serveradmin"] = tablemerge(DAK.config["serveradmin"], DefaultConfig)
 		

@@ -16,14 +16,9 @@ end
 
 local function IsAcceptedClient(client)
 	if client ~= nil then
-	
-		for r = #DAK.settings.MOTDAcceptedClients, 1, -1 do
-			local AcceptedClient = DAK.settings.MOTDAcceptedClients[r]
-			local steamid = client:GetUserId()
-			if tonumber(steamid) == nil then return false end
-			if AcceptedClient.id == tonumber(steamid) and AcceptedClient.revision == DAK.config.motd.kMOTDMessageRevision then
-				return true
-			end
+		local steamid = tostring(client:GetUserId())
+		if DAK.settings.MOTDAcceptedClients[steamid] ~= nil and DAK.settings.MOTDAcceptedClients[steamid] == DAK.config.motd.kMOTDMessageRevision then
+			return true		
 		end
 	end
 	return false
@@ -31,7 +26,7 @@ end
 
 local function ProcessMessagesforUser(PEntry)
 	
-	local messages = DAK:GetLanguageSpecificMessage("MOTDMessage", DAK:GetClientLanguageSetting(client))
+	local messages = DAK:GetLanguageSpecificMessage("MOTDMessage", DAK:GetClientLanguageSetting(PEntry.Client))
 	local messagestart = PEntry.Message
 	if messages ~= nil then
 		for i = messagestart, #messages do
@@ -153,14 +148,8 @@ local function OnCommandAcceptMOTD(client)
 			return
 		end
 		
-		local NewClient = { }
-		NewClient.id = tonumber(steamid)
-		NewClient.revision = DAK.config.motd.kMOTDMessageRevision
-		NewClient.name = name
-		
 		DAK:DisplayMessageToClient(client, "MOTDAccepted")
-		table.insert(DAK.settings.MOTDAcceptedClients, NewClient)
-		
+		DAK.settings.MOTDAcceptedClients[tostring(steamid)] = DAK.config.motd.kMOTDMessageRevision
 		DAK:SaveSettings()
 	end
 	

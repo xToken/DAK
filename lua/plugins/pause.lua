@@ -189,20 +189,6 @@ local function OnPluginInitialized()
 		end
 	)
 
-	local originalNS2PickupableMixin_DestroySelf
-
-	originalNS2PickupableMixin_DestroySelf = Class_ReplaceMethod("PickupableMixin", "_DestroySelf", 
-		function(self)
-
-			if self.adjustedcreationtime + kItemStayTime <= Shared.GetTime() then
-				originalNS2PickupableMixin_DestroySelf(self)
-			else
-				self:AddTimedCallback(PickupableMixin._DestroySelf, math.max(self.adjustedcreationtime + kItemStayTime - Shared.GetTime() + 0.5, 0.5))
-			end
-			
-		end
-	)
-
 	local originalNS2PickupableMixin__initmixin
 
 	originalNS2PickupableMixin__initmixin = Class_ReplaceMethod("PickupableMixin", "__initmixin", 
@@ -518,6 +504,85 @@ local function OnPluginInitialized()
 		end
 	)
 	
+	local originalNS2TunnelUserMixinOnProcessMove
+
+	originalNS2TunnelUserMixinOnProcessMove = Class_ReplaceMethod("TunnelUserMixin", "OnProcessMove", 
+		function(self, input)
+
+			if DAK:GetTournamentMode() and GetIsGamePaused() then
+				return
+			end
+			originalNS2TunnelUserMixinOnProcessMove(self, input)
+			
+		end
+	)
+	
+	local originalNS2TunnelUserMixinOnUpdate
+
+	originalNS2TunnelUserMixinOnUpdate = Class_ReplaceMethod("TunnelUserMixin", "OnUpdate", 
+		function(self, deltaTime)
+
+			if DAK:GetTournamentMode() and GetIsGamePaused() then
+				return
+			end
+			originalNS2TunnelUserMixinOnUpdate(self, deltaTime)
+			
+		end
+	)
+	
+	local originalNS2BabblerOnProcessMove
+
+	originalNS2BabblerOnProcessMove = Class_ReplaceMethod("Babbler", "OnProcessMove", 
+		function(self, input)
+
+			if DAK:GetTournamentMode() and GetIsGamePaused() then
+				return
+			end
+			originalNS2BabblerOnProcessMove(self, input)
+			
+		end
+	)
+	
+	local originalNS2BabblerOnUpdate
+
+	originalNS2BabblerOnUpdate = Class_ReplaceMethod("Babbler", "OnUpdate", 
+		function(self, deltaTime)
+
+			if DAK:GetTournamentMode() and GetIsGamePaused() then
+				return
+			end
+			originalNS2BabblerOnUpdate(self, deltaTime)
+			
+		end
+	)
+	
+	local originalNS2BabblerOnInitialized
+
+	originalNS2BabblerOnInitialized = Class_ReplaceMethod("Babbler", "OnInitialized", 
+		function(self)
+
+			self.adjustedcreationtime = Shared.GetTime()
+			originalNS2BabblerOnInitialized(self)
+			
+		end
+	)
+	
+	local kBabblerLifeTime = 120
+
+	local originalNS2BabblerTimeUp
+
+	originalNS2BabblerTimeUp = Class_ReplaceMethod("Babbler", "TimeUp", 
+		function(self)
+
+			if self.adjustedcreationtime + kBabblerLifeTime <= Shared.GetTime() then
+				originalNS2BabblerTimeUp(self)
+			else
+				self:AddTimedCallback(Babbler.TimeUp, math.max(self.adjustedcreationtime + kBabblerLifeTime - Shared.GetTime() + 0.5, 0.5))
+			end
+			
+		end
+	)
+	
 end
 
 if DAK.config and DAK.config.loader and DAK.config.loader.GamerulesExtensions then
@@ -559,12 +624,19 @@ local function UpdateEntStates(deltatime)
 					player:SecondaryAttackEnd()
 				end
 			end
-			player:SetOrigin(player.cachedorigin)
-			player:SetVelocity(player.cachedvelocity)
+			if player.cachedorigin ~= nil then
+				player:SetOrigin(player.cachedorigin)
+			end
+			if player.cachedvelocity ~= nil then
+				player:SetVelocity(player.cachedvelocity)
+			end
 			if player:isa("Alien") then
 				player.timeAbilityEnergyChanged = Shared.GetTime()
 			elseif player:isa("JetpackMarine") then
 				player.timeJetpackingChanged = Shared.GetTime()
+			end
+			if player.timeLastTunnelCorrodeCheck ~= nil then
+				player.timeLastTunnelCorrodeCheck = player.timeLastTunnelCorrodeCheck + deltatime
 			end
 		end
 	end
@@ -600,6 +672,11 @@ local function UpdateEntStates(deltatime)
 	local DropPacks = Shared.GetEntitiesWithClassname("DropPack")
 	for _, DropPack in ientitylist(DropPacks) do
 		DropPack.adjustedcreationtime = DropPack.adjustedcreationtime + deltatime
+	end
+	//Babblers
+	local Babblers = Shared.GetEntitiesWithClassname("Babbler")
+	for _, Babbler in ientitylist(Babblers) do
+		Babbler.adjustedcreationtime = Babbler.adjustedcreationtime + deltatime
 	end
 	//Grenades
 	local Grenades = Shared.GetEntitiesWithClassname("Grenade")
@@ -715,8 +792,12 @@ local function ResumeEntStates()
 		if player ~= nil then
 			player.countingDown = false
 			player.followMoveEnabled = true
-			player:SetOrigin(player.cachedorigin)
-			player:SetVelocity(player.cachedvelocity)
+			if player.cachedorigin ~= nil then
+				player:SetOrigin(player.cachedorigin)
+			end
+			if player.cachedvelocity ~= nil then
+				player:SetVelocity(player.cachedvelocity)
+			end
 			if player:isa("JetpackMarine") then
 				player.timeJetpackingChanged = Shared.GetTime()
 			elseif player:isa("Alien") then

@@ -1,6 +1,6 @@
 //baseadmincommands default config
 
-DAK.revisions["baseadmincommands"] = "0.1.223a"
+DAK.revisions["baseadmincommands"] = "0.1.302a"
 local function SetupDefaultConfig()
 	local DefaultConfig = { }
 	DefaultConfig.kMapChangeDelay = 5
@@ -8,11 +8,6 @@ local function SetupDefaultConfig()
 	DefaultConfig.DefaultGagTime = 5
 	DefaultConfig.ChatLimit = 5
 	DefaultConfig.ChatRecoverRate = 1
-	DefaultConfig.kBansQueryURL = ""
-	DefaultConfig.kBansQueryTimeout = 10
-	DefaultConfig.kBanSubmissionURL = ""
-	DefaultConfig.kUnBanSubmissionURL = ""
-	DefaultConfig.kCryptographyKey = ""
 	DefaultConfig.GaggedClientMessage = "Imma Lamma!"
 	DefaultConfig.kBlacklistedCommands = { "Console_sv_kick", "Console_sv_eject", "Console_sv_switchteam", "Console_sv_randomall", "Console_sv_rrall", "Console_sv_reset",
 															"Console_sv_changemap", "Console_sv_statusip", "Console_sv_status", "Console_sv_say", "Console_sv_tsay", "Console_sv_psay", 

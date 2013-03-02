@@ -1,44 +1,37 @@
 //DAK loader/Base Config
 
 DAK.adminsettings = { groups = { }, users = { } }
+DAK.bannedplayers = { }
 DAK.serveradmincommands = { }
 DAK.serveradmincommandsfunctions = { }
 DAK.serveradmincommandshooks = { }
 
 local ServerAdminFileName = "config://ServerAdmin.json"
 local ServerAdminWebFileName = "config://ServerAdminWeb.json"
-local ServerAdminWebCache
+local BannedPlayersFileName = "config://BannedPlayers.json"
+local BannedPlayersWebFileName = "config://BannedPlayersWeb.json"
+local BannedPlayersWeb = { }
+local ServerAdminWebCache = { }
 local initialwebupdate = 0
 local lastwebupdate = 0
 	
 local function LoadServerAdminSettings()
-
-	Shared.Message("Loading " .. ServerAdminFileName)
 	
-	local initialState = { groups = { }, users = { } }
-	DAK.adminsettings = initialState
-	
-	local configFile = io.open(ServerAdminFileName, "r")
-	if configFile then
-		local fileContents = configFile:read("*all")
-		DAK.adminsettings = json.decode(fileContents) or initialState
-		io.close(configFile)
-	else
-		local defaultConfig = {
+	local defaultConfig = {
 								groups =
 									{
 									  admin_group = { type = "disallowed", commands = { }, level = 10 },
-									  mod_group = { type = "allowed", commands = { "sv_reset", "sv_ban" }, level = 5 }
+									  mod_group = { type = "allowed", commands = { "sv_reset", "sv_kick" }, level = 5 }
 									},
 								users =
 									{
 									  NsPlayer = { id = 10000001, groups = { "admin_group" }, level = 2 }
 									}
 							  }
-		local configFile = io.open(ServerAdminFileName, "w+")
-		configFile:write(json.encode(defaultConfig, { indent = true, level = 1 }))
-		io.close(configFile)
-	end
+	DAK:WriteDefaultConfigFile(ServerAdminFileName, defaultConfig)
+	
+	DAK.adminsettings = DAK:LoadConfigFile(ServerAdminFileName) or defaultConfig
+	
 	assert(DAK.adminsettings.groups, "groups must be defined in " .. ServerAdminFileName)
 	assert(DAK.adminsettings.users, "users must be defined in " .. ServerAdminFileName)
 	
@@ -46,30 +39,32 @@ end
 
 LoadServerAdminSettings()
 
-local function LoadServerAdminWebSettings()
+local function LoadBannedPlayers()
+	DAK.bannedplayers = DAK:ConvertOldBansFormat(DAK:LoadConfigFile(BannedPlayersFileName)) or { }
+end
 
-	Shared.Message("Loading " .. ServerAdminWebFileName)
-	
-	local configFile = io.open(ServerAdminWebFileName, "r")
-	local users
-	if configFile then
-		local fileContents = configFile:read("*all")
-		users = json.decode(fileContents)
-		io.close(configFile)
-	end
-	ServerAdminWebCache = users
-	return users
-	
+LoadBannedPlayers()
+
+local function SaveBannedPlayers()
+	DAK:SaveConfigFile(BannedPlayersFileName, DAK.bannedplayers)
+end
+
+local function LoadServerAdminWebSettings()
+	ServerAdminWebCache = DAK:LoadConfigFile(ServerAdminWebFileName) or { }
+end
+
+local function LoadBannedPlayersWeb()
+	BannedPlayersWeb = DAK:LoadConfigFile(BannedPlayersWebFileName) or { }
 end
 
 local function SaveServerAdminWebSettings(users)
-	local configFile = io.open(ServerAdminWebFileName, "w+")
-	if configFile ~= nil and users ~= nil then
-		configFile:write(json.encode(users, { indent = true, level = 1 }))
-		io.close(configFile)
-	end
+	DAK:SaveConfigFile(ServerAdminWebFileName, users)
 	ServerAdminWebCache = users
-end	
+end
+
+local function SaveBannedPlayersWeb()
+	DAK:SaveConfigFile(BannedPlayersWebFileName, BannedPlayersWeb)
+end
 
 //Global Group related functions
 function DAK:GetGroupCanRunCommand(groupName, commandName)
@@ -326,41 +321,84 @@ local function OnServerAdminWebResponse(response)
 	end
 end
 
-local function QueryForAdminList()
-	Shared.SendHTTPRequest(DAK.config.serveradmin.QueryURL, "GET", OnServerAdminWebResponse)
-	lastwebupdate = Shared.GetTime()
+local function OnServerAdminBansWebResponse(response)
+	if response then
+		local bannedusers = ProcessWebResponse(response)
+		if bannedusers and BannedPlayersWeb ~= bannedusers then
+			BannedPlayersWeb = bannedusers
+			SaveBannedPlayersWeb()
+		end
+	end
+end
+
+local function OnPlayerBannedResponse(response)
+	if response == "TRUE" then
+		//ban successful, update webbans using query URL.
+		DAK:QueryForBansList()
+	end
+end
+
+local function OnPlayerUnBannedResponse(response)
+	if response == "TRUE" then
+		//Unban successful, anything needed here?
+	end
+end
+
+function DAK:QueryForAdminList()
+	if DAK.config.serveradmin.QueryURL ~= "" then
+		Shared.SendHTTPRequest(DAK.config.serveradmin.QueryURL, "GET", OnServerAdminWebResponse)
+	end
+end
+
+function DAK:QueryForBansList()
+	if DAK.config.serveradmin.BansQueryURL ~= "" then
+		Shared.SendHTTPRequest(DAK.config.serveradmin.BansQueryURL, "GET", OnServerAdminBansWebResponse)
+	end
 end
 
 local function OnServerAdminClientConnect(client)
+	local isBanned, Reason = DAK:IsClientBanned(client)
+	if isBanned then
+		client.disconnectreason = Reason
+		Server.DisconnectClient(client)
+	end
 	local tt = Shared.GetTime()
-	if tt > DAK.config.serveradmin.MapChangeDelay and (lastwebupdate == nil or (lastwebupdate + DAK.config.serveradmin.UpdateDelay) < tt) and DAK.config.serveradmin.QueryURL ~= "" and initialwebupdate ~= 0 then
-		QueryForAdminList()
+	if tt > DAK.config.serveradmin.MapChangeDelay and (lastwebupdate == nil or (lastwebupdate + DAK.config.serveradmin.UpdateDelay) < tt) then
+		DAK:QueryForAdminList()
+		DAK:QueryForBansList()
+		lastwebupdate = tt
 	end
 end
 
-DAK:RegisterEventHook("OnClientConnect", OnServerAdminClientConnect, 5)
+DAK:RegisterEventHook("OnClientConnect", OnServerAdminClientConnect, 6)
 
 local function DelayedServerCommandRegistration()
-	if DAK.config.serveradmin.QueryURL ~= "" and initialwebupdate == 0 then
-		QueryForAdminList()
-		initialwebupdate = Shared.GetTime() + DAK.config.serveradmin.QueryTimeout	
+	if initialwebupdate == 0 then
+		DAK:QueryForAdminList()
+		DAK:QueryForBansList()
+		initialwebupdate = Shared.GetTime() + DAK.config.serveradmin.QueryTimeout
 	end
-	if DAK.config.serveradmin.QueryURL ~= "" and initialwebupdate < Shared.GetTime() then
-		if ServerAdminWebCache == nil then
+	if initialwebupdate < Shared.GetTime() then
+		if DAK.config.serveradmin.QueryURL ~= "" and ServerAdminWebCache == nil then
 			Shared.Message("ServerAdmin WebQuery failed, falling back on cached list.")
 			DAK.adminsettings.users = tablemerge(DAK.adminsettings.users, LoadServerAdminWebSettings())
-			initialwebupdate = 0
 		end
+		if DAK.config.serveradmin.BansQueryURL ~= "" and BannedPlayersWeb == nil then
+			Shared.Message("Bans WebQuery failed, falling back on cached list.")
+			LoadBannedPlayersWeb()
+		end
+		initialwebupdate = initialwebupdate + DAK.config.serveradmin.ReconnectTime
 	end
-	if Shared.GetTime() > DAK.config.serveradmin.ReconnectTime then
-		if DAK.settings.connectedclients ~= nil then
-			for r = #DAK.settings.connectedclients, 1, -1 do
-				if DAK.settings.connectedclients[r] ~= nil and DAK:GetClientMatchingSteamId(DAK.settings.connectedclients[r].id) == nil then
-					DAK.settings.connectedclients[r] = nil
-				end
-			end
-			DAK:SaveSettings()
+	if DAK.config.serveradmin.ReconnectTime < Shared.GetTime() then
+		if DAK.settings.connectedclients == nil then
+			DAK.settings.connectedclients = { }
 		end
+		for id, conntime in pairs(DAK.settings.connectedclients) do
+			if DAK:GetClientMatchingSteamId(tonumber(id)) == nil then
+				DAK.settings.connectedclients[id] = nil
+			end
+		end
+		DAK:SaveSettings()
 		DAK:DeregisterEventHook("OnServerUpdate", DelayedServerCommandRegistration)
 	end
 end
@@ -402,6 +440,93 @@ end
 
 DAK:RegisterEventHook("OnPluginInitialized", DelayedEventHooks, 5)
 
+function DAK:IsClientBanned(client)
+	if client ~= nil then
+		return DAK:IsSteamIDBanned(client:GetUserId())		
+	end
+	return false, ""
+end
+
+function DAK:IsSteamIDBanned(playerId)
+	playerId = tostring(playerId)
+	if playerId ~= nil then
+		local bentry = DAK.bannedplayers[playerId]
+		if bentry ~= nil then
+			local now = Shared.GetSystemTime()
+			if bentry.time == 0 or now < bentry.time then
+				return true, bentry.reason or "Banned"
+			else
+				LoadBannedPlayers()
+				DAK.bannedplayers[playerId] = nil
+				SaveBannedPlayers()
+			end
+		end
+		local bwentry = BannedPlayersWeb[playerId]
+		if bwentry ~= nil then
+			local now = Shared.GetSystemTime()
+			if bwentry.time == 0 or now < bwentry.time then
+				return true, bwentry.reason or "Banned"
+			else
+				BannedPlayersWeb[playerId] = nil
+				SaveBannedPlayersWeb()
+			end
+		end
+	end
+	return false
+end
+
+function DAK:UnBanSteamID(playerId)
+	playerId = tostring(playerId)
+	if playerId ~= nil then
+		LoadBannedPlayers()
+		if DAK.bannedplayers[playerId] ~= nil then
+			DAK.bannedplayers[playerId] = nil
+			SaveBannedPlayers()
+			return true
+		end
+		if BannedPlayersWeb[playerId] ~= nil then
+			//Submit unban with key
+			//DAK.config.serveradmin.UnBanSubmissionURL
+			//DAK.config.serveradmin.CryptographyKey
+			//OnPlayerUnBannedResponse
+			//Shared.SendHTTPRequest(DAK.config.serveradmin.UnBanSubmissionURL, "GET", OnPlayerUnBannedResponse)
+			return true
+		end
+	end
+	return false
+end
+
+function DAK:AddSteamIDBan(playerId, pname, duration, breason)
+	playerId = tostring(playerId)
+	if playerId ~= nil then
+		local bannedUntilTime = Shared.GetSystemTime()
+		duration = tonumber(duration)
+		if duration == nil or duration <= 0 then
+			bannedUntilTime = 0
+		else
+			bannedUntilTime = bannedUntilTime + (duration * 60)
+		end
+		local bentry = { name = pname, reason = breason, time = bannedUntilTime }
+		
+		if DAK.config.serveradmin.BanSubmissionURL ~= "" then
+			//Submit ban with key, working on logic to hash key
+			//Should these be both submitted to database and logged on server?  My thinking is no here, so going with that moving forward.
+			//DAK.config.serveradmin.BanSubmissionURL
+			//DAK.config.serveradmin.CryptographyKey
+			//Will also want ban response function to reload web bans.
+			//OnPlayerBannedResponse
+			//Shared.SendHTTPRequest(DAK.config.serveradmin.BanSubmissionURL, "POST", bentry, OnPlayerBannedResponse)
+		else
+			LoadBannedPlayers()
+			DAK.bannedplayers[playerId] = bentry
+			SaveBannedPlayers()
+		end
+		
+		return true
+	end
+	return false
+end
+
 local function OnCommandListAdmins(client)
 
 	if DAK.adminsettings ~= nil then
@@ -422,6 +547,27 @@ local function OnCommandListAdmins(client)
 end
 
 DAK:CreateServerAdminCommand("Console_sv_listadmins", OnCommandListAdmins, "Will list all groups and admins.")
+
+local function ListBans(client)
+
+	ServerAdminPrint(client, "Current Bans Listing:")
+	for id, entry in pairs(DAK.bannedplayers) do
+	
+		local timeLeft = entry.time == 0 and "Forever" or (((entry.time - Shared.GetSystemTime()) / 60) .. " minutes")
+		ServerAdminPrint(client, "Name: " .. entry.name .. " Id: " .. id .. " Time Remaining: " .. timeLeft .. " Reason: " .. (entry.reason or "Not provided"))
+		
+	end
+	
+	for id, entry in pairs(BannedPlayersWeb) do
+	
+		local timeLeft = entry.time == 0 and "Forever" or (((entry.time - Shared.GetSystemTime()) / 60) .. " minutes")
+		ServerAdminPrint(client, "Name: " .. entry.name .. " Id: " .. id .. " Time Remaining: " .. timeLeft .. " Reason: " .. (entry.reason or "Not provided"))
+		
+	end
+	
+end
+
+DAK:CreateServerAdminCommand("Console_sv_listbans", ListBans, "Lists the banned players")
 
 local function OnCommandWho(client)
 
@@ -479,7 +625,7 @@ originalNS2CreateServerAdminCommand = Class_ReplaceMethod("Shared", "RegisterNet
 	function(parm1, parm2)
 	
 		if parm1 == "ServerAdminPrint" then
-			if DAK.config and DAK.config.baseadmincommands and DAK:IsPluginEnabled("baseadmincommands") then
+			if DAK:IsPluginEnabled("baseadmincommands") then
 				function CreateServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
 					//Should catch other plugins commands, filters against blacklist to prevent defaults from being registered twice.
 					for c = 1, #DAK.config.baseadmincommands.kBlacklistedCommands do

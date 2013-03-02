@@ -5,28 +5,13 @@ DAK.settings = nil 							//Global variable storing all settings for mods
 local SettingsFileName = "config://DAKSettings.json"
 
 local function LoadDAKSettings()
-	local SettingsFile
-	SettingsFile = io.open(SettingsFileName, "r")
-	if SettingsFile then
-		Shared.Message("Loading DAK settings.")
-		DAK.settings = json.decode(SettingsFile:read("*all"))
-		SettingsFile:close()
-	end
-	if DAK.settings == nil then
-		DAK.settings = { }
-	end
+	DAK.settings = DAK:LoadConfigFile(SettingsFileName) or { }
 end
 
 LoadDAKSettings()
 
 function DAK:SaveSettings()
-
-	local SettingsFile = io.open(SettingsFileName, "w+")
-	if SettingsFile then
-		SettingsFile:write(json.encode(DAK.settings, { indent = true, level = 1 }))
-		SettingsFile:close()
-	end
-
+	DAK:SaveConfigFile(SettingsFileName, DAK.settings)
 end
 
 //Reset Settings file

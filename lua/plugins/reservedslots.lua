@@ -11,22 +11,13 @@ local serverlockstatus = false
 local ReservedPlayersFileName = "config://ReservedPlayers.json"
 
 local function LoadReservedPlayers()
-	local ReservedPlayersFile = io.open(ReservedPlayersFileName, "r")
-	if ReservedPlayersFile then
-		Shared.Message("Loading Reserve slot players.")
-		ReservedPlayers = json.decode(ReservedPlayersFile:read("*all"))
-		ReservedPlayersFile:close()
-	end
+	ReservedPlayers = DAK:LoadConfigFile(ReservedPlayersFileName) or { }
 end
 
 LoadReservedPlayers()
 
 local function SaveReservedPlayers()
-
-	local ReservedPlayersFile = io.open(reservedPlayersFileName, "w+")
-	ReservedPlayersFile:write(json.encode(ReservedPlayers, { indent = true, level = 1 }))
-	ReservedPlayersFile:close()
-	
+	DAK:SaveConfigFile(reservedPlayersFileName, ReservedPlayers)
 end
 
 local function DisconnectClientForReserveSlot(client)
