@@ -136,7 +136,6 @@ function DAK:GetClientIsInGroup(client, gpName)
 				end
 			end
 		end
-        return level
     end
 end
 	
