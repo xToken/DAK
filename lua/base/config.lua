@@ -22,9 +22,9 @@ end
 
 local function LoadDAKConfig()
 	if DAK.config ~= nil then
-		DAK.config = tablemerge(DAK.config, DAK:LoadConfigFile(ConfigFileName) or { })
+		DAK.config = tablemerge(DAK.config, DAK:LoadConfigFile(ConfigFileName))
 	else
-		DAK.config = DAK:LoadConfigFile(ConfigFileName) or { }
+		DAK.config = DAK:LoadConfigFile(ConfigFileName)
 	end
 end
 

@@ -3,6 +3,9 @@
 Initial Version - Plugin versions invidually all over - normalizing for this update, along with loader version - Need to decide how to track plugin revisions - 
 should plugins be updated with each 'build' of DAK, even if there are no changes?  This seems the most logical way to proceed currently, and for the future.
 
+## v0.1.305b
+- Hotfix to prevent first time config generation assert message.
+
 ## v0.1.305a
 - Added new DAKBannedPlayers.json file, will automatically convert old file and leave intact to prevent issues.
 - Adjusted reserveslot plugin to use server functions to determine max and current players, hoping for greater accuracy from these.

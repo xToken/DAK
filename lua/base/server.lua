@@ -14,7 +14,7 @@ if Server then
 	DAK.gameid = { }							//Used to track client joins for game IDs
 	DAK.gaggedplayers = { }						//Used to track gagged clients
 
-	DAK.revisions["loader"] = "0.1.305a"
+	DAK.revisions["loader"] = "0.1.305b"
 	
 	Script.Load("lua/dkjson.lua")
 	Script.Load("lua/base/class.lua")
