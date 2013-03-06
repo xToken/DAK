@@ -1,6 +1,6 @@
 //Messages config
 
-DAK.revisions["messages"] = "0.1.302a"
+DAK.revisions["messages"] = "0.1.305a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }

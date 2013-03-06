@@ -1,11 +1,10 @@
 //reservedslots config
 
-DAK.revisions["reservedslots"] = "0.1.302a"
+DAK.revisions["reservedslots"] = "0.1.305a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }
-	DefaultConfig.kMaximumSlots = 0
-	DefaultConfig.kReservedSlots = 2
+	DefaultConfig.kReservedSlots = 0
 	DefaultConfig.kMinimumSlots = 1
 	DefaultConfig.kDelayedSyncTime = 1
 	DefaultConfig.kDelayedKickTime = 2

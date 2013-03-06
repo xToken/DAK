@@ -86,6 +86,18 @@ originalServerHookNetworkMessage = Class_ReplaceMethod("Server", "HookNetworkMes
 	end
 )
 
+local originalScriptLoad
+
+originalScriptLoad = Class_ReplaceMethod("Script", "Load", 
+	function(file)
+		if DAK.scriptoverrides[file] == nil then 
+			originalScriptLoad(file)
+		elseif DAK.scriptoverrides[file] ~= nil and DAK.scriptoverrides[file] ~= true and tostring(DAK.scriptoverrides[file]) ~= nil then
+			originalScriptLoad(DAK.scriptoverrides[file])
+		end
+	end
+)
+
 local function DelayedEventHooks()
 
 	if DAK.config.loader.GamerulesClassName == nil then DAK.config.loader.GamerulesClassName = "NS2Gamerules" end

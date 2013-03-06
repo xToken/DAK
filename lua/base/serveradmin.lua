@@ -8,8 +8,9 @@ DAK.serveradmincommandshooks = { }
 
 local ServerAdminFileName = "config://ServerAdmin.json"
 local ServerAdminWebFileName = "config://ServerAdminWeb.json"
-local BannedPlayersFileName = "config://BannedPlayers.json"
-local BannedPlayersWebFileName = "config://BannedPlayersWeb.json"
+local DefaultBannedPlayersFileName = "config://BannedPlayers.json"
+local BannedPlayersFileName = "config://DAKBannedPlayers.json"
+local BannedPlayersWebFileName = "config://DAKBannedPlayersWeb.json"
 local BannedPlayersWeb = { }
 local ServerAdminWebCache = { }
 local initialwebupdate = 0
@@ -40,7 +41,7 @@ end
 LoadServerAdminSettings()
 
 local function LoadBannedPlayers()
-	DAK.bannedplayers = DAK:ConvertOldBansFormat(DAK:LoadConfigFile(BannedPlayersFileName)) or { }
+	DAK.bannedplayers = DAK:LoadConfigFile(BannedPlayersFileName) or DAK:ConvertOldBansFormat(DAK:LoadConfigFile(DefaultBannedPlayersFileName)) or { }
 end
 
 LoadBannedPlayers()
@@ -405,40 +406,39 @@ end
 
 DAK:RegisterEventHook("OnServerUpdate", DelayedServerCommandRegistration, 5)
 
-local function DelayedEventHooks()
+local kMaxPrintLength = 128
+local kServerAdminMessage =
+{
+	message = string.format("string (%d)", kMaxPrintLength),
+}
+Shared.RegisterNetworkMessage("ServerAdminPrint", kServerAdminMessage)
 
-	local kMaxPrintLength = 128
+function ServerAdminPrint(client, message)
 
-    function ServerAdminPrint(client, message)
-    
-        if client then
-        
-            // First we must split up the message into a list of messages no bigger than kMaxPrintLength each.
-            local messageList = { }
-            while string.len(message) > kMaxPrintLength do
-            
-                local messagePart = string.sub(message, 0, kMaxPrintLength)
-                table.insert(messageList, messagePart)
-                message = string.sub(message, kMaxPrintLength + 1)
-                
-            end
-            table.insert(messageList, message)
-            
-            for m = 1, #messageList do
-                Server.SendNetworkMessage(client:GetControllingPlayer(), "ServerAdminPrint", { message = messageList[m] }, true)
-            end
-			
-		else
+	if client then
+	
+		// First we must split up the message into a list of messages no bigger than kMaxPrintLength each.
+		local messageList = { }
+		while string.len(message) > kMaxPrintLength do
 		
-			Shared.Message(message)
-            
-        end
-        
-    end
-
+			local messagePart = string.sub(message, 0, kMaxPrintLength)
+			table.insert(messageList, messagePart)
+			message = string.sub(message, kMaxPrintLength + 1)
+			
+		end
+		table.insert(messageList, message)
+		
+		for m = 1, #messageList do
+			Server.SendNetworkMessage(client:GetControllingPlayer(), "ServerAdminPrint", { message = messageList[m] }, true)
+		end
+		
+	else
+	
+		Shared.Message(message)
+		
+	end
+	
 end
-
-DAK:RegisterEventHook("OnPluginInitialized", DelayedEventHooks, 5)
 
 function DAK:IsClientBanned(client)
 	if client ~= nil then
@@ -617,33 +617,5 @@ end
 
 DAK:CreateServerAdminCommand("Console_sv_help", PrintHelpForCommand, "Prints help for all commands or the specified command.", true)
 
-//This is so derp, but re-registering function to override builtin admin system without having to modify core NS2 files
-//Using registration of ServerAdminPrint network message for the correct timing
-local originalNS2CreateServerAdminCommand
-
-originalNS2CreateServerAdminCommand = Class_ReplaceMethod("Shared", "RegisterNetworkMessage", 
-	function(parm1, parm2)
-	
-		if parm1 == "ServerAdminPrint" then
-			if DAK:IsPluginEnabled("baseadmincommands") then
-				function CreateServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
-					//Should catch other plugins commands, filters against blacklist to prevent defaults from being registered twice.
-					for c = 1, #DAK.config.baseadmincommands.kBlacklistedCommands do
-						local command = DAK.config.baseadmincommands.kBlacklistedCommands[c]
-						if commandName == command then
-							return
-						end
-					end
-					//Assume its not blacklisted and proceed.
-					CreateBaseServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
-				end
-			end
-		end
-		if parm2 == nil then
-			originalNS2CreateServerAdminCommand(parm1)
-		else
-			originalNS2CreateServerAdminCommand(parm1, parm2)
-		end
-
-	end
-)
+//Block Default ServerAdmin load
+DAK:OverrideScriptLoad("lua/ServerAdmin.lua")

@@ -1,6 +1,6 @@
 //afkkick default config
 
-DAK.revisions["pause"] = "0.1.302a"
+DAK.revisions["pause"] = "0.1.305a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }

@@ -155,6 +155,12 @@ function DAK:ClearEventHooks(event)
 	end
 end
 
+function DAK:OverrideScriptLoad(scripttoreplace, newscript)
+	//Register overload.
+	self.scriptoverrides[scripttoreplace] = newscript or true
+end
+
+
 function DAK:RetrieveNetworkMessageLocation(netmsg)
 	for i = #self.registerednetworkmessages, 1, -1 do
 		if self.registerednetworkmessages[i] == netmsg then
