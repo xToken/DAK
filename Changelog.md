@@ -3,6 +3,12 @@
 Initial Version - Plugin versions invidually all over - normalizing for this update, along with loader version - Need to decide how to track plugin revisions - 
 should plugins be updated with each 'build' of DAK, even if there are no changes?  This seems the most logical way to proceed currently, and for the future.
 
+## v0.1.305a
+- Added new DAKBannedPlayers.json file, will automatically convert old file and leave intact to prevent issues.
+- Adjusted reserveslot plugin to use server functions to determine max and current players, hoping for greater accuracy from these.
+- Changed reserveslot plugin to reapply the password each periodic scan or when the player count changes.
+- Added the ability to block or replace the loading of a script file with another file.
+
 ## v0.1.302a
 - Updated bans and many other playerID arrays to be NS2ID indexed.  Included conversion function for old arrays.
 - Added some events to pause plugin for new features.
