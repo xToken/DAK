@@ -1,6 +1,6 @@
 //CommBans default config
 
-DAK.revisions["commbans"] = "0.1.305b"
+DAK.revisions["commbans"] = "0.1.306a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }

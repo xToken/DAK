@@ -8,9 +8,8 @@ DAK.serveradmincommandshooks = { }
 
 local ServerAdminFileName = "config://ServerAdmin.json"
 local ServerAdminWebFileName = "config://ServerAdminWeb.json"
-local DefaultBannedPlayersFileName = "config://BannedPlayers.json"
-local BannedPlayersFileName = "config://DAKBannedPlayers.json"
-local BannedPlayersWebFileName = "config://DAKBannedPlayersWeb.json"
+local BannedPlayersFileName = "config://BannedPlayers.json"
+local BannedPlayersWebFileName = "config://BannedPlayersWeb.json"
 local BannedPlayersWeb = { }
 local ServerAdminWebCache = { }
 local initialwebupdate = 0
@@ -41,13 +40,13 @@ end
 LoadServerAdminSettings()
 
 local function LoadBannedPlayers()
-	DAK.bannedplayers = DAK:LoadConfigFile(BannedPlayersFileName) or DAK:ConvertOldBansFormat(DAK:LoadConfigFile(DefaultBannedPlayersFileName)) or { }
+	DAK.bannedplayers = DAK:ConvertFromOldBansFormat(DAK:LoadConfigFile(BannedPlayersFileName)) or { }
 end
 
 LoadBannedPlayers()
 
 local function SaveBannedPlayers()
-	DAK:SaveConfigFile(BannedPlayersFileName, DAK.bannedplayers)
+	DAK:SaveConfigFile(BannedPlayersFileName, DAK:ConvertToOldBansFormat(DAK.bannedplayers))
 end
 
 local function LoadServerAdminWebSettings()
@@ -447,7 +446,7 @@ function DAK:IsClientBanned(client)
 end
 
 function DAK:IsSteamIDBanned(playerId)
-	playerId = tostring(playerId)
+	playerId = tonumber(playerId)
 	if playerId ~= nil then
 		local bentry = DAK.bannedplayers[playerId]
 		if bentry ~= nil then
@@ -475,7 +474,7 @@ function DAK:IsSteamIDBanned(playerId)
 end
 
 function DAK:UnBanSteamID(playerId)
-	playerId = tostring(playerId)
+	playerId = tonumber(playerId)
 	if playerId ~= nil then
 		LoadBannedPlayers()
 		if DAK.bannedplayers[playerId] ~= nil then
@@ -496,7 +495,7 @@ function DAK:UnBanSteamID(playerId)
 end
 
 function DAK:AddSteamIDBan(playerId, pname, duration, breason)
-	playerId = tostring(playerId)
+	playerId = tonumber(playerId)
 	if playerId ~= nil then
 		local bannedUntilTime = Shared.GetSystemTime()
 		duration = tonumber(duration)

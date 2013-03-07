@@ -1,6 +1,6 @@
 //automapcycle default config
 
-DAK.revisions["automapcycle"] = "0.1.305b"
+DAK.revisions["automapcycle"] = "0.1.306a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }

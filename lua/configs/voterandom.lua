@@ -1,6 +1,6 @@
 //reservedslots config
 
-DAK.revisions["voterandom"] = "0.1.305b"
+DAK.revisions["voterandom"] = "0.1.306a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }

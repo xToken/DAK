@@ -344,7 +344,7 @@ local function Ban(client, playerId, name, duration, ...)
 		if not DAK:GetLevelSufficient(client, playerId) then
 			return
 		end
-		if DAK:AddSteamIDBan(tonumber(playerId), name or "Unavailable", duration, reason) then
+		if DAK:AddSteamIDBan(tonumber(playerId), name or "Unknown", duration, reason) then
 			ServerAdminPrint(client, "Player with SteamId " .. playerId .. " has been banned.")
 			DAK:PrintToAllAdmins("sv_ban", client, string.format("on SteamID:%s for %s for %s.", playerId, duration, reason))
 		end

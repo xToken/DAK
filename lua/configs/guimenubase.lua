@@ -1,6 +1,6 @@
 //GUIMenuBase config
 
-DAK.revisions["guimenubase"] = "0.1.305b"
+DAK.revisions["guimenubase"] = "0.1.306a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }

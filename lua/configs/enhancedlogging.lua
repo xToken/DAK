@@ -1,6 +1,6 @@
 //enhanced logging default config
 
-DAK.revisions["enhancedlogging"] = "0.1.305b"
+DAK.revisions["enhancedlogging"] = "0.1.306a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }
