@@ -1,6 +1,6 @@
 //tournamentmode config
 
-DAK.revisions["tournamentmode"] = "0.1.306a"
+DAK.revisions["tournamentmode"] = "0.1.307a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }
@@ -11,6 +11,7 @@ local function SetupDefaultConfig()
 	DefaultConfig.kTournamentModePubGameStartDelay = 15
 	DefaultConfig.kTournamentModeAlertDelay = 30
 	DefaultConfig.kTournamentModeReadyDelay = 2
+	DefaultConfig.kTournamentModeRestartDuration = 120
 	DefaultConfig.kTournamentModeGameStartDelay = 15
 	DefaultConfig.kTournamentModeCountdownDelay = 5
 	DefaultConfig.kTournamentModeFriendlyFirePercent = 0.33

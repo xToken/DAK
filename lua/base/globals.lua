@@ -544,9 +544,9 @@ function DAK:ConvertFromOldBansFormat(bandata)
 		for id, entry in pairs(bandata) do
 			if entry ~= nil then
 				if entry.id ~= nil then
-					newdata[entry.id] = { name = entry.name or "Unknown", reason = entry.reason or "NotProvided", time = entry.time or 0 }
+					newdata[tonumber(entry.id)] = { name = entry.name or "Unknown", reason = entry.reason or "NotProvided", time = entry.time or 0 }
 				elseif id ~= nil then
-					newdata[id] = { name = entry.name or "Unknown", reason = entry.reason or "NotProvided", time = entry.time or 0 }
+					newdata[tonumber(id)] = { name = entry.name or "Unknown", reason = entry.reason or "NotProvided", time = entry.time or 0 }
 				end			
 			end
 		end
@@ -560,9 +560,10 @@ function DAK:ConvertToOldBansFormat(bandata)
 		for id, entry in pairs(bandata) do
 			if entry ~= nil then
 				if entry.id ~= nil then
+					entry.id = tonumber(entry.id)
 					table.insert(newdata, entry)
 				elseif id ~= nil then
-					local bentry = { id = id, name = entry.name or "Unknown", reason = entry.reason or "NotProvided", time = entry.time or 0 }
+					local bentry = { id = tonumber(id), name = entry.name or "Unknown", reason = entry.reason or "NotProvided", time = entry.time or 0 }
 					table.insert(newdata, bentry)
 				end			
 			end

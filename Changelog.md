@@ -3,6 +3,10 @@
 Initial Version - Plugin versions invidually all over - normalizing for this update, along with loader version - Need to decide how to track plugin revisions - 
 should plugins be updated with each 'build' of DAK, even if there are no changes?  This seems the most logical way to proceed currently, and for the future.
 
+## v0.1.307a
+- Updated tournamentmode plugin to allow restarts of round in the first 2 minutes (configurable).
+- Corrected issue with ban reasons being lost, and also with ids sometimes being indexed as strings.
+
 ## v0.1.306a
 - Changed bans back to using old file (BannedPlayers.json).  DAK will still convert the list to the ID indexed format, but then converts it back to save.  Will revisit this 
 in the future if the additional properties get added/are requested.

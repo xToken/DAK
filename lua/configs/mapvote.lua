@@ -1,6 +1,6 @@
 //mapvote config
 
-DAK.revisions["mapvote"] = "0.1.306a"
+DAK.revisions["mapvote"] = "0.1.307a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }

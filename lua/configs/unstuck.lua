@@ -1,6 +1,6 @@
 //unstuck config
 
-DAK.revisions["unstuck"] = "0.1.306a"
+DAK.revisions["unstuck"] = "0.1.307a"
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }

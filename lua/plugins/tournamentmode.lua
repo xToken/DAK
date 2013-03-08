@@ -1,6 +1,6 @@
 //NS2 Tournament Mod Server side script
 
-local TournamentModeSettings = { countdownstarted = false, countdownstarttime = 0, countdownstartcount = 0, lastmessage = 0, official = false}
+local TournamentModeSettings = { countdownstarted = false, countdownstarttime = 0, countdownstartcount = 0, lastmessage = 0, official = false, roundstarted = 0}
 
 local function LoadTournamentMode()
 	if DAK.settings.TournamentMode then
@@ -33,6 +33,8 @@ local function StartCountdown(gamerules)
 		gamerules:SetGameState(kGameState.Countdown)      
 		gamerules.countdownTime = kCountDownLength     
 		gamerules.lastCountdownPlayed = nil 
+		TournamentModeSettings.roundstarted = Shared.GetTime()
+		//kTournamentModeRestartDuration
 	end
 end
 
@@ -43,6 +45,7 @@ local function ClearTournamentModeState()
 	TournamentModeSettings.countdownstarttime = 0
 	TournamentModeSettings.countdownstartcount = 0
 	TournamentModeSettings.lastmessage = 0
+	TournamentModeSettings.roundstarted = 0
 end
 
 ClearTournamentModeState()
@@ -327,7 +330,8 @@ end
 local function OnCommandReady(client)
 	local gamerules = GetGamerules()
 	if gamerules ~= nil and client ~= nil then
-		if DAK.settings.TournamentMode and (gamerules:GetGameState() == kGameState.NotStarted or gamerules:GetGameState() == kGameState.PreGame) and not DAK.config.tournamentmode.kTournamentModePubMode then
+		if DAK.settings.TournamentMode and (gamerules:GetGameState() == kGameState.NotStarted or gamerules:GetGameState() == kGameState.PreGame or (TournamentModeSettings.roundstarted ~= 0 and TournamentModeSettings.roundstarted + DAK.config.tournamentmode.kTournamentModeRestartDuration < Shared.GetTime())) and not DAK.config.tournamentmode.kTournamentModePubMode then
+			gamerules:SetGameState(kGameState.PreGame)
 			ClientReady(client)
 		end
 	end

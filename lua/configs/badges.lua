@@ -1,6 +1,6 @@
 //badges
 
-DAK.revisions["badges"] = "0.1.306a"
+DAK.revisions["badges"] = "0.1.307a"
 
 local function SetupDefaultConfig()
 	//DAK.config.Badges = { }

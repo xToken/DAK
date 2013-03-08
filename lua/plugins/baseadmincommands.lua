@@ -320,11 +320,8 @@ DAK:CreateServerAdminCommand("Console_sv_password", SetPassword, "<string> Chang
 local function Ban(client, playerId, name, duration, ...)
 
 	local player = DAK:GetPlayerMatching(playerId)
-	local reason =  "No Reason"
+	local reason =  StringConcatArgs(...) or "No Reason"
 	duration = tonumber(duration) or 0
-	if args ~= nil then
-		reason = StringConcatArgs(...)
-	end
 	if player then
 		if not DAK:GetLevelSufficient(client, player) then
 			return
