@@ -1,7 +1,5 @@
 //serverredirect default config
 
-DAK.revisions["serverredirect"] = "0.1.307a"
-
 local function SetupDefaultConfig()
 	local DefaultConfig = { }
 	DefaultConfig.Servers = { "127.0.0.1:27015" }

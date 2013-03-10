@@ -203,31 +203,26 @@ Event.Hook("Console_vote",               OnCommandVote)
 
 local function OnCommandUpdateVote(cID, LastUpdateMessage)
 	//OnVoteUpdateFunction
-	local kVoteUpdateMessage = DAK:ExecutePluginGlobalFunction("guimenubase", CreateMenuBaseNetworkMessage)
-	if kVoteUpdateMessage == nil then
-		kVoteUpdateMessage = { }
-	end
 	if mapvoterunning then
+		local kVoteUpdateMessage = DAK:ExecutePluginGlobalFunction("guimenubase", CreateMenuBaseNetworkMessage)
+		if kVoteUpdateMessage == nil then
+			kVoteUpdateMessage = { }
+		end
 		local client =  DAK:GetClientMatchingGameId(cID)
-		kVoteUpdateMessage.header = string.format(DAK:GetLanguageSpecificMessage("VoteMapTimeLeft", DAK:GetClientLanguageSetting(client)), mapvotedelay - Shared.GetTime())
+		kVoteUpdateMessage.header = string.format("%.1f seconds are left to vote.", mapvotedelay - Shared.GetTime())
 		i = 1
 		for map, votes in pairs(MapVotes) do
-			local message = string.format(DAK:GetLanguageSpecificMessage("VoteMapCurrentMapVotes", DAK:GetClientLanguageSetting(client)), votes, VotingMaps[map], i)
+			local message = string.format("%s votes for %s.", votes, VotingMaps[map], i)
 			if i == 1 then
-				kVoteUpdateMessage.option1 = "1: = "
-				kVoteUpdateMessage.option1desc = message
+				kVoteUpdateMessage.option1 = message
 			elseif i == 2 then
-				kVoteUpdateMessage.option2 = "2: = "
-				kVoteUpdateMessage.option2desc = message
+				kVoteUpdateMessage.option2 = message
 			elseif i == 3 then
-				kVoteUpdateMessage.option3 = "3: = "
-				kVoteUpdateMessage.option3desc = message
+				kVoteUpdateMessage.option3 = message
 			elseif i == 4 then
-				kVoteUpdateMessage.option4 = "4: = "
-				kVoteUpdateMessage.option4desc = message
+				kVoteUpdateMessage.option4 = message
 			elseif i == 5 then
-				kVoteUpdateMessage.option5 = "5: = "
-				kVoteUpdateMessage.option5desc = message
+				kVoteUpdateMessage.option5 = message
 			end
 			i = i + 1
 		end
@@ -236,8 +231,10 @@ local function OnCommandUpdateVote(cID, LastUpdateMessage)
 		if client ~= nil then
 			kVoteUpdateMessage.inputallowed = PlayerVotes[client:GetUserId()] == nil
 		end
+		return kVoteUpdateMessage
+	else
+		return LastUpdateMessage
 	end
-	return kVoteUpdateMessage
 end
 
 local function ProcessandSelectMap()
@@ -374,10 +371,10 @@ local function UpdateMapVotes(deltaTime)
 		
 			UpdateMapVoteCountDown()
 			
-			//local playerRecords = Shared.GetEntitiesWithClassname("Player")				
-			//for _, player in ientitylist(playerRecords) do
-				//DAK:ExecutePluginGlobalFunction("guimenubase", CreateGUIMenuBase, DAK:GetGameIdMatchingPlayer(player), OnCommandVote, OnCommandUpdateVote)
-			//end
+			local playerRecords = Shared.GetEntitiesWithClassname("Player")				
+			for _, player in ientitylist(playerRecords) do
+				DAK:ExecutePluginGlobalFunction("guimenubase", CreateGUIMenuBase, DAK:GetGameIdMatchingPlayer(player), OnCommandVote, OnCommandUpdateVote)
+			end
 			
 		end
 		

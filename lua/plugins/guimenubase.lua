@@ -14,7 +14,10 @@ local function UpdateMenus(deltatime)
 		if kRunningMenus[i] ~= nil and kRunningMenus[i].UpdateTime ~= nil then
 			if (Shared.GetTime() - kRunningMenus[i].UpdateTime) >= DAK.config.guimenubase.kMenuUpdateRate then
 				local newMenuBaseUpdateMessage = kRunningMenus[i].MenuUpdateFunction(kRunningMenus[i].clientGameId, kRunningMenus[i].MenuBaseUpdateMessage)
-				//Always send updated message, even if nil - Will force update client side to hide menu/whatever.
+				//Check to see if message is updated, if not then send term message and clear
+				if newMenuBaseUpdateMessage == kRunningMenus[i].MenuBaseUpdateMessage then
+					newMenuBaseUpdateMessage.menutime = 0
+				end
 				Server.SendNetworkMessage(DAK:GetPlayerMatchingGameId(kRunningMenus[i].clientGameId), "GUIMenuBase", newMenuBaseUpdateMessage, false)						
 				kRunningMenus[i].MenuBaseUpdateMessage = newMenuBaseUpdateMessage
 				if newMenuBaseUpdateMessage ~= nil and  newMenuBaseUpdateMessage.menutime ~= nil and newMenuBaseUpdateMessage.menutime ~= 0 then
@@ -56,15 +59,10 @@ function CreateMenuBaseNetworkMessage()
 	local kVoteUpdateMessage = { }
 	kVoteUpdateMessage.header = ""
 	kVoteUpdateMessage.option1 = ""
-	kVoteUpdateMessage.option1desc = ""
 	kVoteUpdateMessage.option2 = ""
-	kVoteUpdateMessage.option2desc = ""
 	kVoteUpdateMessage.option3 = ""
-	kVoteUpdateMessage.option3desc = ""
 	kVoteUpdateMessage.option4 = ""
-	kVoteUpdateMessage.option4desc = ""
 	kVoteUpdateMessage.option5 = ""
-	kVoteUpdateMessage.option5desc = ""
 	kVoteUpdateMessage.footer = ""
 	kVoteUpdateMessage.inputallowed = false
 	kVoteUpdateMessage.menutime = Shared.GetTime()

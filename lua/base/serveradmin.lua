@@ -71,7 +71,8 @@ function DAK:GetGroupCanRunCommand(groupName, commandName)
 
 	local group = DAK.adminsettings.groups[groupName]
 	if not group then
-		error("There is no group defined with name: " .. groupName)
+		Shared.Message("Invalid groupname defined : " .. groupName)
+		return false
 	end
 	
 	local existsInList = false
@@ -91,7 +92,8 @@ function DAK:GetGroupCanRunCommand(groupName, commandName)
 	elseif group.type == "disallowed" then
 		return not existsInList
 	else
-		error("Only \"allowed\" and \"disallowed\" are valid terms for the type of the admin group")
+		Shared.Message(string.format("Invalid grouptype - %s defined on group - %s.", tostring(group.type), groupName))
+		return false
 	end
 	
 end

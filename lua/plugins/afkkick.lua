@@ -17,7 +17,7 @@ function GetIsPlayerAFK(player)
 		for i = #AFKClientTracker, 1, -1 do
 			local PEntry = AFKClientTracker[i]
 			if PEntry ~= nil and PEntry.ID == client:GetUserId() then
-				if player:GetViewAngles() == PEntry.MVec and player:GetOrigin() == PEntry.POrig then
+				if player:GetViewAngles() == PEntry.MVec and player:GetOrigin() == PEntry.POrig and PEntry.Time - Shared.GetTime() < (DAK.config.afkkick.kAFKKickDelay - 30) then
 					return true
 				end
 			end

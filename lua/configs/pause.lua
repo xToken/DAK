@@ -1,7 +1,5 @@
 //afkkick default config
 
-DAK.revisions["pause"] = "0.1.307a"
-
 local function SetupDefaultConfig()
 	local DefaultConfig = { }
 	DefaultConfig.kPauseChangeDelay = 5

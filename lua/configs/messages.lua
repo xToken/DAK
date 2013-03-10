@@ -1,7 +1,5 @@
 //Messages config
 
-DAK.revisions["messages"] = "0.1.307a"
-
 local function SetupDefaultConfig()
 	local DefaultConfig = { }
 	DefaultConfig.kMessagesPerTick = 5

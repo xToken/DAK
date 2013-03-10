@@ -316,15 +316,19 @@ function DAK:ShuffledPlayerList()
 
 	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
 	for i = #playerList, 1, -1 do
-		if playerList[i]:GetTeamNumber() ~= 0 or self:IsPlayerAFK(playerList[i]) then
-			table.remove(playerList, i)
+		if playerList[i] ~= nil then
+			if playerList[i]:GetTeamNumber() ~= 0 or DAK:IsPlayerAFK(playerList[i]) then
+				table.remove(playerList, i)
+			end
 		end
 	end
 	for i = 1, (#playerList) do
 		r = math.random(1, #playerList)
-		local iplayer = playerList[i]
-		playerList[i] = playerList[r]
-		playerList[r] = iplayer
+		if i ~= r then
+			local iplayer = playerList[i]
+			playerList[i] = playerList[r]
+			playerList[r] = iplayer
+		end
 	end
 	return playerList
 	

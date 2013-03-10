@@ -1,7 +1,5 @@
 //CommBans default config
 
-DAK.revisions["commbans"] = "0.1.307a"
-
 local function SetupDefaultConfig()
 	local DefaultConfig = { }
 	DefaultConfig.kMinVotesNeeded = 2

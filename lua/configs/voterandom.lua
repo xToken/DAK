@@ -1,7 +1,5 @@
 //reservedslots config
 
-DAK.revisions["voterandom"] = "0.1.307a"
-
 local function SetupDefaultConfig()
 	local DefaultConfig = { }
 	DefaultConfig.kVoteRandomInstantly = false
