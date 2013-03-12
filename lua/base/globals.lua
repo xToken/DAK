@@ -155,6 +155,43 @@ function DAK:ClearEventHooks(event)
 	end
 end
 
+function DAK:SetupTimedCallBack(callfunc, calltime, ...)
+	if callfunc ~= nil and tonumber(calltime) ~= nil then
+		local callback = {func = callfunc, when = (Shared.GetTime() + tonumber(calltime)), args = arg, lastinterval = tonumber(calltime)}
+		table.insert(self.timedcalledbacks, callback)
+		return true
+	end
+	return false
+end
+
+function DAK:UpdateTimedCallBackArgs(callfunc, ...)
+	for i = #self.timedcalledbacks, 1, -1 do
+		if self.timedcalledbacks[i] ~= nil then
+			if self.timedcalledbacks[i].func == callfunc then
+				self.timedcalledbacks[i].args = arg
+			end
+		end
+	end
+end
+
+function DAK:ProcessTimedCallBacks()
+	for i = #self.timedcalledbacks, 1, -1 do
+		if self.timedcalledbacks[i] ~= nil then
+			if type(self.timedcalledbacks[i].func) == "function" and self.timedcalledbacks[i].when < Shared.GetTime() then
+				local result = self.timedcalledbacks[i].func(unpack(self.timedcalledbacks[i].args or { }))
+				if result == nil or result == false then
+					self.timedcalledbacks[i] = nil
+				elseif result == true then
+					self.timedcalledbacks[i].when = Shared.GetTime() + self.timedcalledbacks[i].lastinterval
+				elseif tonumber(result) ~= nil then
+					self.timedcalledbacks[i].when = Shared.GetTime() + tonumber(result)
+					self.timedcalledbacks[i].lastinterval = tonumber(result)
+				end
+			end
+		end
+	end
+end
+
 function DAK:OverrideScriptLoad(scripttoreplace, newscript)
 	//Register overload.
 	self.scriptoverrides[scripttoreplace] = newscript or true

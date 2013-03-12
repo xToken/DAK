@@ -7,13 +7,14 @@ if Server then
 
 	DAK.events = { }							//List used to track events, used by event hook system.
 	DAK.scriptoverrides = { }					//List used to track script replacements/blocks.
+	DAK.timedcalledbacks = { }					//List used to track timed calledbacks.
 	DAK.networkmessagefunctions = { }			//List used to track network message functions, can be used to replace functions raised on network message recieving.
 	DAK.registerednetworkmessages = { }			//List used to track network messages to their corresponding functions.
 	DAK.chatcommands = { }						//List of chat commands.
 	DAK.gameid = { }							//Used to track client joins for game IDs
 	DAK.gaggedplayers = { }						//Used to track gagged clients
 
-	DAK.version = "0.1.309a"
+	DAK.version = "0.1.311a"
 	
 	Script.Load("lua/dkjson.lua")
 	Script.Load("lua/base/class.lua")

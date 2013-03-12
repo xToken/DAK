@@ -3,6 +3,9 @@
 Initial Version - Plugin versions invidually all over - normalizing for this update, along with loader version - Need to decide how to track plugin revisions - 
 should plugins be updated with each 'build' of DAK, even if there are no changes?  This seems the most logical way to proceed currently, and for the future.
 
+## v0.1.311a
+- Added timed callbacks to API - will be called each interval passed if true is returned.  A number can be returned to adjust interval, and false/nil can be returned to stop execution.  The callback args can also be updated.
+
 ## v0.1.309a
 - Adjusted AFK Plugin to only flag players as afk after 30 seconds (instead of instantly)
 - Corrected assert from ShuffledPlayerList function

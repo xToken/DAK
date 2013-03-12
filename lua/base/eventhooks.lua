@@ -40,6 +40,7 @@ local function DAKUpdateServer(deltaTime)
 	if DAK.config and DAK.config.loader then
 		serverupdatetime = serverupdatetime + deltaTime
 		DAK:ExecuteEventHooks("OnServerUpdateEveryFrame", deltaTime)
+		DAK:ProcessTimedCallBacks()
 		if DAK.config.loader.DelayedServerUpdate and serverupdatetime > DAK.config.loader.DelayedServerUpdate then
 		
 			DAK:ExecuteEventHooks("OnServerUpdate", serverupdatetime)
@@ -238,6 +239,14 @@ local function DelayedEventHooks()
 
 		end
 	)
+	
+	function GetBannedPlayersList()
+		local returnList = { }
+		for bid, entry in pairs(DAK.bannedplayers) do
+			table.insert(returnList, { name = entry.name, id = bid, reason = entry.reason, time = entry.time })  
+		end
+		return returnList
+	end
 
 	Script.Load("lua/base/mapcycle.lua")
 	
