@@ -9,26 +9,18 @@ Script.Load("lua/base/shared.lua")
 Script.Load("lua/base/class.lua")
 
 local function OnClientLoaded()
-
-	local originalNS2PlayerOnInit
-		
-	originalNS2PlayerOnInit = Class_ReplaceMethod("Player", "OnInitLocalClient", 
-		function(self)
-		
-			originalNS2PlayerOnInit(self)
-			if self.guivotebase == nil then
-				self.guivotebase = GetGUIManager():CreateGUIScriptSingle("gui/GUIMenuBase")
-			end		
-			
-		end
-	)
-	
+	if guimenubase == nil then
+		guimenubase = GetGUIManager():CreateGUIScriptSingle("gui/GUIMenuBase")			
+	end
+	Shared.ConsoleCommand("RegisterClientMenus")
 end
 
 Event.Hook("LoadComplete", OnClientLoaded)
 
 local function OnClientDisconnected()
-	GetGUIManager():DestroyGUIScriptSingle("gui/GUIMenuBase")
+	if guimenubase ~= nil then
+		GetGUIManager():DestroyGUIScriptSingle("gui/GUIMenuBase")
+	end
 end
 
 Event.Hook("ClientDisconnected", OnClientDisconnected)

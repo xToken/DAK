@@ -281,29 +281,33 @@ function DAK:UpdateConnectionTimeTracker(client)
 		DAK.settings.connectedclients = { }
 	end
 	if client ~= nil then
-		local steamId = tostring(client:GetUserId())
-		if DAK.settings.connectedclients[steamId] == nil then
+		local steamId = tonumber(client:GetUserId())
+		if DAK.settings.connectedclients[steamId] == nil or tonumber(DAK.settings.connectedclients[steamId]) == nil then
 			DAK.settings.connectedclients[steamId] = Shared.GetSystemTime()
-			DAK:SaveSettings()
 		end
 	end
 end
 
 function DAK:RemoveConnectionTimeTracker(client)
 	if client ~= nil and self.settings.connectedclients ~= nil then
-		local steamId = tostring(client:GetUserId())
+		local steamId = tonumber(client:GetUserId())
 		if steamId ~= nil then
 			DAK.settings.connectedclients[steamId] = nil
-			DAK:SaveSettings()
 		end
 	end
 end
 
 function DAK:GetClientConnectionTime(client)
 	if client ~= nil and DAK.settings.connectedclients ~= nil then
-		local steamId = tostring(client:GetUserId())
+		local steamId = tonumber(client:GetUserId())
 		if steamId ~= nil then
-			return math.floor(Shared.GetSystemTime() - DAK.settings.connectedclients[steamId])
+			if DAK.settings.connectedclients[steamId] ~= nil and tonumber(DAK.settings.connectedclients[steamId]) ~= nil then
+				return math.floor(Shared.GetSystemTime() - DAK.settings.connectedclients[steamId])
+			else
+				//This shouldnt happen, but I think somehow it is :/
+				DAK.settings.connectedclients[steamId] = Shared.GetSystemTime()
+				return 0
+			end
 		end
 	end
 	return 0
@@ -514,9 +518,26 @@ function DAK:GetGameIdMatchingClient(client)
 	return 0
 end
 
+function DAK:GetSteamIdMatchingClient(client)
+
+	if client ~= nil and self:VerifyClient(client) ~= nil then
+		local steamId = client:GetUserId()
+		if steamId ~= nil and tonumber(steamId) ~= nil then
+			return steamId
+		end
+	end
+	
+	return 0
+end
+
 function DAK:GetGameIdMatchingPlayer(player)
 	local client = Server.GetOwner(player)
 	return self:GetGameIdMatchingClient(client)
+end
+
+function DAK:GetSteamIdMatchingPlayer(player)
+	local client = Server.GetOwner(player)
+	return self:GetSteamIdMatchingClient(client)
 end
 
 function DAK:GetClientMatchingSteamId(steamId)

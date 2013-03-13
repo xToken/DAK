@@ -6,10 +6,10 @@ class 'GUIMenuBase' (GUIScript)
 
 local kFontName = "fonts/AgencyFB_medium.fnt"
 local kFontScale = GUIScale(Vector(1,1,0)) * 0.7
-local kTextYOffset = GUIScale(-150)
-local kTextYIncrement = GUIScale(30)
+local kTextYOffset = GUIScale(-250)
+local kTextYIncrement = GUIScale(25)
 local kTextXOffset = GUIScale(75)
-local kDescriptionTextXOffset = GUIScale(110)
+local kDescriptionTextXOffset = GUIScale(90)
 local kUpdateLifetime = 10
 
 local function OnCommandMenuUpdate(MenuBaseUpdateMessage)
@@ -29,6 +29,62 @@ local function OnCommandMenuBase(parm1)
 end
 
 Event.Hook("Console_menubase", OnCommandMenuBase)
+
+//Hardcoded binds for extra slots :/
+local function UpdateGUIMenu(slot)
+	local GUIMenuBase = GetGUIManager():GetGUIScriptSingle("gui/GUIMenuBase")
+	if GUIMenuBase then
+		GUIMenuBase:ExternalKeyInputs(slot)
+	end
+end
+
+local function slot6()
+	UpdateGUIMenu("6")
+end
+
+Event.Hook("Console_slot6", slot6)
+
+local function slot7()
+	UpdateGUIMenu("7")
+end
+
+Event.Hook("Console_slot7", slot7)
+
+local function slot8()
+	UpdateGUIMenu("8")
+end
+
+Event.Hook("Console_slot8", slot8)
+
+local function slot9()
+	UpdateGUIMenu("9")
+end
+
+Event.Hook("Console_slot9", slot9)
+
+local function slot0()
+	UpdateGUIMenu("0")
+end
+
+Event.Hook("Console_slot0", slot0)
+
+local bindings = LoadConfigFile("ConsoleBindings.json") or { }
+
+if bindings["Num6"] == nil then
+	Shared.ConsoleCommand("bind Num6 slot6")
+end
+if bindings["Num7"] == nil then
+	Shared.ConsoleCommand("bind Num7 slot7")
+end
+if bindings["Num8"] == nil then
+	Shared.ConsoleCommand("bind Num8 slot8")
+end
+if bindings["Num9"] == nil then
+	Shared.ConsoleCommand("bind Num9 slot9")
+end
+if bindings["Num0"] == nil then
+	Shared.ConsoleCommand("bind Num0 slot0")
+end
 
 function GUIMenuBase:Initialize()
 	self.headerText = GUIManager:CreateTextItem()
@@ -141,11 +197,111 @@ function GUIMenuBase:Initialize()
     self.option5desctext:SetScale(kFontScale)
     self.option5desctext:SetColor(Color(1,1,1,1))
 	
+	self.option6text = GUIManager:CreateTextItem()
+    self.option6text:SetAnchor(GUIItem.Left, GUIItem.Middle)
+    self.option6text:SetTextAlignmentX(GUIItem.Align_Center)
+    self.option6text:SetTextAlignmentY(GUIItem.Align_Center)
+    self.option6text:SetPosition(Vector(kTextXOffset, kTextYOffset + (kTextYIncrement * 7), 0))
+    self.option6text:SetInheritsParentAlpha(true)
+    self.option6text:SetFontName(kFontName)
+    self.option6text:SetScale(kFontScale)
+    self.option6text:SetColor(Color(1,1,1,1))
+	
+	self.option6desctext = GUIManager:CreateTextItem()
+    self.option6desctext:SetAnchor(GUIItem.Left, GUIItem.Middle)
+    self.option6desctext:SetTextAlignmentX(GUIItem.Align_Min)
+    self.option6desctext:SetTextAlignmentY(GUIItem.Align_Center)
+    self.option6desctext:SetPosition(Vector(kDescriptionTextXOffset, kTextYOffset + (kTextYIncrement * 7), 0))
+    self.option6desctext:SetInheritsParentAlpha(true)
+    self.option6desctext:SetFontName(kFontName)
+    self.option6desctext:SetScale(kFontScale)
+    self.option6desctext:SetColor(Color(1,1,1,1))
+	
+	self.option7text = GUIManager:CreateTextItem()
+    self.option7text:SetAnchor(GUIItem.Left, GUIItem.Middle)
+    self.option7text:SetTextAlignmentX(GUIItem.Align_Center)
+    self.option7text:SetTextAlignmentY(GUIItem.Align_Center)
+    self.option7text:SetPosition(Vector(kTextXOffset, kTextYOffset + (kTextYIncrement * 8), 0))
+    self.option7text:SetInheritsParentAlpha(true)
+    self.option7text:SetFontName(kFontName)
+    self.option7text:SetScale(kFontScale)
+    self.option7text:SetColor(Color(1,1,1,1))
+	
+	self.option7desctext = GUIManager:CreateTextItem()
+    self.option7desctext:SetAnchor(GUIItem.Left, GUIItem.Middle)
+    self.option7desctext:SetTextAlignmentX(GUIItem.Align_Min)
+    self.option7desctext:SetTextAlignmentY(GUIItem.Align_Center)
+    self.option7desctext:SetPosition(Vector(kDescriptionTextXOffset, kTextYOffset + (kTextYIncrement * 8), 0))
+    self.option7desctext:SetInheritsParentAlpha(true)
+    self.option7desctext:SetFontName(kFontName)
+    self.option7desctext:SetScale(kFontScale)
+    self.option7desctext:SetColor(Color(1,1,1,1))
+	
+	self.option8text = GUIManager:CreateTextItem()
+    self.option8text:SetAnchor(GUIItem.Left, GUIItem.Middle)
+    self.option8text:SetTextAlignmentX(GUIItem.Align_Center)
+    self.option8text:SetTextAlignmentY(GUIItem.Align_Center)
+    self.option8text:SetPosition(Vector(kTextXOffset, kTextYOffset + (kTextYIncrement * 9), 0))
+    self.option8text:SetInheritsParentAlpha(true)
+    self.option8text:SetFontName(kFontName)
+    self.option8text:SetScale(kFontScale)
+    self.option8text:SetColor(Color(1,1,1,1))
+	
+	self.option8desctext = GUIManager:CreateTextItem()
+    self.option8desctext:SetAnchor(GUIItem.Left, GUIItem.Middle)
+    self.option8desctext:SetTextAlignmentX(GUIItem.Align_Min)
+    self.option8desctext:SetTextAlignmentY(GUIItem.Align_Center)
+    self.option8desctext:SetPosition(Vector(kDescriptionTextXOffset, kTextYOffset + (kTextYIncrement * 9), 0))
+    self.option8desctext:SetInheritsParentAlpha(true)
+    self.option8desctext:SetFontName(kFontName)
+    self.option8desctext:SetScale(kFontScale)
+    self.option8desctext:SetColor(Color(1,1,1,1))
+	
+	self.option9text = GUIManager:CreateTextItem()
+    self.option9text:SetAnchor(GUIItem.Left, GUIItem.Middle)
+    self.option9text:SetTextAlignmentX(GUIItem.Align_Center)
+    self.option9text:SetTextAlignmentY(GUIItem.Align_Center)
+    self.option9text:SetPosition(Vector(kTextXOffset, kTextYOffset + (kTextYIncrement * 10), 0))
+    self.option9text:SetInheritsParentAlpha(true)
+    self.option9text:SetFontName(kFontName)
+    self.option9text:SetScale(kFontScale)
+    self.option9text:SetColor(Color(1,1,1,1))
+	
+	self.option9desctext = GUIManager:CreateTextItem()
+    self.option9desctext:SetAnchor(GUIItem.Left, GUIItem.Middle)
+    self.option9desctext:SetTextAlignmentX(GUIItem.Align_Min)
+    self.option9desctext:SetTextAlignmentY(GUIItem.Align_Center)
+    self.option9desctext:SetPosition(Vector(kDescriptionTextXOffset, kTextYOffset + (kTextYIncrement * 10), 0))
+    self.option9desctext:SetInheritsParentAlpha(true)
+    self.option9desctext:SetFontName(kFontName)
+    self.option9desctext:SetScale(kFontScale)
+    self.option9desctext:SetColor(Color(1,1,1,1))
+	
+	self.option10text = GUIManager:CreateTextItem()
+    self.option10text:SetAnchor(GUIItem.Left, GUIItem.Middle)
+    self.option10text:SetTextAlignmentX(GUIItem.Align_Center)
+    self.option10text:SetTextAlignmentY(GUIItem.Align_Center)
+    self.option10text:SetPosition(Vector(kTextXOffset, kTextYOffset + (kTextYIncrement * 11), 0))
+    self.option10text:SetInheritsParentAlpha(true)
+    self.option10text:SetFontName(kFontName)
+    self.option10text:SetScale(kFontScale)
+    self.option10text:SetColor(Color(1,1,1,1))
+	
+	self.option10desctext = GUIManager:CreateTextItem()
+    self.option10desctext:SetAnchor(GUIItem.Left, GUIItem.Middle)
+    self.option10desctext:SetTextAlignmentX(GUIItem.Align_Min)
+    self.option10desctext:SetTextAlignmentY(GUIItem.Align_Center)
+    self.option10desctext:SetPosition(Vector(kDescriptionTextXOffset, kTextYOffset + (kTextYIncrement * 11), 0))
+    self.option10desctext:SetInheritsParentAlpha(true)
+    self.option10desctext:SetFontName(kFontName)
+    self.option10desctext:SetScale(kFontScale)
+    self.option10desctext:SetColor(Color(1,1,1,1))
+	
 	self.footerText = GUIManager:CreateTextItem()
     self.footerText:SetAnchor(GUIItem.Left, GUIItem.Middle)
     self.footerText:SetTextAlignmentX(GUIItem.Align_Min)
     self.footerText:SetTextAlignmentY(GUIItem.Align_Center)
-    self.footerText:SetPosition(Vector(kTextXOffset, kTextYOffset + (kTextYIncrement * 7), 0))
+    self.footerText:SetPosition(Vector(kTextXOffset, kTextYOffset + (kTextYIncrement * 12), 0))
     self.footerText:SetInheritsParentAlpha(true)
     self.footerText:SetFontName(kFontName)
     self.footerText:SetScale(kFontScale)
@@ -156,6 +312,11 @@ function GUIMenuBase:Initialize()
 	self.option3text:SetText("3: = ")
 	self.option4text:SetText("4: = ")
 	self.option5text:SetText("5: = ")
+	self.option6text:SetText("6: = ")
+	self.option7text:SetText("7: = ")
+	self.option8text:SetText("8: = ")
+	self.option9text:SetText("9: = ")
+	self.option10text:SetText("0: = ")
 	
 	self.headerText:SetIsVisible(false)
 	self.option1text:SetIsVisible(false)
@@ -163,15 +324,23 @@ function GUIMenuBase:Initialize()
 	self.option3text:SetIsVisible(false)
 	self.option4text:SetIsVisible(false)
 	self.option5text:SetIsVisible(false)
+	self.option6text:SetIsVisible(false)
+	self.option7text:SetIsVisible(false)
+	self.option8text:SetIsVisible(false)
+	self.option9text:SetIsVisible(false)
+	self.option10text:SetIsVisible(false)
 	self.option1desctext:SetIsVisible(false)
 	self.option2desctext:SetIsVisible(false)
 	self.option3desctext:SetIsVisible(false)
 	self.option4desctext:SetIsVisible(false)
 	self.option5desctext:SetIsVisible(false)
+	self.option6desctext:SetIsVisible(false)
+	self.option7desctext:SetIsVisible(false)
+	self.option8desctext:SetIsVisible(false)
+	self.option9desctext:SetIsVisible(false)
+	self.option10desctext:SetIsVisible(false)
 	self.footerText:SetIsVisible(false)
-	
-	self.lastupdate = nil
-	self.lastupdatetime = 0
+	self.cachedupdate = nil
 end
 
 function GUIMenuBase:MenuUpdate(MenuBaseUpdateMessage)
@@ -184,9 +353,13 @@ function GUIMenuBase:MenuUpdate(MenuBaseUpdateMessage)
 		self.option3desctext:SetText(MenuBaseUpdateMessage.option3)
 		self.option4desctext:SetText(MenuBaseUpdateMessage.option4)
 		self.option5desctext:SetText(MenuBaseUpdateMessage.option5)
+		self.option6desctext:SetText(MenuBaseUpdateMessage.option6)
+		self.option7desctext:SetText(MenuBaseUpdateMessage.option7)
+		self.option8desctext:SetText(MenuBaseUpdateMessage.option8)
+		self.option9desctext:SetText(MenuBaseUpdateMessage.option9)
+		self.option10desctext:SetText(MenuBaseUpdateMessage.option10)
 		self.footerText:SetText(MenuBaseUpdateMessage.footer)
-		self.lastupdatetime = MenuBaseUpdateMessage.menutime
-		self.lastupdate = MenuBaseUpdateMessage
+		self.cachedupdate = MenuBaseUpdateMessage
 		self:DisplayUpdate()
 	end
 end
@@ -216,6 +389,26 @@ function GUIMenuBase:Uninitialize()
         GUI.DestroyItem(self.option5text)
         self.option5text = nil
     end
+	if self.option6text then
+        GUI.DestroyItem(self.option6text)
+        self.option6text = nil
+    end
+	if self.option7text then
+        GUI.DestroyItem(self.option7text)
+        self.option7text = nil
+    end
+	if self.option8text then
+        GUI.DestroyItem(self.option8text)
+        self.option8text = nil
+    end
+	if self.option9text then
+        GUI.DestroyItem(self.option9text)
+        self.option9text = nil
+    end
+	if self.option10text then
+        GUI.DestroyItem(self.option10text)
+        self.option10text = nil
+    end
 	if self.option1desctext then
         GUI.DestroyItem(self.option1desctext)
         self.option1desctext = nil
@@ -236,6 +429,26 @@ function GUIMenuBase:Uninitialize()
         GUI.DestroyItem(self.option5desctext)
         self.option5desctext = nil
     end
+	if self.option6desctext then
+        GUI.DestroyItem(self.option6desctext)
+        self.option6desctext = nil
+    end
+	if self.option7desctext then
+        GUI.DestroyItem(self.option7desctext)
+        self.option7desctext = nil
+    end
+	if self.option8desctext then
+        GUI.DestroyItem(self.option8desctext)
+        self.option8desctext = nil
+    end
+	if self.option9desctext then
+        GUI.DestroyItem(self.option9desctext)
+        self.option9desctext = nil
+    end
+	if self.option10desctext then
+        GUI.DestroyItem(self.option10desctext)
+        self.option10desctext = nil
+    end
 	if self.footerText then
         GUI.DestroyItem(self.footerText)
         self.footerText = nil
@@ -243,18 +456,48 @@ function GUIMenuBase:Uninitialize()
 end
 
 function GUIMenuBase:DisplayUpdate()
-    if self.lastupdate ~= nil then
+    if self.cachedupdate ~= nil then
 		self.headerText:SetIsVisible(true)
-		self.option1text:SetIsVisible(true)
-		self.option2text:SetIsVisible(true)
-		self.option3text:SetIsVisible(true)
-		self.option4text:SetIsVisible(true)
-		self.option5text:SetIsVisible(true)
-		self.option1desctext:SetIsVisible(true)
-		self.option2desctext:SetIsVisible(true)
-		self.option3desctext:SetIsVisible(true)
-		self.option4desctext:SetIsVisible(true)
-		self.option5desctext:SetIsVisible(true)
+		if self.cachedupdate.option1 ~= "" then
+			self.option1text:SetIsVisible(true)
+			self.option1desctext:SetIsVisible(true)
+		end
+		if self.cachedupdate.option2 ~= "" then
+			self.option2text:SetIsVisible(true)
+			self.option2desctext:SetIsVisible(true)
+		end
+		if self.cachedupdate.option3 ~= "" then
+			self.option3text:SetIsVisible(true)
+			self.option3desctext:SetIsVisible(true)
+		end
+		if self.cachedupdate.option4 ~= "" then
+			self.option4text:SetIsVisible(true)
+			self.option4desctext:SetIsVisible(true)
+		end
+		if self.cachedupdate.option5 ~= "" then
+			self.option5text:SetIsVisible(true)
+			self.option5desctext:SetIsVisible(true)
+		end
+		if self.cachedupdate.option6 ~= "" then
+			self.option6text:SetIsVisible(true)
+			self.option6desctext:SetIsVisible(true)
+		end
+		if self.cachedupdate.option7 ~= "" then
+			self.option7text:SetIsVisible(true)
+			self.option7desctext:SetIsVisible(true)
+		end
+		if self.cachedupdate.option8 ~= "" then
+			self.option8text:SetIsVisible(true)
+			self.option8desctext:SetIsVisible(true)
+		end
+		if self.cachedupdate.option9 ~= "" then
+			self.option9text:SetIsVisible(true)
+			self.option9desctext:SetIsVisible(true)
+		end
+		if self.cachedupdate.option10 ~= "" then
+			self.option10text:SetIsVisible(true)
+			self.option10desctext:SetIsVisible(true)
+		end
 		self.footerText:SetIsVisible(true)
     end
 end
@@ -266,56 +509,77 @@ function GUIMenuBase:OnClose()
 	self.option3text:SetIsVisible(false)
 	self.option4text:SetIsVisible(false)
 	self.option5text:SetIsVisible(false)
+	self.option6text:SetIsVisible(false)
+	self.option7text:SetIsVisible(false)
+	self.option8text:SetIsVisible(false)
+	self.option9text:SetIsVisible(false)
+	self.option10text:SetIsVisible(false)
 	self.option1desctext:SetIsVisible(false)
 	self.option2desctext:SetIsVisible(false)
 	self.option3desctext:SetIsVisible(false)
 	self.option4desctext:SetIsVisible(false)
 	self.option5desctext:SetIsVisible(false)
+	self.option6desctext:SetIsVisible(false)
+	self.option7desctext:SetIsVisible(false)
+	self.option8desctext:SetIsVisible(false)
+	self.option9desctext:SetIsVisible(false)
+	self.option10desctext:SetIsVisible(false)
 	self.footerText:SetIsVisible(false)
-	self.lastupdate = nil
+	self.cachedupdate = nil
 end
 
 function GUIMenuBase:Update(deltaTime)
-	if self.lastupdate ~= nil and self.lastupdate.menutime + kUpdateLifetime < Shared.GetTime() then
+	if self.cachedupdate ~= nil and self.cachedupdate.menutime + kUpdateLifetime < Shared.GetTime() then
 		self:OnClose()
 	end
 end
 
 function GUIMenuBase:SendKeyEvent(key, down)
 	
-	if self.lastupdate ~= nil and self.lastupdate.inputallowed and down then
+	if self.cachedupdate ~= nil and self.cachedupdate.inputallowed and down then
 		local optselect
-		if GetIsBinding(key, "Weapon1") then
+		if GetIsBinding(key, "Weapon1") and self.cachedupdate.option1 ~= nil then
 			optselect = 1
-		elseif GetIsBinding(key, "Weapon2") then
+		elseif GetIsBinding(key, "Weapon2") and self.cachedupdate.option2 ~= nil then
 			optselect = 2
-		elseif GetIsBinding(key, "Weapon3") then
+		elseif GetIsBinding(key, "Weapon3") and self.cachedupdate.option3 ~= nil then
 			optselect = 3
-		elseif GetIsBinding(key, "Weapon4") then
+		elseif GetIsBinding(key, "Weapon4") and self.cachedupdate.option4 ~= nil then
 			optselect = 4
-		elseif GetIsBinding(key, "Weapon5") then
+		elseif GetIsBinding(key, "Weapon5") and self.cachedupdate.option5 ~= nil then
 			optselect = 5
 		end
 		if optselect then
 			OnCommandMenuBase(optselect)
-			self.lastupdate.inputallowed = false
+			self.cachedupdate.inputallowed = false
 			self:OnClose()
 			return true
 		end
 	end
 	
-end    
+end
 
-//GUIMenuBase
-//local kMenuBaseUpdateMessage = 
-//{
-//	header         		= string.format("string (%d)", kMaxMenuStringLength),
-//	option1         	= string.format("string (%d)", kMaxMenuStringLength),
-//	option2        		= string.format("string (%d)", kMaxMenuStringLength),
-//	option3        		= string.format("string (%d)", kMaxMenuStringLength),
-//	option4        		= string.format("string (%d)", kMaxMenuStringLength),
-//	option5         	= string.format("string (%d)", kMaxMenuStringLength),
-//	footer         		= string.format("string (%d)", kMaxMenuStringLength),
-//  inputallowed		= "boolean",
-//	menutime   	  		= "time"
-//}
+function GUIMenuBase:ExternalKeyInputs(key)
+	
+	if self.cachedupdate ~= nil and self.cachedupdate.inputallowed then
+		local optselect
+		if key == "6" and self.cachedupdate.option6 ~= nil then
+			optselect = 6
+		elseif key == "7" and self.cachedupdate.option7 ~= nil then
+			optselect = 7
+		elseif key == "8" and self.cachedupdate.option8 ~= nil then
+			optselect = 8
+		elseif key == "9" and self.cachedupdate.option9 ~= nil then
+			optselect = 9
+		elseif key == "0" and self.cachedupdate.option10 ~= nil then
+			optselect = 10
+		end
+		if optselect then
+			OnCommandMenuBase(optselect)
+			self.cachedupdate.inputallowed = false
+			self:OnClose()
+			return true
+		end
+	end
+	
+end

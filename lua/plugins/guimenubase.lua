@@ -1,6 +1,7 @@
 //NS2 Menu Base GUI Implementation
 
 local kRunningMenus = { }
+local ActiveModdedClients = { }
 
 //GUIMenuBase
 //MenuFunction(client, OptionSelected)
@@ -13,12 +14,12 @@ local function UpdateMenus(deltatime)
 	for i = #kRunningMenus, 1, -1 do
 		if kRunningMenus[i] ~= nil and kRunningMenus[i].UpdateTime ~= nil then
 			if (Shared.GetTime() - kRunningMenus[i].UpdateTime) >= DAK.config.guimenubase.kMenuUpdateRate then
-				local newMenuBaseUpdateMessage = kRunningMenus[i].MenuUpdateFunction(kRunningMenus[i].clientGameId, kRunningMenus[i].MenuBaseUpdateMessage)
+				local newMenuBaseUpdateMessage = kRunningMenus[i].MenuUpdateFunction(kRunningMenus[i].clientSteamId, kRunningMenus[i].MenuBaseUpdateMessage)
 				//Check to see if message is updated, if not then send term message and clear
 				if newMenuBaseUpdateMessage == kRunningMenus[i].MenuBaseUpdateMessage then
 					newMenuBaseUpdateMessage.menutime = 0
 				end
-				Server.SendNetworkMessage(DAK:GetPlayerMatchingGameId(kRunningMenus[i].clientGameId), "GUIMenuBase", newMenuBaseUpdateMessage, false)						
+				Server.SendNetworkMessage(DAK:GetPlayerMatchingSteamId(kRunningMenus[i].clientSteamId), "GUIMenuBase", newMenuBaseUpdateMessage, false)						
 				kRunningMenus[i].MenuBaseUpdateMessage = newMenuBaseUpdateMessage
 				if newMenuBaseUpdateMessage ~= nil and  newMenuBaseUpdateMessage.menutime ~= nil and newMenuBaseUpdateMessage.menutime ~= 0 then
 					kRunningMenus[i].UpdateTime = Shared.GetTime()
@@ -40,12 +41,12 @@ function CreateGUIMenuBase(id, OnMenuFunction, OnMenuUpdateFunction)
 
 	if id == nil or id == 0 or tonumber(id) == nil then return false end
 	for i = #kRunningMenus, 1, -1 do
-		if kRunningMenus[i] ~= nil and kRunningMenus[i].clientGameId == id then
+		if kRunningMenus[i] ~= nil and kRunningMenus[i].clientSteamId == id then
 			return false
 		end
 	end
 	
-	local GameMenu = {UpdateTime = math.max(Shared.GetTime() - DAK.config.guimenubase.kMenuUpdateRate, 0), MenuFunction = OnMenuFunction, MenuUpdateFunction = OnMenuUpdateFunction, MenuBaseUpdateMessage = nil, clientGameId = id}
+	local GameMenu = {UpdateTime = math.max(Shared.GetTime() - DAK.config.guimenubase.kMenuUpdateRate, 0), MenuFunction = OnMenuFunction, MenuUpdateFunction = OnMenuUpdateFunction, MenuBaseUpdateMessage = nil, clientSteamId = id}
 	if #kRunningMenus == 0 then
 		DAK:RegisterEventHook("OnServerUpdate", UpdateMenus, 7)
 		//Want increased pri on this to make sure it runs before other events that may use information from it...
@@ -63,21 +64,41 @@ function CreateMenuBaseNetworkMessage()
 	kVoteUpdateMessage.option3 = ""
 	kVoteUpdateMessage.option4 = ""
 	kVoteUpdateMessage.option5 = ""
+	kVoteUpdateMessage.option6 = ""
+	kVoteUpdateMessage.option7 = ""
+	kVoteUpdateMessage.option8 = ""
+	kVoteUpdateMessage.option9 = ""
+	kVoteUpdateMessage.option10 = ""
 	kVoteUpdateMessage.footer = ""
 	kVoteUpdateMessage.inputallowed = false
 	kVoteUpdateMessage.menutime = Shared.GetTime()
 	return kVoteUpdateMessage
 end
 
+local function EnableClientMenus(client)
+	if client ~= nil then
+		local steamid = client:GetUserId()
+		if steamid ~= nil and tonumber(steamid) ~= nil then
+			ActiveModdedClients[tonumber(steamid)] = true
+			Print("Hello Sir!")
+		end
+	end
+end
+
+Event.Hook("Console_RegisterClientMenus", EnableClientMenus)
+
 local function OnMessageBaseMenu(client, menuMessage)
 
-	if menuMessage ~= nil then
-		local CGID = DAK:GetGameIdMatchingClient(client)
-		for i = #kRunningMenus, 1, -1 do
-			if kRunningMenus[i].clientGameId == CGID then
-				kRunningMenus[i].MenuFunction(client, menuMessage.optionselected)
-				kRunningMenus[i] = nil
-				break
+	if menuMessage ~= nil and client ~= nil then
+		local steamId = client:GetUserId()
+		if steamId ~= nil and tonumber(steamId) ~= nil then
+			for i = #kRunningMenus, 1, -1 do
+				if kRunningMenus[i].clientSteamId == steamId then
+					if kRunningMenus[i].MenuFunction(client, menuMessage.optionselected) then
+						kRunningMenus[i] = nil
+					end
+					break
+				end
 			end
 		end
 		//Shared.Message(string.format("Recieved selection %s", menuMessage.optionselected))

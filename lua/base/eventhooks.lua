@@ -13,8 +13,8 @@ local serverupdatetime = 0
 local function DAKOnClientConnected(client)
 	if client ~= nil then
 		DAK:AddClientToGameIDs(client)
-		DAK:ExecuteEventHooks("OnClientConnect", client)
 		DAK:UpdateConnectionTimeTracker(client)
+		DAK:ExecuteEventHooks("OnClientConnect", client)
 		if DAK.config and DAK.config.loader and DAK.config.loader.DelayedClientConnect then
 			local CEntry = { Client = client, Time = Shared.GetTime() + DAK.config.loader.DelayedClientConnect }
 			table.insert(DelayedClientConnect, CEntry)

@@ -2,7 +2,7 @@
 
 local function SetupDefaultConfig()
 	local DefaultConfig = { }
-	DefaultConfig.kMenuUpdateRate = 5
+	DefaultConfig.kMenuUpdateRate = 2
 	return DefaultConfig
 end
 

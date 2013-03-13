@@ -1,7 +1,13 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
-Initial Version - Plugin versions invidually all over - normalizing for this update, along with loader version - Need to decide how to track plugin revisions - 
-should plugins be updated with each 'build' of DAK, even if there are no changes?  This seems the most logical way to proceed currently, and for the future.
+## v0.1.313a
+- Corrected issues with client connection time tracking causing asserts for reserve slots and sv_status.
+- Added binds to GUI for slots 6-10
+- Disabled config file loading/unloading messages.
+- Added DAK:GetSteamIdMatchingClient and DAK:GetSteamIdMatchingPlayer.
+- Changed mapvote to take full advantage of GUI if enabled.
+- Changed GUI system to use steamID for tracking instead of gameIds.
+- Added slots 6-10 for GUI network message.
 
 ## v0.1.311a
 - Added timed callbacks to API - will be called each interval passed if true is returned.  A number can be returned to adjust interval, and false/nil can be returned to stop execution.  The callback args can also be updated.
