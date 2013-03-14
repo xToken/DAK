@@ -70,9 +70,7 @@ local function UpdateMapVoteCountDown()
 					
 			VotingMaps[validmaps] = TiedMaps[i]
 			MapVotes[validmaps] = 0
-			if not DAK:IsPluginEnabled("guimenubase") then
-				DAK:DisplayMessageToAllClients("VoteMapMapListing", ToString(validmaps), TiedMaps[i])
-			end
+			DAK:DisplayLegacyChatMessageToAllClientWithoutMenus("VoteMapMapListing", ToString(validmaps), TiedMaps[i])
 			validmaps = validmaps + 1
 			
 		end
@@ -151,9 +149,7 @@ local function UpdateMapVoteCountDown()
 					tempMaps[map] = true
 					VotingMaps[validmaps] = map
 					MapVotes[validmaps] = 0
-					if not DAK:IsPluginEnabled("guimenubase") then
-						DAK:DisplayMessageToAllClients("VoteMapMapListing", ToString(validmaps), map)
-					end
+					DAK:DisplayLegacyChatMessageToAllClientWithoutMenus("VoteMapMapListing", ToString(validmaps), map)
 					validmaps = validmaps + 1
 					
 				end
@@ -205,39 +201,19 @@ end
 
 Event.Hook("Console_vote",               OnCommandVote)
 
-local function OnCommandUpdateVote(cID, LastUpdateMessage)
+local function OnCommandUpdateVote(steamId, LastUpdateMessage)
 	//OnVoteUpdateFunction
 	if mapvoterunning then
-		local kVoteUpdateMessage = DAK:ExecutePluginGlobalFunction("guimenubase", CreateMenuBaseNetworkMessage)
+		local kVoteUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
 		if kVoteUpdateMessage == nil then
 			kVoteUpdateMessage = { }
 		end
-		local client =  DAK:GetClientMatchingSteamId(cID)
+		local client =  DAK:GetClientMatchingSteamId(steamId)
 		kVoteUpdateMessage.header = string.format("%.1f seconds are left to vote.", mapvotedelay - Shared.GetTime())
 		i = 1
 		for map, votes in pairs(MapVotes) do
 			local message = string.format("%s votes for %s.", votes, VotingMaps[map], i)
-			if i == 1 then
-				kVoteUpdateMessage.option1 = message
-			elseif i == 2 then
-				kVoteUpdateMessage.option2 = message
-			elseif i == 3 then
-				kVoteUpdateMessage.option3 = message
-			elseif i == 4 then
-				kVoteUpdateMessage.option4 = message
-			elseif i == 5 then
-				kVoteUpdateMessage.option5 = message
-			elseif i == 6 then
-				kVoteUpdateMessage.option6 = message
-			elseif i == 7 then
-				kVoteUpdateMessage.option7 = message
-			elseif i == 8 then
-				kVoteUpdateMessage.option8 = message
-			elseif i == 9 then
-				kVoteUpdateMessage.option9 = message
-			elseif i == 10 then
-				kVoteUpdateMessage.option10 = message
-			end
+			kVoteUpdateMessage.option[i] = message
 			i = i + 1
 		end
 		kVoteUpdateMessage.footer = "Press a number key to vote for the corresponding map"
@@ -387,7 +363,7 @@ local function UpdateMapVotes(deltaTime)
 			
 			local playerRecords = Shared.GetEntitiesWithClassname("Player")				
 			for _, player in ientitylist(playerRecords) do
-				DAK:ExecutePluginGlobalFunction("guimenubase", CreateGUIMenuBase, DAK:GetSteamIdMatchingPlayer(player), OnCommandVote, OnCommandUpdateVote)
+				DAK:CreateGUIMenuBase(DAK:GetSteamIdMatchingPlayer(player), OnCommandVote, OnCommandUpdateVote)
 			end
 			
 		end
@@ -400,13 +376,11 @@ local function UpdateMapVotes(deltaTime)
 			ProcessandSelectMap()
 		elseif Shared.GetTime() > mapvotenotify then
 		
-			if not DAK:IsPluginEnabled("guimenubase") then
-				DAK:DisplayMessageToAllClients("VoteMapTimeLeft", mapvotedelay - Shared.GetTime())
-				i = 1
-				for map, votes in pairs(MapVotes) do
-					DAK:DisplayMessageToAllClients("VoteMapCurrentMapVotes", votes, VotingMaps[map], i)	
-					i = i + 1
-				end
+			DAK:DisplayLegacyChatMessageToAllClientWithoutMenus("VoteMapTimeLeft", mapvotedelay - Shared.GetTime())
+			i = 1
+			for map, votes in pairs(MapVotes) do
+				DAK:DisplayLegacyChatMessageToAllClientWithoutMenus("VoteMapCurrentMapVotes", votes, VotingMaps[map], i)	
+				i = i + 1
 			end
 			mapvotenotify = Shared.GetTime() + DAK.config.mapvote.kVoteNotifyDelay
 			

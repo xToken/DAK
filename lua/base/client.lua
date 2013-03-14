@@ -5,17 +5,27 @@
 //Would allow help menus and such to be generated.
 //Dont think that plugins need to be syncd, menu system designed is almost fully server side so client needs very little information. - Client should always load shared defs.
 
-Script.Load("lua/base/shared.lua")
 Script.Load("lua/base/class.lua")
+
+local MenuMessageTag = "#^DAK"
+local MenusRegistered = false
 
 local function OnClientLoaded()
 	if guimenubase == nil then
 		guimenubase = GetGUIManager():CreateGUIScriptSingle("gui/GUIMenuBase")			
 	end
-	Shared.ConsoleCommand("RegisterClientMenus")
 end
 
 Event.Hook("LoadComplete", OnClientLoaded)
+
+local function OnUpdateClient()
+	if not MenusRegistered then
+		Shared.ConsoleCommand("registerclientmenus")
+		MenusRegistered = true
+	end
+end
+
+Event.Hook("UpdateClient", OnUpdateClient)
 
 local function OnClientDisconnected()
 	if guimenubase ~= nil then
@@ -24,3 +34,34 @@ local function OnClientDisconnected()
 end
 
 Event.Hook("ClientDisconnected", OnClientDisconnected)
+
+local function MenuUpdate(Message)
+	local GUIMenuBase = GetGUIManager():GetGUIScriptSingle("gui/GUIMenuBase")
+	if GUIMenuBase then
+		GUIMenuBase:MenuUpdate(Message)
+	end
+end
+
+local function OnServerAdminPrint(messageTable)
+	if messageTable ~= nil and messageTable.message ~= nil then
+		if string.sub(messageTable.message, 0, string.len(MenuMessageTag)) == MenuMessageTag then
+			MenuUpdate(string.sub(messageTable.message, string.len(MenuMessageTag) + 1))
+		else
+			Shared.Message(messageTable.message)
+		end
+	end
+end
+
+local originalNS2ClientHookNetworkMessage
+
+originalNS2ClientHookNetworkMessage = Class_ReplaceMethod("Client", "HookNetworkMessage", 
+	function(message, func)
+
+		if message == "ServerAdminPrint" then
+			originalNS2ClientHookNetworkMessage(message, OnServerAdminPrint)
+		else
+			originalNS2ClientHookNetworkMessage(message, func)
+		end
+		
+	end
+)

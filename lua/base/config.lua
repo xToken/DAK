@@ -49,6 +49,7 @@ local function GenerateDefaultDAKConfig(Plugin, Save)
 		DefaultConfig.GamerulesClassName = "NS2Gamerules"
 		DefaultConfig.TeamOneName = "Marines"
 		DefaultConfig.TeamTwoName = "Aliens"
+		DefaultConfig.AllowClientMenus = false
 		
 		DAK.config["loader"] = tablemerge(DAK.config["loader"], DefaultConfig)
 		

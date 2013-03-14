@@ -12,23 +12,9 @@ local kTextXOffset = GUIScale(75)
 local kDescriptionTextXOffset = GUIScale(90)
 local kUpdateLifetime = 10
 
-local function OnCommandMenuUpdate(MenuBaseUpdateMessage)
-	local GUIMenuBase = GetGUIManager():GetGUIScriptSingle("gui/GUIMenuBase")
-	if GUIMenuBase then
-		GUIMenuBase:MenuUpdate(MenuBaseUpdateMessage)
-	end
+local function OnSelectMenuOption(parm1)
+	Shared.ConsoleCommand(string.format("menubaseselection %s", parm1))
 end
-
-Client.HookNetworkMessage("GUIMenuBase", OnCommandMenuUpdate)
-
-local function OnCommandMenuBase(parm1)
-	local idNum = tonumber(parm1)
-	if idNum ~= nil then
-		Client.SendNetworkMessage("GUIMenuBaseSelected", { optionselected = idNum }, true)
-	end
-end
-
-Event.Hook("Console_menubase", OnCommandMenuBase)
 
 //Hardcoded binds for extra slots :/
 local function UpdateGUIMenu(slot)
@@ -340,27 +326,57 @@ function GUIMenuBase:Initialize()
 	self.option9desctext:SetIsVisible(false)
 	self.option10desctext:SetIsVisible(false)
 	self.footerText:SetIsVisible(false)
-	self.cachedupdate = nil
+	
+	self.options = { }
+	self.options["header"] = self.headerText
+	self.options["option1"] = self.option1desctext
+	self.options["option2"] = self.option2desctext
+	self.options["option3"] = self.option3desctext
+	self.options["option4"] = self.option4desctext
+	self.options["option5"] = self.option5desctext
+	self.options["option6"] = self.option6desctext
+	self.options["option7"] = self.option7desctext
+	self.options["option8"] = self.option8desctext
+	self.options["option9"] = self.option9desctext
+	self.options["option10"] = self.option10desctext
+	self.options["footer"] = self.footerText
+	
+	self.cachedupdate = { }
+	self.cachedupdate["header"] = ""
+	self.cachedupdate["option1"] = ""
+	self.cachedupdate["option2"] = ""
+	self.cachedupdate["option3"] = ""
+	self.cachedupdate["option4"] = ""
+	self.cachedupdate["option5"] = ""
+	self.cachedupdate["option6"] = ""
+	self.cachedupdate["option7"] = ""
+	self.cachedupdate["option8"] = ""
+	self.cachedupdate["option9"] = ""
+	self.cachedupdate["option10"] = ""
+	self.cachedupdate["footer"] = ""
+	self.cachedupdate["inputallowed"] = "false"
+	self.cachedupdate["menutime"] = 0
 end
 
-function GUIMenuBase:MenuUpdate(MenuBaseUpdateMessage)
-	if MenuBaseUpdateMessage == nil or MenuBaseUpdateMessage.menutime == 0 then
-		self:OnClose()
-	else
-		self.headerText:SetText(MenuBaseUpdateMessage.header)
-		self.option1desctext:SetText(MenuBaseUpdateMessage.option1)
-		self.option2desctext:SetText(MenuBaseUpdateMessage.option2)
-		self.option3desctext:SetText(MenuBaseUpdateMessage.option3)
-		self.option4desctext:SetText(MenuBaseUpdateMessage.option4)
-		self.option5desctext:SetText(MenuBaseUpdateMessage.option5)
-		self.option6desctext:SetText(MenuBaseUpdateMessage.option6)
-		self.option7desctext:SetText(MenuBaseUpdateMessage.option7)
-		self.option8desctext:SetText(MenuBaseUpdateMessage.option8)
-		self.option9desctext:SetText(MenuBaseUpdateMessage.option9)
-		self.option10desctext:SetText(MenuBaseUpdateMessage.option10)
-		self.footerText:SetText(MenuBaseUpdateMessage.footer)
-		self.cachedupdate = MenuBaseUpdateMessage
-		self:DisplayUpdate()
+function GUIMenuBase:MenuUpdate(message)
+	if message ~= nil then
+		local parm = string.sub(message, 0, string.find(message,"|") - 1)
+		local value = string.sub(message, string.find(message,"|") + 1)
+		if parm == "menutime" and value == "0" then
+			self:OnClose()
+		elseif parm ~= nil or parm ~= "" then
+			if parm == "menutime" or parm == "inputallowed" then
+				if parm == "menutime" then
+					self.cachedupdate["menutime"] = tonumber(value) or 0
+				elseif parm == "inputallowed" then
+					self.cachedupdate["inputallowed"] = value
+				end
+			elseif self.options[parm] ~= nil then
+				self.options[parm]:SetText(value)
+				self:DisplayUpdate()
+			end
+			self.cachedupdate[parm] = value
+		end
 	end
 end
 
@@ -458,43 +474,43 @@ end
 function GUIMenuBase:DisplayUpdate()
     if self.cachedupdate ~= nil then
 		self.headerText:SetIsVisible(true)
-		if self.cachedupdate.option1 ~= "" then
+		if self.cachedupdate["option1"] ~= "" then
 			self.option1text:SetIsVisible(true)
 			self.option1desctext:SetIsVisible(true)
 		end
-		if self.cachedupdate.option2 ~= "" then
+		if self.cachedupdate["option2"] ~= "" then
 			self.option2text:SetIsVisible(true)
 			self.option2desctext:SetIsVisible(true)
 		end
-		if self.cachedupdate.option3 ~= "" then
+		if self.cachedupdate["option3"] ~= "" then
 			self.option3text:SetIsVisible(true)
 			self.option3desctext:SetIsVisible(true)
 		end
-		if self.cachedupdate.option4 ~= "" then
+		if self.cachedupdate["option4"] ~= "" then
 			self.option4text:SetIsVisible(true)
 			self.option4desctext:SetIsVisible(true)
 		end
-		if self.cachedupdate.option5 ~= "" then
+		if self.cachedupdate["option5"] ~= "" then
 			self.option5text:SetIsVisible(true)
 			self.option5desctext:SetIsVisible(true)
 		end
-		if self.cachedupdate.option6 ~= "" then
+		if self.cachedupdate["option6"] ~= "" then
 			self.option6text:SetIsVisible(true)
 			self.option6desctext:SetIsVisible(true)
 		end
-		if self.cachedupdate.option7 ~= "" then
+		if self.cachedupdate["option7"] ~= "" then
 			self.option7text:SetIsVisible(true)
 			self.option7desctext:SetIsVisible(true)
 		end
-		if self.cachedupdate.option8 ~= "" then
+		if self.cachedupdate["option8"] ~= "" then
 			self.option8text:SetIsVisible(true)
 			self.option8desctext:SetIsVisible(true)
 		end
-		if self.cachedupdate.option9 ~= "" then
+		if self.cachedupdate["option9"] ~= "" then
 			self.option9text:SetIsVisible(true)
 			self.option9desctext:SetIsVisible(true)
 		end
-		if self.cachedupdate.option10 ~= "" then
+		if self.cachedupdate["option10"] ~= "" then
 			self.option10text:SetIsVisible(true)
 			self.option10desctext:SetIsVisible(true)
 		end
@@ -525,34 +541,46 @@ function GUIMenuBase:OnClose()
 	self.option9desctext:SetIsVisible(false)
 	self.option10desctext:SetIsVisible(false)
 	self.footerText:SetIsVisible(false)
-	self.cachedupdate = nil
+	self.cachedupdate["header"] = ""
+	self.cachedupdate["option1"] = ""
+	self.cachedupdate["option2"] = ""
+	self.cachedupdate["option3"] = ""
+	self.cachedupdate["option4"] = ""
+	self.cachedupdate["option5"] = ""
+	self.cachedupdate["option6"] = ""
+	self.cachedupdate["option7"] = ""
+	self.cachedupdate["option8"] = ""
+	self.cachedupdate["option9"] = ""
+	self.cachedupdate["option10"] = ""
+	self.cachedupdate["footer"] = ""
+	self.cachedupdate["inputallowed"] = "false"
+	self.cachedupdate["menutime"] = 0
 end
 
 function GUIMenuBase:Update(deltaTime)
-	if self.cachedupdate ~= nil and self.cachedupdate.menutime + kUpdateLifetime < Shared.GetTime() then
+	if self.cachedupdate ~= nil and self.cachedupdate["menutime"] + kUpdateLifetime < Shared.GetTime() then
 		self:OnClose()
 	end
 end
 
 function GUIMenuBase:SendKeyEvent(key, down)
 	
-	if self.cachedupdate ~= nil and self.cachedupdate.inputallowed and down then
+	if self.cachedupdate ~= nil and self.cachedupdate["inputallowed"] == "true" and down then
 		local optselect
-		if GetIsBinding(key, "Weapon1") and self.cachedupdate.option1 ~= nil then
+		if GetIsBinding(key, "Weapon1") and self.cachedupdate["option1"] ~= nil then
 			optselect = 1
-		elseif GetIsBinding(key, "Weapon2") and self.cachedupdate.option2 ~= nil then
+		elseif GetIsBinding(key, "Weapon2") and self.cachedupdate["option2"] ~= nil then
 			optselect = 2
-		elseif GetIsBinding(key, "Weapon3") and self.cachedupdate.option3 ~= nil then
+		elseif GetIsBinding(key, "Weapon3") and self.cachedupdate["option3"] ~= nil then
 			optselect = 3
-		elseif GetIsBinding(key, "Weapon4") and self.cachedupdate.option4 ~= nil then
+		elseif GetIsBinding(key, "Weapon4") and self.cachedupdate["option4"] ~= nil then
 			optselect = 4
-		elseif GetIsBinding(key, "Weapon5") and self.cachedupdate.option5 ~= nil then
+		elseif GetIsBinding(key, "Weapon5") and self.cachedupdate["option5"] ~= nil then
 			optselect = 5
 		end
 		if optselect then
-			OnCommandMenuBase(optselect)
-			self.cachedupdate.inputallowed = false
-			self:OnClose()
+			OnSelectMenuOption(optselect)
+			self.cachedupdate["inputallowed"] = "false"
 			return true
 		end
 	end
@@ -561,23 +589,22 @@ end
 
 function GUIMenuBase:ExternalKeyInputs(key)
 	
-	if self.cachedupdate ~= nil and self.cachedupdate.inputallowed then
+	if self.cachedupdate ~= nil and self.cachedupdate["inputallowed"] == "true" then
 		local optselect
-		if key == "6" and self.cachedupdate.option6 ~= nil then
+		if key == "6" and self.cachedupdate["option6"] ~= nil then
 			optselect = 6
-		elseif key == "7" and self.cachedupdate.option7 ~= nil then
+		elseif key == "7" and self.cachedupdate["option7"] ~= nil then
 			optselect = 7
-		elseif key == "8" and self.cachedupdate.option8 ~= nil then
+		elseif key == "8" and self.cachedupdate["option8"] ~= nil then
 			optselect = 8
-		elseif key == "9" and self.cachedupdate.option9 ~= nil then
+		elseif key == "9" and self.cachedupdate["option9"] ~= nil then
 			optselect = 9
-		elseif key == "0" and self.cachedupdate.option10 ~= nil then
+		elseif key == "0" and self.cachedupdate["option10"] ~= nil then
 			optselect = 10
 		end
 		if optselect then
-			OnCommandMenuBase(optselect)
-			self.cachedupdate.inputallowed = false
-			self:OnClose()
+			OnSelectMenuOption(optselect)
+			self.cachedupdate["inputallowed"] = "false"
 			return true
 		end
 	end

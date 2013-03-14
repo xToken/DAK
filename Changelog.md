@@ -1,5 +1,13 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.313b
+- Removed remaining parts of old GUI system (GUIMenuBase plugin).  
+- Integrated GUI system into the core of DAK.
+- Removed custom network message for GUI, instead uses client side mod (or workshop DAK) which lets server know its installed on a per client basis.
+- Moved menu system response to console command instead of network message.
+- Corrected possible issue which could allow automapcycle to register multiple events.
+- Added sv_debugplayershuffle which will print information about why players were not shuffled.
+
 ## v0.1.313a
 - Corrected issues with client connection time tracking causing asserts for reserve slots and sv_status.
 - Added binds to GUI for slots 6-10

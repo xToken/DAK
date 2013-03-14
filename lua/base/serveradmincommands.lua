@@ -59,3 +59,9 @@ local function OnCommandKillServer(client)
 end
 
 DAK:CreateServerAdminCommand("Console_sv_killserver", OnCommandKillServer, "Will crash the server (lol).")
+
+local function OnCommandDebugPlayerShuffle(client)
+	DAK:PrintShuffledPlayerDebugData(client)
+end
+
+DAK:CreateServerAdminCommand("Console_sv_debugplayershuffle", OnCommandDebugPlayerShuffle, "Prints debug information about player shuffling.")

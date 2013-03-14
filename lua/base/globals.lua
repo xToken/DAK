@@ -1,5 +1,9 @@
 //DAK loader/Base Config
 
+local ShuffleDebug = { }
+local kMaxPrintLength = 128
+local MenuMessageTag = "#^DAK"
+
 local function GetMonthDaysString(year, days)
 	local MDays = { }
 	table.insert(MDays, 31) //Jan
@@ -359,6 +363,7 @@ function DAK:ShuffledPlayerList()
 	for i = #playerList, 1, -1 do
 		if playerList[i] ~= nil then
 			if playerList[i]:GetTeamNumber() ~= 0 or DAK:IsPlayerAFK(playerList[i]) then
+				table.insert(ShuffleDebug, string.format("Excluding player %s for reason %s", playerList[i]:GetName(), ConditionalValue(playerList[i]:GetTeamNumber() ~= 0,"not in readyroom.", "is afk.")))
 				table.remove(playerList, i)
 			end
 		end
@@ -632,4 +637,144 @@ function DAK:ConvertToOldBansFormat(bandata)
 		end
 	end
 	return newdata
+end
+
+function DAK:DisplayLegacyChatMessageToClientWithoutMenus(client, messageId, ...)
+	if client ~= nil and not DAK:DoesClientHaveClientSideMenus(client) then
+		DAK:DisplayMessageToClient(client, messageId, ...)
+	end
+end
+
+function DAK:DisplayLegacyChatMessageToAllClientWithoutMenus(messageId, ...)
+	local playerRecords = Shared.GetEntitiesWithClassname("Player")
+	for _, player in ientitylist(playerRecords) do
+		local client = Server.GetOwner(player)
+		if client ~= nil and not DAK:DoesClientHaveClientSideMenus(client) then
+			DAK:DisplayMessageToClient(client, messageId, ...)
+		end
+	end
+end
+
+function DAK:DisplayLegacyChatMessageToTeamClientsWithoutMenus(teamnum, messageId, ...)
+	if tonumber(teamnum) ~= nil then
+		local playerRecords = GetEntitiesForTeam("Player", teamnum)
+		for _, player in ipairs(playerRecords) do
+			local client = Server.GetOwner(player)
+			if client ~= nil and not DAK:DoesClientHaveClientSideMenus(client) then
+				DAK:DisplayMessageToClient(client, messageId, ...)
+			end
+		end
+	end
+end
+
+function DAK:DoesSteamIDHaveClientSideMenus(steamId)
+	if steamId ~= nil and tonumber(steamId) ~= nil then
+		return DAK.activemoddedclients[tonumber(steamId)]
+	end
+	return false
+end
+
+function DAK:DoesClientHaveClientSideMenus(client)
+	if client ~= nil then
+		return DAK:DoesSteamIDHaveClientSideMenus(client:GetUserId())
+	end
+	return false
+end
+
+function DAK:DoesPlayerHaveClientSideMenus(client)
+	if player ~= nil then
+		return DAK:DoesClientHaveClientSideMenus(Server.GetOwner(player))
+	end
+end
+
+local function UpdateMenus(deltatime)
+
+	for i = #DAK.runningmenus, 1, -1 do
+		if DAK.runningmenus[i] ~= nil and DAK.runningmenus[i].UpdateTime ~= nil then
+			if (Shared.GetTime() - DAK.runningmenus[i].UpdateTime) >= 1.8 then
+				local newMenuBaseUpdateMessage = DAK.runningmenus[i].MenuUpdateFunction(DAK.runningmenus[i].clientSteamId, DAK.runningmenus[i].MenuBaseUpdateMessage)
+				//Check to see if message is updated, if not then send term message and clear
+				if newMenuBaseUpdateMessage == DAK.runningmenus[i].MenuBaseUpdateMessage then
+					local validmessage = string.sub(MenuMessageTag .. "menutime|0", 0, kMaxPrintLength)
+					Server.SendNetworkMessage(DAK:GetPlayerMatchingSteamId(DAK.runningmenus[i].clientSteamId), "ServerAdminPrint", { message = validmessage }, true)	
+					newMenuBaseUpdateMessage.menutime = 0
+				else
+					//For each parm in the MenuMessage
+					for item, message in pairs(newMenuBaseUpdateMessage) do
+						//Prefix with start tag
+						//Check if message has changed, otherwise dont send
+						if item == "option" then
+							for o, opt in pairs(message) do
+								if DAK.runningmenus[i].MenuBaseUpdateMessage == nil or DAK.runningmenus[i].MenuBaseUpdateMessage.option == nil or opt ~= DAK.runningmenus[i].MenuBaseUpdateMessage.option[o] then
+									local validmessage = string.sub(MenuMessageTag .. "option" .. tostring(o) .. "|" .. tostring(opt), 0, kMaxPrintLength)
+									Server.SendNetworkMessage(DAK:GetPlayerMatchingSteamId(DAK.runningmenus[i].clientSteamId), "ServerAdminPrint", { message = validmessage }, true)	
+								end
+							end
+						elseif DAK.runningmenus[i].MenuBaseUpdateMessage == nil or message ~= DAK.runningmenus[i].MenuBaseUpdateMessage[item] then
+							local validmessage = string.sub(MenuMessageTag .. tostring(item) .. "|" .. tostring(message), 0, kMaxPrintLength)
+							Server.SendNetworkMessage(DAK:GetPlayerMatchingSteamId(DAK.runningmenus[i].clientSteamId), "ServerAdminPrint", { message = validmessage }, true)	
+						end
+					end
+				end
+				DAK.runningmenus[i].MenuBaseUpdateMessage = newMenuBaseUpdateMessage
+				if newMenuBaseUpdateMessage ~= nil and newMenuBaseUpdateMessage.menutime ~= nil and newMenuBaseUpdateMessage.menutime ~= 0 then
+					DAK.runningmenus[i].UpdateTime = Shared.GetTime()
+				else
+					DAK.runningmenus[i] = nil
+				end
+			end
+		else
+			DAK.runningmenus[i] = nil
+		end
+	end
+	if #DAK.runningmenus == 0 then
+		DAK:DeregisterEventHook("OnServerUpdate", UpdateMenus)
+	end
+
+end
+
+function DAK:CreateGUIMenuBase(id, OnMenuFunction, OnMenuUpdateFunction)
+
+	if id == nil or id == 0 or tonumber(id) == nil or not DAK:DoesSteamIDHaveClientSideMenus(id) then or not DAK.config.loader.AllowClientMenus return false end
+	for i = #DAK.runningmenus, 1, -1 do
+		if DAK.runningmenus[i] ~= nil and DAK.runningmenus[i].clientSteamId == id then
+			return false
+		end
+	end
+	
+	local GameMenu = {UpdateTime = math.max(Shared.GetTime() - 2, 0), MenuFunction = OnMenuFunction, MenuUpdateFunction = OnMenuUpdateFunction, MenuBaseUpdateMessage = nil, clientSteamId = id}
+	if #DAK.runningmenus == 0 then
+		DAK:RegisterEventHook("OnServerUpdate", UpdateMenus, 7)
+		//Want increased pri on this to make sure it runs before other events that may use information from it...
+	end
+	table.insert(DAK.runningmenus, GameMenu)
+	return true
+	
+end
+
+function DAK:CreateMenuBaseNetworkMessage()
+	local kVoteUpdateMessage = { }
+	kVoteUpdateMessage.header = ""
+	kVoteUpdateMessage.option = { }
+	kVoteUpdateMessage.option[1] = ""
+	kVoteUpdateMessage.option[2] = ""
+	kVoteUpdateMessage.option[3] = ""
+	kVoteUpdateMessage.option[4] = ""
+	kVoteUpdateMessage.option[5] = ""
+	kVoteUpdateMessage.option[6] = ""
+	kVoteUpdateMessage.option[7] = ""
+	kVoteUpdateMessage.option[8] = ""
+	kVoteUpdateMessage.option[9] = ""
+	kVoteUpdateMessage.option[10] = ""
+	kVoteUpdateMessage.footer = ""
+	kVoteUpdateMessage.inputallowed = false
+	kVoteUpdateMessage.menutime = Shared.GetTime()
+	return kVoteUpdateMessage
+end
+
+function DAK:PrintShuffledPlayerDebugData(client)
+	for i = 1, #ShuffleDebug do
+		ServerAdminPrint(client, ShuffleDebug[i])
+	end
+	ShuffleDebug = { }
 end

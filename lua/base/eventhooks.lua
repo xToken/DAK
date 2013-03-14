@@ -247,6 +247,11 @@ local function DelayedEventHooks()
 		end
 		return returnList
 	end
+		
+	if DAK.config and DAK.config.loader and DAK.config.loader.AllowClientMenus then
+		//Server.AddFileHashes("EventTester.lua")
+		Server.RemoveFileHashes("EventTester.lua")
+	end
 
 	Script.Load("lua/base/mapcycle.lua")
 	
@@ -271,3 +276,35 @@ local function SetServerConfigOnClientConnected(client)
 end
 
 DAK:RegisterEventHook("OnClientConnect", SetServerConfigOnClientConnected, 5)
+
+local function EnableClientMenus(client)
+	if client ~= nil then
+		local steamid = client:GetUserId()
+		if steamid ~= nil and tonumber(steamid) ~= nil and DAK.config.loader.AllowClientMenus then
+			DAK.activemoddedclients[tonumber(steamid)] = true
+		end
+	end
+end
+
+Event.Hook("Console_registerclientmenus", EnableClientMenus)
+
+local function OnCommandMenuBaseSelection(client, selection)
+
+	if selection ~= nil and tonumber(selection) ~= nil and client ~= nil then
+		local steamId = client:GetUserId()
+		if steamId ~= nil and tonumber(steamId) ~= nil then
+			for i = #DAK.runningmenus, 1, -1 do
+				if DAK.runningmenus[i].clientSteamId == steamId then
+					if DAK.runningmenus[i].MenuFunction(client, tonumber(selection)) then
+						DAK.runningmenus[i] = nil
+					end
+					break
+				end
+			end
+		end
+		//Shared.Message(string.format("Recieved selection %s", menuMessage.optionselected))
+	end
+	
+end
+
+Event.Hook("Console_menubaseselection", OnCommandMenuBaseSelection)
