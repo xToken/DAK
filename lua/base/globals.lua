@@ -735,7 +735,7 @@ end
 
 function DAK:CreateGUIMenuBase(id, OnMenuFunction, OnMenuUpdateFunction)
 
-	if id == nil or id == 0 or tonumber(id) == nil or not DAK:DoesSteamIDHaveClientSideMenus(id) then or not DAK.config.loader.AllowClientMenus return false end
+	if id == nil or id == 0 or tonumber(id) == nil or not DAK:DoesSteamIDHaveClientSideMenus(id) or not DAK.config.loader.AllowClientMenus then return false end
 	for i = #DAK.runningmenus, 1, -1 do
 		if DAK.runningmenus[i] ~= nil and DAK.runningmenus[i].clientSteamId == id then
 			return false
