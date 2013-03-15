@@ -321,6 +321,14 @@ local function Ban(client, playerId, name, duration, ...)
 
 	local player = DAK:GetPlayerMatching(playerId)
 	local reason =  StringConcatArgs(...) or "No Reason"
+	if tonumber(name) ~= nil and tonumber(duration) == nil then
+		duration = tonumber(name)
+		if player then
+			name = player:GetName()
+		else
+			name = "Not Provided"
+		end
+	end
 	duration = tonumber(duration) or 0
 	if player then
 		if not DAK:GetLevelSufficient(client, player) then

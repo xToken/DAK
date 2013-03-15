@@ -1,5 +1,8 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.314a
+- Fixed issue with webadmin bans
+
 ## v0.1.313b
 - Removed remaining parts of old GUI system (GUIMenuBase plugin).  
 - Integrated GUI system into the core of DAK.
