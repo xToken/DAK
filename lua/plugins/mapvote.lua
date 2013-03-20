@@ -43,12 +43,21 @@ end
 
 DAK:RegisterEventHook("CheckMapChange", CheckMapVote, 5)
 
+local function ResetPlayerScores()
+	for _, player in ientitylist(Shared.GetEntitiesWithClassname("Player")) do            
+		if player.ResetScores then
+			player:ResetScores()
+		end            
+	end
+end
+
 local function StartCountdown(gamerules)
 	if gamerules then
 		gamerules:ResetGame() 
 		//gamerules:ResetGame() - Dont think this is necessary anymore, and probably could potentially cause issues.  
 		//Used this back when you could hear where the other team spawned to make it more difficult
-		gamerules:SetGameState(kGameState.Countdown)      
+		gamerules:SetGameState(kGameState.Countdown)
+		ResetPlayerScores()		
 		gamerules.countdownTime = kCountDownLength     
 		gamerules.lastCountdownPlayed = nil 
 	end
