@@ -4,13 +4,13 @@ local TournamentModeSettings = { countdownstarted = false, countdownstarttime = 
 
 local function LoadTournamentMode()
 	if DAK.settings.TournamentMode then
-		Shared.Message("TournamentMode Enabled")
+		//Shared.Message("TournamentMode Enabled")
 		DAK:ExecutePluginGlobalFunction("enhancedlogging", EnhancedLogMessage, "TournamentMode Enabled")
 	else
 		DAK.settings.TournamentMode = false
 	end
 	if DAK.settings.FriendlyFire then
-		Shared.Message("FriendlyFire Enabled")
+		//Shared.Message("FriendlyFire Enabled")
 		DAK:ExecutePluginGlobalFunction("enhancedlogging", EnhancedLogMessage, "FriendlyFire Enabled")
 	else
 		DAK.settings.FriendlyFire = false
@@ -23,7 +23,7 @@ local function BlockMapChange()
 	return DAK.settings.TournamentMode and not DAK.config.tournamentmode.kTournamentModePubMode
 end
 
-DAK:RegisterEventHook("CheckMapChange", BlockMapChange, 5)
+DAK:RegisterEventHook("CheckMapChange", BlockMapChange, 5, "tournamentmode")
 
 local function ResetPlayerScores()
 	for _, player in ientitylist(Shared.GetEntitiesWithClassname("Player")) do            
@@ -138,7 +138,7 @@ local function TournamentModeOnDisconnect(client)
 	end
 end
 
-DAK:RegisterEventHook("OnClientDisconnect", TournamentModeOnDisconnect, 5)
+DAK:RegisterEventHook("OnClientDisconnect", TournamentModeOnDisconnect, 5, "tournamentmode")
 
 local function UpdatePregame(self, timePassed)
 
@@ -156,7 +156,7 @@ local function UpdatePregame(self, timePassed)
 	
 end
 
-DAK:RegisterEventHook("OnUpdatePregame", UpdatePregame, 6)
+DAK:RegisterEventHook("OnUpdatePregame", UpdatePregame, 6, "tournamentmode")
 	
 local function OnPluginInitialized()
 
@@ -180,7 +180,7 @@ local function OnPluginInitialized()
 end
 
 if DAK.config and DAK.config.loader and DAK.config.loader.GamerulesExtensions then
-	DAK:RegisterEventHook("OnPluginInitialized", OnPluginInitialized, 5)
+	DAK:RegisterEventHook("OnPluginInitialized", OnPluginInitialized, 5, "tournamentmode")
 end
 
 local function EnablePCWMode(client)

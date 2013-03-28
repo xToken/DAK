@@ -47,7 +47,7 @@ local function OnPluginInitialized()
 end
 
 if DAK.config and DAK.config.loader and DAK.config.loader.GamerulesExtensions then
-	DAK:RegisterEventHook("OnPluginInitialized", OnPluginInitialized, 5)
+	DAK:RegisterEventHook("OnPluginInitialized", OnPluginInitialized, 5, "commbans")
 end
 
 local function DelayedVoteManagerOverride()	
@@ -59,7 +59,7 @@ local function DelayedVoteManagerOverride()
 	DAK:DeregisterEventHook("OnServerUpdate", DelayedVoteManagerOverride)
 end
 
-DAK:RegisterEventHook("OnServerUpdate", DelayedVoteManagerOverride, 5)
+DAK:RegisterEventHook("OnServerUpdate", DelayedVoteManagerOverride, 5, "commbans")
 
 local function CommBansCastVoteByPlayer(self, voteTechId, player)
 	local commanders = GetEntitiesForTeam("Commander", player:GetTeamNumber())
@@ -76,7 +76,7 @@ local function CommBansCastVoteByPlayer(self, voteTechId, player)
 	end
 end
 
-DAK:RegisterEventHook("OnCastVoteByPlayer", CommBansCastVoteByPlayer, 5)
+DAK:RegisterEventHook("OnCastVoteByPlayer", CommBansCastVoteByPlayer, 5, "commbans")
 
 local function OnCommandCommBan(client, playerId, pname, duration, ...)
 

@@ -72,7 +72,6 @@ local function SaveDefaultLanguageDefinition()
 			end
 		end
 		DAKDefaultLangFile:write("}\n")
-		Shared.Message("Saving DAK Default Language.")
 		DAKDefaultLangFile:close()
 	end
 end

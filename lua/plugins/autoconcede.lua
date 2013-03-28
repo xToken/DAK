@@ -70,5 +70,5 @@ local function OnPluginInitialized()
 end
 
 if DAK.config and DAK.config.loader and DAK.config.loader.GamerulesExtensions then
-	DAK:RegisterEventHook("OnPluginInitialized", OnPluginInitialized, 5)
+	DAK:RegisterEventHook("OnPluginInitialized", OnPluginInitialized, 5, "autoconcede")
 end

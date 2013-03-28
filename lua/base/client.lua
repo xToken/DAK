@@ -14,6 +14,30 @@ local function OnClientLoaded()
 	if guimenubase == nil then
 		guimenubase = GetGUIManager():CreateGUIScriptSingle("gui/GUIMenuBase")			
 	end
+	local originalNS2PlayerGetCameraViewCoordsOverride
+	originalNS2PlayerGetCameraViewCoordsOverride = Class_ReplaceMethod("Player", "GetCameraViewCoordsOverride", 
+		function(self, cameraCoords)
+
+			if self.countingDown and self:GetGameStarted() then
+				return cameraCoords
+			else
+				return originalNS2PlayerGetCameraViewCoordsOverride(self, cameraCoords)
+			end
+			
+		end
+	)
+	local originalNS2PlayerGetDrawWorld
+	originalNS2PlayerGetDrawWorld = Class_ReplaceMethod("Player", "GetDrawWorld", 
+		function(self, isLocal)
+
+			if self.countingDown and self:GetGameStarted() then
+				return not self:GetIsLocalPlayer() or self:GetIsThirdPerson()
+			else
+				return originalNS2PlayerGetDrawWorld(self, isLocal)
+			end
+			
+		end
+	)
 end
 
 Event.Hook("LoadComplete", OnClientLoaded)
@@ -65,3 +89,5 @@ originalNS2ClientHookNetworkMessage = Class_ReplaceMethod("Client", "HookNetwork
 		
 	end
 )
+
+//Hook to fix the old, perfectly fine pause method :<

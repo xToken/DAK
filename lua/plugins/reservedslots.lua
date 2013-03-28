@@ -122,14 +122,14 @@ local function CheckReserveSlotSync()
 		lastdisconnect = 0
 	end
 	
-	if (Shared.GetTime() - lastpasswordupdate) >= 60 then
+	if (Shared.GetTime() - lastpasswordupdate) >= 10 then
 		UpdateServerLockStatus()
 		lastpasswordupdate = Shared.GetTime()
 	end
 	
 end
 
-DAK:RegisterEventHook("OnServerUpdate", CheckReserveSlotSync, 5)
+DAK:RegisterEventHook("OnServerUpdate", CheckReserveSlotSync, 5, "reserveslots")
 
 local function OnReserveSlotClientConnected(client)
 
@@ -188,13 +188,13 @@ local function OnReserveSlotClientConnected(client)
 	
 end
 
-DAK:RegisterEventHook("OnClientConnect", OnReserveSlotClientConnected, 6)
+DAK:RegisterEventHook("OnClientConnect", OnReserveSlotClientConnected, 6, "reserveslots")
 
 local function ReserveSlotClientDisconnect(client)    
 	lastdisconnect = Shared.GetTime() + DAK.config.reservedslots.kDelayedSyncTime
 end
 
-DAK:RegisterEventHook("OnClientDisconnect", ReserveSlotClientDisconnect, 5)
+DAK:RegisterEventHook("OnClientDisconnect", ReserveSlotClientDisconnect, 5, "reserveslots")
 
 local function AddReservePlayer(client, parm1, parm2, parm3, parm4)
 

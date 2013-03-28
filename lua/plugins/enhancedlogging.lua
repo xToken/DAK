@@ -74,7 +74,7 @@ local function PrintToEnhancedLog(logstring)
 		SaveEnhancedLog()
 	else
 		pendinglogsave = true
-		DAK:RegisterEventHook("OnServerUpdate", UpdateServerEnhancedLogging, 5)
+		DAK:RegisterEventHook("OnServerUpdate", UpdateServerEnhancedLogging, 5, "enhancedlogging")
 	end
 	
 	//Append doesnt crash atleast now, still doesnt work tho which is prettty meh.
@@ -106,7 +106,7 @@ local function LogOnClientConnect(client)
 	
 end
 
-DAK:RegisterEventHook("OnClientDelayedConnect", LogOnClientConnect, 5)
+DAK:RegisterEventHook("OnClientDelayedConnect", LogOnClientConnect, 5, "enhancedlogging")
 
 local function LogOnClientDisconnect(client)
 	local reason = ""
@@ -120,7 +120,7 @@ local function LogOnClientDisconnect(client)
 	
 end
 
-DAK:RegisterEventHook("OnClientDisconnect", LogOnClientDisconnect, 5)
+DAK:RegisterEventHook("OnClientDisconnect", LogOnClientDisconnect, 5, "enhancedlogging")
 
 function OnCommandSetName(client, name)
 
@@ -247,7 +247,7 @@ local function OnPluginInitialized()
 end
 
 if DAK.config and DAK.config.loader and DAK.config.loader.GamerulesExtensions then
-	DAK:RegisterEventHook("OnPluginInitialized", OnPluginInitialized, 5)
+	DAK:RegisterEventHook("OnPluginInitialized", OnPluginInitialized, 5, "enhancedlogging")
 end
 
 function EnhancedLoggingChatMessage(message, playerName, steamId, teamNumber, teamOnly, client)
@@ -258,7 +258,7 @@ function EnhancedLoggingChatMessage(message, playerName, steamId, teamNumber, te
 	end
 end
 
-DAK:RegisterEventHook("OnClientChatMessage", EnhancedLoggingChatMessage, 5)
+DAK:RegisterEventHook("OnClientChatMessage", EnhancedLoggingChatMessage, 5, "enhancedlogging")
 
 local function EnhancedLoggingSetGameState(self, state, currentstate)
 
@@ -272,7 +272,7 @@ local function EnhancedLoggingSetGameState(self, state, currentstate)
 	
 end
 
-DAK:RegisterEventHook("OnSetGameState", EnhancedLoggingSetGameState, 5)
+DAK:RegisterEventHook("OnSetGameState", EnhancedLoggingSetGameState, 5, "enhancedlogging")
 
 function EnhancedLoggingJoinTeam(self, player, newTeamNumber, force)
 
@@ -283,7 +283,7 @@ function EnhancedLoggingJoinTeam(self, player, newTeamNumber, force)
 	
 end
 
-DAK:RegisterEventHook("OnTeamJoin", EnhancedLoggingJoinTeam, 5)
+DAK:RegisterEventHook("OnTeamJoin", EnhancedLoggingJoinTeam, 5, "enhancedlogging")
 
 function EnhancedLoggingEndGame(self, winningTeam)
 
@@ -298,7 +298,7 @@ function EnhancedLoggingEndGame(self, winningTeam)
 	
 end
 
-DAK:RegisterEventHook("OnGameEnd", EnhancedLoggingEndGame, 5)
+DAK:RegisterEventHook("OnGameEnd", EnhancedLoggingEndGame, 5, "enhancedlogging")
 
 function EnhancedLoggingCastVoteByPlayer(self, voteTechId, player)
 
@@ -320,7 +320,7 @@ function EnhancedLoggingCastVoteByPlayer(self, voteTechId, player)
 	
 end
 
-DAK:RegisterEventHook("OnCastVoteByPlayer", EnhancedLoggingCastVoteByPlayer, 5)
+DAK:RegisterEventHook("OnCastVoteByPlayer", EnhancedLoggingCastVoteByPlayer, 5, "enhancedlogging")
 
 function EnhancedLoggingOnEntityKilled(self, targetEntity, attacker, doer, point, direction)
  
@@ -342,4 +342,4 @@ function EnhancedLoggingOnEntityKilled(self, targetEntity, attacker, doer, point
 
 end
 
-DAK:RegisterEventHook("OnEntityKilled", EnhancedLoggingOnEntityKilled, 5)
+DAK:RegisterEventHook("OnEntityKilled", EnhancedLoggingOnEntityKilled, 5, "enhancedlogging")

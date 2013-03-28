@@ -9,9 +9,11 @@
 
 local DelayedClientConnect = { }
 local serverupdatetime = 0
+local kMaxPrintLength = 128
+local MenuMessageTag = "#^DAK"
 
 local function DAKOnClientConnected(client)
-	if client ~= nil then
+	if client ~= nil and DAK.enabled then
 		DAK:AddClientToGameIDs(client)
 		DAK:UpdateConnectionTimeTracker(client)
 		DAK:ExecuteEventHooks("OnClientConnect", client)
@@ -25,7 +27,7 @@ end
 Event.Hook("ClientConnect", DAKOnClientConnected)
 
 local function DAKOnClientDisconnected(client)
-	if client ~= nil and DAK:VerifyClient(client) ~= nil then
+	if client ~= nil and DAK:VerifyClient(client) ~= nil and DAK.enabled then
 		DAK:RemoveConnectionTimeTracker(client)
 		DAK:ExecuteEventHooks("OnClientDisconnect", client)
 	end	
@@ -33,11 +35,66 @@ end
 
 Event.Hook("ClientDisconnect", DAKOnClientDisconnected)
 
+local function UpdateClientMenu(player, menumessage)
+	Server.SendNetworkMessage(player, "ServerAdminPrint", { message = menumessage }, true)	
+end
+
+local function UpdateMenuObject(menuitem)
+	local success, newMenuBaseUpdateMessage
+	if menuitem.MenuUpdateFunction == nil then
+		newMenuBaseUpdateMessage = menuitem.MenuBaseUpdateMessage
+		success = true
+	else
+		success, newMenuBaseUpdateMessage = pcall(menuitem.MenuUpdateFunction, menuitem.clientSteamId, menuitem.MenuBaseUpdateMessage, menuitem.activepage)
+	end
+	if not success then
+		Shared.Message(string.format("Error encountered in menu function: %s", ""))
+		menuitem = nil
+	else
+		//Check to see if message is updated, if not then send term message and clear
+		if newMenuBaseUpdateMessage == menuitem.MenuBaseUpdateMessage then
+			UpdateClientMenu(DAK:GetPlayerMatchingSteamId(menuitem.clientSteamId), string.sub(MenuMessageTag .. "menutime|0", 0, kMaxPrintLength))
+			newMenuBaseUpdateMessage.menutime = 0
+		else
+			//Add in page messages if applicable
+			if newMenuBaseUpdateMessage.option[8] ~= "" then
+				newMenuBaseUpdateMessage.option[9] = "Next Page."
+			end
+			if menuitem.activepage > 0 then
+				newMenuBaseUpdateMessage.option[10] = "Previous Page."
+			else
+				newMenuBaseUpdateMessage.option[10] = "Close."
+			end
+			//For each parm in the MenuMessage
+			for item, message in pairs(newMenuBaseUpdateMessage) do
+				//Prefix with start tag
+				//Check if message has changed, otherwise dont send
+				if item == "option" then
+					for o, opt in pairs(message) do
+						if menuitem.MenuBaseUpdateMessage == nil or menuitem.MenuBaseUpdateMessage.option == nil or opt ~= menuitem.MenuBaseUpdateMessage.option[o] then
+							UpdateClientMenu(DAK:GetPlayerMatchingSteamId(menuitem.clientSteamId), string.sub(MenuMessageTag .. "option" .. tostring(o) .. "|" .. tostring(opt), 0, kMaxPrintLength))
+						end
+					end
+				elseif menuitem.MenuBaseUpdateMessage == nil or message ~= menuitem.MenuBaseUpdateMessage[item] then
+					UpdateClientMenu(DAK:GetPlayerMatchingSteamId(menuitem.clientSteamId), string.sub(MenuMessageTag .. tostring(item) .. "|" .. tostring(message), 0, kMaxPrintLength))
+				end
+			end
+		end
+		menuitem.MenuBaseUpdateMessage = newMenuBaseUpdateMessage
+		if newMenuBaseUpdateMessage ~= nil and newMenuBaseUpdateMessage.menutime ~= nil and newMenuBaseUpdateMessage.menutime ~= 0 then
+			menuitem.UpdateTime = Shared.GetTime()
+		else
+			menuitem = nil
+		end
+	end
+	return menuitem
+end
+
 local function DAKUpdateServer(deltaTime)
 
 	PROFILE("DAK:UpdateServer")
 	
-	if DAK.config and DAK.config.loader then
+	if DAK.config and DAK.config.loader and DAK.enabled then
 		serverupdatetime = serverupdatetime + deltaTime
 		DAK:ExecuteEventHooks("OnServerUpdateEveryFrame", deltaTime)
 		DAK:ProcessTimedCallBacks()
@@ -59,6 +116,18 @@ local function DAKUpdateServer(deltaTime)
 				end
 			end
 			
+			if #DAK.runningmenus > 0 then
+				for i = #DAK.runningmenus, 1, -1 do
+					if DAK.runningmenus[i] ~= nil and DAK.runningmenus[i].UpdateTime ~= nil then
+						if (Shared.GetTime() - DAK.runningmenus[i].UpdateTime) >= 1.8 then
+							DAK.runningmenus[i] = UpdateMenuObject(DAK.runningmenus[i])
+						end
+					else
+						DAK.runningmenus[i] = nil
+					end
+				end
+			end
+			
 			//Print(string.format("%.5f Accuracy", (100 - math.abs(100 - ((serverupdatetime/1) * 100)))))
 			serverupdatetime = serverupdatetime - DAK.config.loader.DelayedServerUpdate
 			
@@ -76,7 +145,7 @@ local function DAKRunPluginInitialized(deltaTime)
 	DAK:DeregisterEventHook("OnServerUpdateEveryFrame", DAKRunPluginInitialized)
 end
 
-DAK:RegisterEventHook("OnServerUpdateEveryFrame", DAKRunPluginInitialized, 10)
+DAK:RegisterEventHook("OnServerUpdateEveryFrame", DAKRunPluginInitialized, 10, "eventhooks")
 
 local originalServerHookNetworkMessage
 	
@@ -230,7 +299,9 @@ local function DelayedEventHooks()
 	originalServerAddChatToHistory = Class_ReplaceMethod("Server", "AddChatToHistory", 
 		function(message, playerName, steamId, teamNumber, teamOnly)
 
-			originalServerAddChatToHistory(message, playerName, steamId, teamNumber, teamOnly)
+			if originalServerAddChatToHistory ~= nil then
+				originalServerAddChatToHistory(message, playerName, steamId, teamNumber, teamOnly)
+			end
 
 			local client = DAK:GetClientMatchingSteamId(steamId)
 			DAK:ExecuteChatCommands(client, message)
@@ -249,7 +320,6 @@ local function DelayedEventHooks()
 	end
 		
 	if DAK.config and DAK.config.loader and DAK.config.loader.AllowClientMenus then
-		//Server.AddFileHashes("EventTester.lua")
 		Server.RemoveFileHashes("EventTester.lua")
 	end
 
@@ -258,7 +328,7 @@ local function DelayedEventHooks()
 end
 
 if DAK.config and DAK.config.loader and DAK.config.loader.GamerulesExtensions then
-	DAK:RegisterEventHook("OnPluginInitialized", DelayedEventHooks, 10)
+	DAK:RegisterEventHook("OnPluginInitialized", DelayedEventHooks, 10, "eventhooks")
 end
 	
 local function SetServerConfigOnClientConnected(client)
@@ -275,7 +345,7 @@ local function SetServerConfigOnClientConnected(client)
 	end
 end
 
-DAK:RegisterEventHook("OnClientConnect", SetServerConfigOnClientConnected, 5)
+DAK:RegisterEventHook("OnClientConnect", SetServerConfigOnClientConnected, 5, "eventhooks")
 
 local function EnableClientMenus(client)
 	if client ~= nil then
@@ -291,12 +361,22 @@ Event.Hook("Console_registerclientmenus", EnableClientMenus)
 local function OnCommandMenuBaseSelection(client, selection)
 
 	if selection ~= nil and tonumber(selection) ~= nil and client ~= nil then
+		selection = tonumber(selection)
 		local steamId = client:GetUserId()
 		if steamId ~= nil and tonumber(steamId) ~= nil then
 			for i = #DAK.runningmenus, 1, -1 do
 				if DAK.runningmenus[i].clientSteamId == steamId then
-					if DAK.runningmenus[i].MenuFunction(client, tonumber(selection)) then
-						DAK.runningmenus[i] = nil
+					local menufunction = DAK.runningmenus[i].MenuFunction
+					if selection == 10 and DAK.runningmenus[i].activepage > 0 then
+						DAK.runningmenus[i].activepage = DAK.runningmenus[i].activepage - 1
+					elseif selection == 10 then
+						DAK.runningmenus[i].MenuUpdateFunction = nil
+					elseif selection == 9 then
+						DAK.runningmenus[i].activepage = DAK.runningmenus[i].activepage + 1
+					elseif DAK.runningmenus[i].MenuFunction(client, selection, DAK.runningmenus[i].activepage) then
+						if menufunction == DAK.runningmenus[i].MenuFunction then
+							DAK.runningmenus[i] = nil
+						end
 					end
 					break
 				end
@@ -308,3 +388,22 @@ local function OnCommandMenuBaseSelection(client, selection)
 end
 
 Event.Hook("Console_menubaseselection", OnCommandMenuBaseSelection)
+
+local function UpdateClientMenuHook(steamId, LastUpdateMessage, page)
+	return DAK:UpdateClientMainMenu(steamId, LastUpdateMessage, page)
+end
+
+local function UpdateClientSelectMainMenuHook(client, selecteditem, page)
+	return DAK:SelectMainMenuItem(client, selecteditem, page)
+end
+
+local function DisplayDAKMenu(client)
+	if client ~= nil then
+		local steamid = client:GetUserId()
+		if steamid ~= nil and tonumber(steamid) ~= nil and DAK.config.loader.AllowClientMenus then
+			DAK:CreateGUIMenuBase(steamid, UpdateClientSelectMainMenuHook, UpdateClientMenuHook, true)
+		end
+	end
+end
+
+Event.Hook("Console_dakmodmenu", DisplayDAKMenu)

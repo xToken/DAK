@@ -1,5 +1,16 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.328a
+- Removed unneeded hook.
+
+## v0.1.325a
+- Created global mainmenu system for all plugins.
+- Added simple confirmation menu extension.
+- Added dakmodmenu command.
+- Adjusted some of the voterandom functions to be clearer.
+- Lowered update rate of Reserveslot password.
+- Fixes to pause plugin logic
+
 ## v0.1.320a
 - Fixed issue with scores not resetting on round start.
 

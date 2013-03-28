@@ -65,7 +65,7 @@ local function MOTDOnClientDisconnect(client)
 
 end
 
-DAK:RegisterEventHook("OnClientDisconnect", MOTDOnClientDisconnect, 5)
+DAK:RegisterEventHook("OnClientDisconnect", MOTDOnClientDisconnect, 5, "motd")
 
 local function ProcessRemainingMOTDMessages(deltatime)
 
@@ -120,13 +120,13 @@ local function MOTDOnClientConnect(client)
 	PEntry = ProcessMessagesforUser(PEntry)
 	if PEntry ~= nil then
 		if #MOTDClientTracker == 0 then
-			DAK:RegisterEventHook("OnServerUpdate", ProcessRemainingMOTDMessages, 5)
+			DAK:RegisterEventHook("OnServerUpdate", ProcessRemainingMOTDMessages, 5, "motd")
 		end
 		table.insert(MOTDClientTracker, PEntry)
 	end
 end
 
-DAK:RegisterEventHook("OnClientDelayedConnect", MOTDOnClientConnect, 5)
+DAK:RegisterEventHook("OnClientDelayedConnect", MOTDOnClientConnect, 5, "motd")
 
 local function OnCommandAcceptMOTD(client)
 
@@ -164,7 +164,7 @@ local function OnCommandPrintMOTD(client)
 	PEntry = ProcessMessagesforUser(PEntry)
 	if PEntry ~= nil then
 		if #MOTDClientTracker == 0 then
-			DAK:RegisterEventHook("OnServerUpdate", ProcessRemainingMOTDMessages, 5)
+			DAK:RegisterEventHook("OnServerUpdate", ProcessRemainingMOTDMessages, 5, "motd")
 		end
 		table.insert(MOTDClientTracker, PEntry)
 	end

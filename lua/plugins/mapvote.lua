@@ -41,7 +41,7 @@ local function CheckMapVote()
 
 end
 
-DAK:RegisterEventHook("CheckMapChange", CheckMapVote, 5)
+DAK:RegisterEventHook("CheckMapChange", CheckMapVote, 5, "mapvote")
 
 local function ResetPlayerScores()
 	for _, player in ientitylist(Shared.GetEntitiesWithClassname("Player")) do            
@@ -210,7 +210,11 @@ end
 
 Event.Hook("Console_vote",               OnCommandVote)
 
-local function OnCommandUpdateVote(steamId, LastUpdateMessage)
+local function OnCommandMenuVote(client, mapnumber, page)
+	OnCommandVote(client, (page * 8) + mapnumber)
+end
+
+local function OnCommandUpdateVote(steamId, LastUpdateMessage, page)
 	//OnVoteUpdateFunction
 	if mapvoterunning then
 		local kVoteUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
@@ -221,14 +225,21 @@ local function OnCommandUpdateVote(steamId, LastUpdateMessage)
 		kVoteUpdateMessage.header = string.format("%.1f seconds are left to vote.", mapvotedelay - Shared.GetTime())
 		i = 1
 		for map, votes in pairs(MapVotes) do
-			local message = string.format("%s votes for %s.", votes, VotingMaps[map], i)
-			kVoteUpdateMessage.option[i] = message
+			local ci = i - (page * 8)
+			if ci > 0 and ci < 8 then
+				local message = string.format("%s votes for %s.", votes, VotingMaps[map], ci)
+				kVoteUpdateMessage.option[ci] = message
+			end
 			i = i + 1
 		end
-		kVoteUpdateMessage.footer = "Press a number key to vote for the corresponding map"
 		kVoteUpdateMessage.inputallowed = false
 		if client ~= nil then
 			kVoteUpdateMessage.inputallowed = PlayerVotes[client:GetUserId()] == nil
+		end
+		if not kVoteUpdateMessage.inputallowed then
+			kVoteUpdateMessage.footer = "You have voted!"
+		else
+			kVoteUpdateMessage.footer = "Press a number key to vote for the corresponding map."
 		end
 		return kVoteUpdateMessage
 	else
@@ -372,7 +383,7 @@ local function UpdateMapVotes(deltaTime)
 			
 			local playerRecords = Shared.GetEntitiesWithClassname("Player")				
 			for _, player in ientitylist(playerRecords) do
-				DAK:CreateGUIMenuBase(DAK:GetSteamIdMatchingPlayer(player), OnCommandVote, OnCommandUpdateVote)
+				DAK:CreateGUIMenuBase(DAK:GetSteamIdMatchingPlayer(player), OnCommandMenuVote, OnCommandUpdateVote, false)
 			end
 			
 		end
@@ -407,14 +418,14 @@ local function StartMapVote()
 		mapvotedelay = Shared.GetTime() + DAK.config.mapvote.kVoteStartDelay
 		DAK:DisplayMessageToAllClients("VoteMapBeginning", DAK.config.mapvote.kVoteStartDelay)
 		DAK:DisplayMessageToAllClients("VoteMapHowToVote")
-		DAK:RegisterEventHook("OnServerUpdate", UpdateMapVotes, 5)
+		DAK:RegisterEventHook("OnServerUpdate", UpdateMapVotes, 5, "mapvote")
 		
 	end
 	
 	return true
 end
 
-DAK:RegisterEventHook("OverrideMapChange", StartMapVote, 5)
+DAK:RegisterEventHook("OverrideMapChange", StartMapVote, 5, "mapvote")
 
 local function MapVoteUpdatePregame(self, timePassed)
 
@@ -436,7 +447,7 @@ local function MapVoteUpdatePregame(self, timePassed)
 
 end
 
-DAK:RegisterEventHook("OnUpdatePregame", MapVoteUpdatePregame, 5)
+DAK:RegisterEventHook("OnUpdatePregame", MapVoteUpdatePregame, 5, "mapvote")
 
 local function MapVoteSetGameState(self, state, currentstate)
 
@@ -448,7 +459,7 @@ local function MapVoteSetGameState(self, state, currentstate)
 	
 end
 
-DAK:RegisterEventHook("OnSetGameState", MapVoteSetGameState, 5)
+DAK:RegisterEventHook("OnSetGameState", MapVoteSetGameState, 5, "mapvote")
 
 local function MapVoteCheckGameStart(self)
 
@@ -479,7 +490,7 @@ local function MapVoteCheckGameStart(self)
 	
 end
 
-DAK:RegisterEventHook("CheckGameStart", MapVoteCheckGameStart, 5)
+DAK:RegisterEventHook("CheckGameStart", MapVoteCheckGameStart, 5, "mapvote")
 
 local function UpdateRTV(silent, playername)
 
@@ -523,7 +534,7 @@ local function UpdateRTV(silent, playername)
 
 end
 
-DAK:RegisterEventHook("OnClientDisconnect", UpdateRTV, 5)
+DAK:RegisterEventHook("OnClientDisconnect", UpdateRTV, 5, "mapvote")
 
 local function OnCommandRTV(client)
 

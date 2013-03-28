@@ -43,7 +43,7 @@ local function AFKOnClientConnect(client)
 	
 end
 
-DAK:RegisterEventHook("OnClientDelayedConnect", AFKOnClientConnect, 5)
+DAK:RegisterEventHook("OnClientDelayedConnect", AFKOnClientConnect, 5, "afkkick")
 
 local function UpdateAFKClient(client, PEntry, player)
 	if player ~= nil then
@@ -109,7 +109,7 @@ local function AFKOnClientDisconnect(client)
 	
 end
 
-DAK:RegisterEventHook("OnClientDisconnect", AFKOnClientDisconnect, 5)
+DAK:RegisterEventHook("OnClientDisconnect", AFKOnClientDisconnect, 5, "afkkick")
 
 local function ProcessPlayingUsers(deltatime)
 
@@ -141,4 +141,4 @@ local function ProcessPlayingUsers(deltatime)
 	
 end
 
-DAK:RegisterEventHook("OnServerUpdate", ProcessPlayingUsers, 5)
+DAK:RegisterEventHook("OnServerUpdate", ProcessPlayingUsers, 5, "afkkick")

@@ -31,4 +31,4 @@ local function UpdateMapCycle(deltatime)
 	
 end
 
-DAK:RegisterEventHook("OnServerUpdate", UpdateMapCycle, 5)
+DAK:RegisterEventHook("OnServerUpdate", UpdateMapCycle, 5, "automapcycle")

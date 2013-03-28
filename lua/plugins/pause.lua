@@ -400,15 +400,15 @@ local function OnPluginInitialized()
 		end
 	)
 
-	local originalNS2MACProcessBuildConstruct
+	local originalNS2MACProcessConstruct
 
-	originalNS2MACProcessBuildConstruct = Class_ReplaceMethod("MAC", "ProcessBuildConstruct", 
-		function(self, deltaTime)
+	originalNS2MACProcessConstruct = Class_ReplaceMethod("MAC", "ProcessConstruct", 
+		function(self, deltaTime, orderTarget, orderLocation)
 
 			if DAK:GetTournamentMode() and GetIsGamePaused() then
 				return
 			end
-			originalNS2MACProcessBuildConstruct(self, deltaTime)
+			originalNS2MACProcessConstruct(self, deltaTime, orderTarget, orderLocation)
 			
 		end
 	)
@@ -416,12 +416,25 @@ local function OnPluginInitialized()
 	local originalNS2MACProcessWeldOrder
 
 	originalNS2MACProcessWeldOrder = Class_ReplaceMethod("MAC", "ProcessWeldOrder", 
-		function(self, deltaTime)
+		function(self, deltaTime, orderTarget, orderLocation)
 
 			if DAK:GetTournamentMode() and GetIsGamePaused() then
 				return
 			end
-			originalNS2MACProcessWeldOrder(self, deltaTime)
+			originalNS2MACProcessWeldOrder(self, deltaTime, orderTarget, orderLocation)
+			
+		end
+	)
+	
+	local originalNS2MACProcessFollowAndWeldOrder
+
+	originalNS2MACProcessFollowAndWeldOrder = Class_ReplaceMethod("MAC", "ProcessFollowAndWeldOrder", 
+		function(self, deltaTime, orderTarget, orderLocation)
+
+			if DAK:GetTournamentMode() and GetIsGamePaused() then
+				return
+			end
+			originalNS2MACProcessFollowAndWeldOrder(self, deltaTime, orderTarget, orderLocation)
 			
 		end
 	)
@@ -491,19 +504,6 @@ local function OnPluginInitialized()
 		end
 	)
 	
-	local originalNS2EmbryoUpdateGestation
-
-	originalNS2EmbryoUpdateGestation = Class_ReplaceMethod("Embryo", "UpdateGestation", 
-		function(self, deltaTime)
-
-			if DAK:GetTournamentMode() and GetIsGamePaused() then
-				return true
-			end
-			return originalNS2EmbryoUpdateGestation(self, deltaTime)
-			
-		end
-	)
-	
 	local originalNS2TunnelUserMixinOnProcessMove
 
 	originalNS2TunnelUserMixinOnProcessMove = Class_ReplaceMethod("TunnelUserMixin", "OnProcessMove", 
@@ -529,7 +529,7 @@ local function OnPluginInitialized()
 			
 		end
 	)
-	
+
 	local originalNS2BabblerOnProcessMove
 
 	originalNS2BabblerOnProcessMove = Class_ReplaceMethod("Babbler", "OnProcessMove", 
@@ -567,7 +567,7 @@ local function OnPluginInitialized()
 		end
 	)
 	
-	local kBabblerLifeTime = 120
+	local kBabblerLifeTime = 60 * 5
 
 	local originalNS2BabblerTimeUp
 
@@ -583,10 +583,24 @@ local function OnPluginInitialized()
 		end
 	)
 	
+	local originalNS2GameRulesGetCountingDown
+
+	originalNS2GameRulesGetCountingDown = Class_ReplaceMethod("NS2Gamerules", "GetCountingDown", 
+		function(self)
+
+			if DAK:GetTournamentMode() and GetIsGamePaused() then
+				return true
+			else
+				return originalNS2GameRulesGetCountingDown(self)
+			end
+			
+		end
+	)
+	
 end
 
 if DAK.config and DAK.config.loader and DAK.config.loader.GamerulesExtensions then
-	DAK:RegisterEventHook("OnPluginInitialized", OnPluginInitialized, 5)
+	DAK:RegisterEventHook("OnPluginInitialized", OnPluginInitialized, 5, "pause")
 end
 
 local function PausedJoinTeam(self, player, newTeamNumber, force)
@@ -603,7 +617,7 @@ local function PauseEndGame(self, winningTeam)
 	gamestate.team2resume = false
 end
 
-DAK:RegisterEventHook("OnGameEnd", PauseEndGame, 5)
+DAK:RegisterEventHook("OnGameEnd", PauseEndGame, 5, "pause")
 
 function GetIsGamePaused()
 	return gamestate.gamepaused
@@ -628,9 +642,11 @@ local function UpdateEntStates(deltatime)
 				player:SetOrigin(player.cachedorigin)
 			end
 			if player.cachedvelocity ~= nil then
-				player:SetVelocity(player.cachedvelocity)
+				player:SetVelocity(Vector(0, 0, 0))
 			end
-			if player:isa("Alien") then
+			if player:isa("Embryo") and player.cachedevolveTime ~= nil then
+				player.evolveTime = player.cachedevolveTime
+			elseif player:isa("Alien") then
 				player.timeAbilityEnergyChanged = Shared.GetTime()
 			elseif player:isa("JetpackMarine") then
 				player.timeJetpackingChanged = Shared.GetTime()
@@ -798,7 +814,9 @@ local function ResumeEntStates()
 			if player.cachedvelocity ~= nil then
 				player:SetVelocity(player.cachedvelocity)
 			end
-			if player:isa("JetpackMarine") then
+			if player:isa("Embryo") and player.cachedevolveTime ~= nil then
+				player.evolveTime = player.cachedevolveTime
+			elseif player:isa("JetpackMarine") then
 				player.timeJetpackingChanged = Shared.GetTime()
 			elseif player:isa("Alien") then
 				player.timeAbilityEnergyChanged = Shared.GetTime()
@@ -899,7 +917,9 @@ local function SaveEntStates()
 			if(player.secondaryAttackLastFrame ~= nil and player.secondaryAttackLastFrame) then
 				player:SecondaryAttackEnd()
 			end
-			if player:isa("JetpackMarine") then
+			if player:isa("Embryo") then
+				player.cachedevolveTime = player.evolveTime
+			elseif player:isa("JetpackMarine") then
 				player.timeJetpackingChanged = Shared.GetTime()
 			elseif player:isa("Alien") then
 				player.timeAbilityEnergyChanged = Shared.GetTime()
@@ -951,8 +971,8 @@ local function UpdateServerPauseState()
 	else
 		if not GetIsGamePaused() then
 			SaveEntStates()
-			DAK:RegisterEventHook("OnServerUpdateEveryFrame", UpdateMoveState, 5)
-			DAK:RegisterEventHook("OnTeamJoin", PausedJoinTeam, 5)
+			DAK:RegisterEventHook("OnServerUpdateEveryFrame", UpdateMoveState, 5, "pause")
+			DAK:RegisterEventHook("OnTeamJoin", PausedJoinTeam, 5, "pause")
 			DAK:DisplayMessageToAllClients("PausePausedMessage")
 			gamestate.gamepausedtime = Shared.GetTime()
 		else
@@ -966,7 +986,7 @@ local function UpdateServerPauseState()
 end
 
 function RegisterUpdateServerPauseState()
-	DAK:RegisterEventHook("OnServerUpdate", UpdateServerPauseState, 5)
+	DAK:RegisterEventHook("OnServerUpdate", UpdateServerPauseState, 5, "pause")
 end
 
 local function ValidateTeamNumber(teamnum)
@@ -997,7 +1017,7 @@ local function OnCommandPause(client)
 					gamestate.team2resume = false
 					gamestate.gamepausedcountdown = Shared.GetTime() + DAK.config.pause.kPauseChangeDelay
 					gamestate.gamepausingteam = teamnumber
-					DAK:RegisterEventHook("OnServerUpdate", UpdateServerPauseState, 5)
+					DAK:RegisterEventHook("OnServerUpdate", UpdateServerPauseState, 5, "pause")
 					DAK:DisplayMessageToAllClients("PausePlayerMessage", player:GetName())
 				else
 					DAK:DisplayMessageToClient(client, "PauseTooManyPausesMessage")
@@ -1031,7 +1051,7 @@ local function OnCommandUnPause(client)
 					DAK:DisplayMessageToAllClients("PauseNoTeamReadyMessage")
 				else
 					DAK:DisplayMessageToAllClients("PauseTeamReadiedMessage", player:GetName(), ConditionalValue(teamnumber == 1,DAK.config.loader.TeamOneName ,DAK.config.loader.TeamTwoName))
-					DAK:RegisterEventHook("OnServerUpdate", UpdateServerPauseState, 5)
+					DAK:RegisterEventHook("OnServerUpdate", UpdateServerPauseState, 5, "pause")
 					gamestate.gamepausedcountdown = Shared.GetTime() + DAK.config.pause.kPauseChangeDelay
 				end
 			end
@@ -1047,7 +1067,7 @@ local function OnCommandAdminPause(client)
 	
 	if DAK:GetTournamentMode() and GetGamerules():GetGameStarted() then
 		if gamestate.gamepausedcountdown == 0 then
-			DAK:RegisterEventHook("OnServerUpdate", UpdateServerPauseState, 5)
+			DAK:RegisterEventHook("OnServerUpdate", UpdateServerPauseState, 5, "pause")
 			gamestate.team1resume = false
 			gamestate.team2resume = false
 			gamestate.gamepausedcountdown = Shared.GetTime() + DAK.config.pause.kPauseChangeDelay

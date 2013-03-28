@@ -108,6 +108,7 @@ end
 local function LoadDAKPluginConfigs()
 
 	LoadDAKConfig()
+	local configcache = DAK.config
 	//Load current config - if its invalid or non-existant, create default so that default plugins are loaded
 	if DAK.config == nil or DAK.config == { } or DAK.config.loader == nil or DAK.config.loader == { } then
 		GenerateDefaultDAKConfig("loader", false)
@@ -129,7 +130,10 @@ local function LoadDAKPluginConfigs()
 	//This also insures that any new plugins get their config options created.
 	GenerateDefaultDAKConfig("ALL", false)
 	LoadDAKConfig()
-	SaveDAKConfig()
+	if configcache ~= DAK.config then
+		SaveDAKConfig()
+	end
+	configcache = nil
 	
 end
 

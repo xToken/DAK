@@ -371,7 +371,7 @@ local function OnServerAdminClientConnect(client)
 	end
 end
 
-DAK:RegisterEventHook("OnClientConnect", OnServerAdminClientConnect, 6)
+DAK:RegisterEventHook("OnClientConnect", OnServerAdminClientConnect, 6, "serveradmin")
 
 local function DelayedServerCommandRegistration()
 	if initialwebupdate == 0 then
@@ -404,7 +404,7 @@ local function DelayedServerCommandRegistration()
 	end
 end
 
-DAK:RegisterEventHook("OnServerUpdate", DelayedServerCommandRegistration, 5)
+DAK:RegisterEventHook("OnServerUpdate", DelayedServerCommandRegistration, 5, "serveradmin")
 
 local kMaxPrintLength = 128
 local kServerAdminMessage =
