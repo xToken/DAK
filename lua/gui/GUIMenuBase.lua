@@ -339,6 +339,16 @@ function GUIMenuBase:Initialize()
 	self.options["option8"] = self.option8desctext
 	self.options["option9"] = self.option9desctext
 	self.options["option10"] = self.option10desctext
+	self.options["Hoption1"] = self.option1text
+	self.options["Hoption2"] = self.option2text
+	self.options["Hoption3"] = self.option3text
+	self.options["Hoption4"] = self.option4text
+	self.options["Hoption5"] = self.option5text
+	self.options["Hoption6"] = self.option6text
+	self.options["Hoption7"] = self.option7text
+	self.options["Hoption8"] = self.option8text
+	self.options["Hoption9"] = self.option9text
+	self.options["Hoption10"] = self.option10text
 	self.options["footer"] = self.footerText
 	
 	self.cachedupdate = { }
@@ -374,7 +384,7 @@ function GUIMenuBase:MenuUpdate(message)
 				end
 			elseif self.options[parm] ~= nil then
 				self.options[parm]:SetText(value)
-				self:DisplayUpdate()
+				self:UpdateDisplayedMenu(parm, value)
 			end
 		end
 	end
@@ -471,49 +481,18 @@ function GUIMenuBase:Uninitialize()
     end
 end
 
-function GUIMenuBase:DisplayUpdate()
-	self.headerText:SetIsVisible(true)
-	if self.cachedupdate["option1"] ~= "" then
-		self.option1text:SetIsVisible(true)
-		self.option1desctext:SetIsVisible(true)
+function GUIMenuBase:UpdateDisplayedMenu(parm, value)
+	if value ~= "" then
+		if self.options["H" .. parm] ~= nil then
+			self.options["H" .. parm]:SetIsVisible(true)
+		end
+		self.options[parm]:SetIsVisible(true)
+	else
+		if self.options["H" .. parm] ~= nil then
+			self.options["H" .. parm]:SetIsVisible(false)
+		end
+		self.options[parm]:SetIsVisible(false)
 	end
-	if self.cachedupdate["option2"] ~= "" then
-		self.option2text:SetIsVisible(true)
-		self.option2desctext:SetIsVisible(true)
-	end
-	if self.cachedupdate["option3"] ~= "" then
-		self.option3text:SetIsVisible(true)
-		self.option3desctext:SetIsVisible(true)
-	end
-	if self.cachedupdate["option4"] ~= "" then
-		self.option4text:SetIsVisible(true)
-		self.option4desctext:SetIsVisible(true)
-	end
-	if self.cachedupdate["option5"] ~= "" then
-		self.option5text:SetIsVisible(true)
-		self.option5desctext:SetIsVisible(true)
-	end
-	if self.cachedupdate["option6"] ~= "" then
-		self.option6text:SetIsVisible(true)
-		self.option6desctext:SetIsVisible(true)
-	end
-	if self.cachedupdate["option7"] ~= "" then
-		self.option7text:SetIsVisible(true)
-		self.option7desctext:SetIsVisible(true)
-	end
-	if self.cachedupdate["option8"] ~= "" then
-		self.option8text:SetIsVisible(true)
-		self.option8desctext:SetIsVisible(true)
-	end
-	if self.cachedupdate["option9"] ~= "" then
-		self.option9text:SetIsVisible(true)
-		self.option9desctext:SetIsVisible(true)
-	end
-	if self.cachedupdate["option10"] ~= "" then
-		self.option10text:SetIsVisible(true)
-		self.option10desctext:SetIsVisible(true)
-	end
-	self.footerText:SetIsVisible(true)
 end
 
 function GUIMenuBase:OnClose()

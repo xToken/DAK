@@ -527,7 +527,7 @@ local function OnCommandUpdateBans(steamId, LastUpdateMessage, page)
 	kVoteUpdateMessage.header = string.format("Player to ban.")
 	for p = 1, #DAK.gameid do
 		local ci = p - (page * 8)
-		if ci > 0 and ((ci < 8 and page > 0) or (ci < 9 and page == 0)) then
+		if ci > 0 and ci < 9 then
 			kVoteUpdateMessage.option[ci] = string.format(DAK:GetClientUIDString(DAK.gameid[p]))
 		end
 	end

@@ -3,7 +3,7 @@
 local function OnCommandSwitchServers(client, server)
 	if client ~= nil then
 		server = tonumber(server)
-		if server == nil or server < 0 or server > #DAK.config.serverredirect.Servers
+		if server == nil or server < 0 or server > #DAK.config.serverredirect.Servers then
 			for s = 1, #DAK.config.serverredirect.Servers do
 				DAK:DisplayMessageToClient(client, "AvailableServers", DAK.config.serverredirect.Servers[s], s)
 			end

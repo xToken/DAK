@@ -284,7 +284,7 @@ function DAK:UpdateClientMainMenu(steamId, LastUpdateMessage, page)
 	i = 1
 	for i, menuitem in pairs(DAK:GetMenuItemsList(client)) do
 		local ci = i - (page * 8)
-		if ci > 0 and ci < 8 then
+		if ci > 0 and ci < 9 then
 			MenuUpdateMessage.option[ci] = menuitem.fname
 		end
 		i = i + 1

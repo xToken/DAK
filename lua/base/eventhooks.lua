@@ -367,6 +367,7 @@ local function OnCommandMenuBaseSelection(client, selection)
 			for i = #DAK.runningmenus, 1, -1 do
 				if DAK.runningmenus[i].clientSteamId == steamId then
 					local menufunction = DAK.runningmenus[i].MenuFunction
+					DAK.runningmenus[i].MenuBaseUpdateMessage.inputallowed = nil
 					if selection == 10 and DAK.runningmenus[i].activepage > 0 then
 						DAK.runningmenus[i].activepage = DAK.runningmenus[i].activepage - 1
 					elseif selection == 10 then

@@ -1,5 +1,14 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.404a
+- Corrected issues with commbans plugin
+- Corrected missing then statement in serverredirect plugin.
+
+## v0.1.331a
+- Corrected issues with multiple pauses at once.
+- Corrected issues with pages for menu system.
+- Corrected issues with inputallowed for menu system.
+
 ## v0.1.328a
 - Removed unneeded hook.
 

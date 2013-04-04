@@ -4,7 +4,7 @@ local CommBans = { }
 local CommBansFileName = "config://CommBans.json"
 
 local function LoadCommanderBannedPlayers()
-	CommBans = DAK:ConvertOldBansFormat(DAK:LoadConfigFile(CommBansFileName)) or { }
+	CommBans = DAK:ConvertFromOldBansFormat(DAK:LoadConfigFile(CommBansFileName)) or { }
 end
 
 LoadCommanderBannedPlayers()

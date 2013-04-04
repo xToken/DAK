@@ -997,7 +997,7 @@ local function OnCommandPause(client)
 	
 	if DAK:GetTournamentMode() and client ~= nil and GetGamerules():GetGameStarted() then
 		local player = client:GetControllingPlayer()
-		if player ~= nil and not GetIsGamePaused() then
+		if player ~= nil and not GetIsGamePaused() and gamestate.gamepausedcountdown == 0 then
 			local teamnumber = player:GetTeamNumber()
 			if teamnumber and ValidateTeamNumber(teamnumber) then
 				local validpause = false
@@ -1049,7 +1049,7 @@ local function OnCommandUnPause(client)
 					DAK:DisplayMessageToAllClients("PauseTeamReadyMessage", player:GetName(), DAK.config.loader.TeamOneName, DAK.config.loader.TeamTwoName)
 				elseif not gamestate.team1resume and not gamestate.team2resume then
 					DAK:DisplayMessageToAllClients("PauseNoTeamReadyMessage")
-				else
+				elseif gamestate.gamepausedcountdown == 0 then
 					DAK:DisplayMessageToAllClients("PauseTeamReadiedMessage", player:GetName(), ConditionalValue(teamnumber == 1,DAK.config.loader.TeamOneName ,DAK.config.loader.TeamTwoName))
 					DAK:RegisterEventHook("OnServerUpdate", UpdateServerPauseState, 5, "pause")
 					gamestate.gamepausedcountdown = Shared.GetTime() + DAK.config.pause.kPauseChangeDelay

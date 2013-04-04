@@ -226,21 +226,14 @@ local function OnCommandUpdateVote(steamId, LastUpdateMessage, page)
 		i = 1
 		for map, votes in pairs(MapVotes) do
 			local ci = i - (page * 8)
-			if ci > 0 and ci < 8 then
+			if ci > 0 and ci < 9 then
 				local message = string.format("%s votes for %s.", votes, VotingMaps[map], ci)
 				kVoteUpdateMessage.option[ci] = message
 			end
 			i = i + 1
 		end
-		kVoteUpdateMessage.inputallowed = false
-		if client ~= nil then
-			kVoteUpdateMessage.inputallowed = PlayerVotes[client:GetUserId()] == nil
-		end
-		if not kVoteUpdateMessage.inputallowed then
-			kVoteUpdateMessage.footer = "You have voted!"
-		else
-			kVoteUpdateMessage.footer = "Press a number key to vote for the corresponding map."
-		end
+		kVoteUpdateMessage.inputallowed = true
+		kVoteUpdateMessage.footer = "Press a number key to vote for the corresponding map."
 		return kVoteUpdateMessage
 	else
 		return LastUpdateMessage
