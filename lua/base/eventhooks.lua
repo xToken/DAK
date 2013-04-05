@@ -149,7 +149,7 @@ DAK:RegisterEventHook("OnServerUpdateEveryFrame", DAKRunPluginInitialized, 10, "
 
 local originalServerHookNetworkMessage
 	
-originalServerHookNetworkMessage = Class_ReplaceMethod("Server", "HookNetworkMessage", 
+originalServerHookNetworkMessage = DAK:Class_ReplaceMethod("Server", "HookNetworkMessage", 
 	function(message, func)
 		local loc = DAK:ReplaceNetworkMessageFunction(message, func)
 		originalServerHookNetworkMessage(message, function(...) return DAK:ExecuteNetworkMessageFunction(loc, ...) end)
@@ -158,7 +158,7 @@ originalServerHookNetworkMessage = Class_ReplaceMethod("Server", "HookNetworkMes
 
 local originalScriptLoad
 
-originalScriptLoad = Class_ReplaceMethod("Script", "Load", 
+originalScriptLoad = DAK:Class_ReplaceMethod("Script", "Load", 
 	function(file)
 		if DAK.scriptoverrides[file] == nil then 
 			originalScriptLoad(file)
@@ -174,7 +174,7 @@ local function DelayedEventHooks()
 		
 	local originalNS2GRJoinTeam
 	
-	originalNS2GRJoinTeam = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "JoinTeam", 
+	originalNS2GRJoinTeam = DAK:Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "JoinTeam", 
 		function(self, player, newTeamNumber, force)
 		
 			if not DAK:ExecuteEventHooks("OnTeamJoin", self, player, newTeamNumber, force) then
@@ -187,7 +187,7 @@ local function DelayedEventHooks()
 	
 	local originalNS2GREndGame
 	
-	originalNS2GREndGame = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "EndGame", 
+	originalNS2GREndGame = DAK:Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "EndGame", 
 		function(self, winningTeam)
 		
 			DAK:ExecuteEventHooks("OnGameEnd", self, winningTeam)
@@ -198,7 +198,7 @@ local function DelayedEventHooks()
 	
 	local originalNS2GREntityKilled
 	
-	originalNS2GREntityKilled = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "OnEntityKilled", 
+	originalNS2GREntityKilled = DAK:Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "OnEntityKilled", 
 		function(self, targetEntity, attacker, doer, point, direction)
 		
 			if attacker and targetEntity and doer then
@@ -211,7 +211,7 @@ local function DelayedEventHooks()
 	
 	local originalNS2GRUpdatePregame
 	
-	originalNS2GRUpdatePregame = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "UpdatePregame", 
+	originalNS2GRUpdatePregame = DAK:Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "UpdatePregame", 
 		function(self, timePassed)
 
 			if not DAK:ExecuteEventHooks("OnUpdatePregame", self, timePassed) then
@@ -223,7 +223,7 @@ local function DelayedEventHooks()
 	
 	local originalNS2GRCheckGameStart
 	
-	originalNS2GRCheckGameStart = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "CheckGameStart", 
+	originalNS2GRCheckGameStart = DAK:Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "CheckGameStart", 
 		function(self)
 
 			if not DAK:ExecuteEventHooks("CheckGameStart", self) then
@@ -235,7 +235,7 @@ local function DelayedEventHooks()
 	
 	local originalNS2GRCastVoteByPlayer
 		
-	originalNS2GRCastVoteByPlayer = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "CastVoteByPlayer", 
+	originalNS2GRCastVoteByPlayer = DAK:Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "CastVoteByPlayer", 
 		function(self, voteTechId, player)
 		
 			if not DAK:ExecuteEventHooks("OnCastVoteByPlayer", self, voteTechId, player) then
@@ -247,7 +247,7 @@ local function DelayedEventHooks()
 	
 	local originalNS2GRSetGameState
 	
-	originalNS2GRSetGameState = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "SetGameState", 
+	originalNS2GRSetGameState = DAK:Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "SetGameState", 
 		function(self, state)
 
 			local currentstate = self.gameState
@@ -259,7 +259,7 @@ local function DelayedEventHooks()
 	
 	local originalNS2GRGetFriendlyFire
 	
-	originalNS2GRGetFriendlyFire = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "GetFriendlyFire", 
+	originalNS2GRGetFriendlyFire = DAK:Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "GetFriendlyFire", 
 		function(self)
 		
 			return DAK:GetFriendlyFire()
@@ -274,7 +274,7 @@ local function DelayedEventHooks()
 	
 	local originalNS2GRGetCanPlayerHearPlayer
 	
-	originalNS2GRGetCanPlayerHearPlayer = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "GetCanPlayerHearPlayer", 
+	originalNS2GRGetCanPlayerHearPlayer = DAK:Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "GetCanPlayerHearPlayer", 
 		function(self, listenerPlayer, speakerPlayer)
 
 			local canHear = originalNS2GRGetCanPlayerHearPlayer( self, listenerPlayer, speakerPlayer )
@@ -296,7 +296,7 @@ local function DelayedEventHooks()
 		
 	local originalServerAddChatToHistory
 	
-	originalServerAddChatToHistory = Class_ReplaceMethod("Server", "AddChatToHistory", 
+	originalServerAddChatToHistory = DAK:Class_ReplaceMethod("Server", "AddChatToHistory", 
 		function(message, playerName, steamId, teamNumber, teamOnly)
 
 			if originalServerAddChatToHistory ~= nil then

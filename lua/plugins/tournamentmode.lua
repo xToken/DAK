@@ -165,7 +165,7 @@ local function OnPluginInitialized()
 	if DAK.config.tournamentmode.kTournamentModeOverrideCanJoinTeam then
 		local originalNS2GRGetCanJoinTeamNumber
 		
-		originalNS2GRGetCanJoinTeamNumber = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "GetCanJoinTeamNumber", 
+		originalNS2GRGetCanJoinTeamNumber = DAK:Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "GetCanJoinTeamNumber", 
 			function(self, teamNumber)
 	
 				if DAK.settings.TournamentMode and not DAK.config.tournamentmode.kTournamentModePubMode and (teamNumber == 1 or teamNumber == 2) then

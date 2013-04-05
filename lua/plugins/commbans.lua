@@ -35,7 +35,7 @@ local function OnPluginInitialized()
 
 	local originalNS2GRGetPlayerBannedFromCommand
 	
-	originalNS2GRGetPlayerBannedFromCommand = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "GetPlayerBannedFromCommand", 
+	originalNS2GRGetPlayerBannedFromCommand = DAK:Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "GetPlayerBannedFromCommand", 
 		function(self, playerId)
 
 			local banned = false //Innocent until proven guilty

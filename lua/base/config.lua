@@ -20,6 +20,21 @@ local function tablemerge(tab1, tab2)
 	return tab1
 end
 
+function deepcopy(orig)
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        copy = {}
+        for orig_key, orig_value in next, orig, nil do
+            copy[deepcopy(orig_key)] = deepcopy(orig_value)
+        end
+        setmetatable(copy, deepcopy(getmetatable(orig)))
+    else -- number, string, boolean, etc
+        copy = orig
+    end
+    return copy
+end
+
 local function LoadDAKConfig()
 	if DAK.config ~= nil then
 		DAK.config = tablemerge(DAK.config, DAK:LoadConfigFile(ConfigFileName))
@@ -108,7 +123,7 @@ end
 local function LoadDAKPluginConfigs()
 
 	LoadDAKConfig()
-	local configcache = DAK.config
+	local configcache = deepcopy(DAK.config)
 	//Load current config - if its invalid or non-existant, create default so that default plugins are loaded
 	if DAK.config == nil or DAK.config == { } or DAK.config.loader == nil or DAK.config.loader == { } then
 		GenerateDefaultDAKConfig("loader", false)

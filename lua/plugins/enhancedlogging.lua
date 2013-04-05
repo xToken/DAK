@@ -154,7 +154,7 @@ local function OnPluginInitialized()
 		
 	local originalNS2CommandStructureLoginPlayer
 	
-	originalNS2CommandStructureLoginPlayer = Class_ReplaceMethod("CommandStructure", "LoginPlayer", 
+	originalNS2CommandStructureLoginPlayer = DAK:Class_ReplaceMethod("CommandStructure", "LoginPlayer", 
 		function(self, player)
 		
 			if player then
@@ -170,7 +170,7 @@ local function OnPluginInitialized()
 	
 	local originalNS2CommandStructureLogout
 	
-	originalNS2CommandStructureLogout = Class_ReplaceMethod("CommandStructure", "Logout", 
+	originalNS2CommandStructureLogout = DAK:Class_ReplaceMethod("CommandStructure", "Logout", 
 		function(self)
 		
 			local commander = self:GetCommander()
@@ -187,7 +187,7 @@ local function OnPluginInitialized()
 	
 	local originalNS2RecycleMixinOnResearchComplete
 	
-	originalNS2RecycleMixinOnResearchComplete = Class_ReplaceMethod("RecycleMixin", "OnResearchComplete", 
+	originalNS2RecycleMixinOnResearchComplete = DAK:Class_ReplaceMethod("RecycleMixin", "OnResearchComplete", 
 		function(self, researchId)
 		
 			local buildingID = self:GetId()
@@ -201,7 +201,7 @@ local function OnPluginInitialized()
 	
 	local originalNS2RecycleMixinOnResearch
 	
-	originalNS2RecycleMixinOnResearch = Class_ReplaceMethod("RecycleMixin", "OnResearch", 
+	originalNS2RecycleMixinOnResearch = DAK:Class_ReplaceMethod("RecycleMixin", "OnResearch", 
 		function(self, researchId)
 		
 			local buildingID = self:GetId()
@@ -222,7 +222,7 @@ local function OnPluginInitialized()
 	
 	local originalNS2ConstructMixinOnInitialized
 	
-	originalNS2ConstructMixinOnInitialized = Class_ReplaceMethod("ConstructMixin", "OnInitialized", 
+	originalNS2ConstructMixinOnInitialized = DAK:Class_ReplaceMethod("ConstructMixin", "OnInitialized", 
 		function(self)
 		
 			local buildingID = self:GetId()

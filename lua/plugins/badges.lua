@@ -75,7 +75,7 @@ local function OnPluginInitialized()
 	
 	local originalNS2BadgeMixinInit
 	
-	originalNS2BadgeMixinInit = Class_ReplaceMethod("BadgeMixin", "InitializeBadges", 
+	originalNS2BadgeMixinInit = DAK:Class_ReplaceMethod("BadgeMixin", "InitializeBadges", 
 		function(self)
 			local client = Server.GetOwner(self)
 			if client then

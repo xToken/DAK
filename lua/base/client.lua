@@ -15,7 +15,7 @@ local function OnClientLoaded()
 		guimenubase = GetGUIManager():CreateGUIScriptSingle("gui/GUIMenuBase")			
 	end
 	local originalNS2PlayerGetCameraViewCoordsOverride
-	originalNS2PlayerGetCameraViewCoordsOverride = Class_ReplaceMethod("Player", "GetCameraViewCoordsOverride", 
+	originalNS2PlayerGetCameraViewCoordsOverride = DAK:Class_ReplaceMethod("Player", "GetCameraViewCoordsOverride", 
 		function(self, cameraCoords)
 
 			if self.countingDown and self:GetGameStarted() then
@@ -27,7 +27,7 @@ local function OnClientLoaded()
 		end
 	)
 	local originalNS2PlayerGetDrawWorld
-	originalNS2PlayerGetDrawWorld = Class_ReplaceMethod("Player", "GetDrawWorld", 
+	originalNS2PlayerGetDrawWorld = DAK:Class_ReplaceMethod("Player", "GetDrawWorld", 
 		function(self, isLocal)
 
 			if self.countingDown and self:GetGameStarted() then
@@ -78,7 +78,7 @@ end
 
 local originalNS2ClientHookNetworkMessage
 
-originalNS2ClientHookNetworkMessage = Class_ReplaceMethod("Client", "HookNetworkMessage", 
+originalNS2ClientHookNetworkMessage = DAK:Class_ReplaceMethod("Client", "HookNetworkMessage", 
 	function(message, func)
 
 		if message == "ServerAdminPrint" then

@@ -10,7 +10,7 @@ local function OnPluginInitialized()
 
 	local originalNS2GRCheckGameEnd
 	
-	originalNS2GRCheckGameEnd = Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "CheckGameEnd", 
+	originalNS2GRCheckGameEnd = DAK:Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "CheckGameEnd", 
 		function(self)
 		
 			if self:GetGameStarted() and self.timeGameEnded == nil and not DAK:GetTournamentMode() and not Shared.GetCheatsEnabled() and not Shared.GetDevMode() and not self.preventGameEnd then

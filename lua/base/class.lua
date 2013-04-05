@@ -16,7 +16,7 @@ local function ReplaceMethodInDerivedClasses(className, methodName, method, orig
 	
 end
 
-function Class_ReplaceMethod(className, methodName, method)
+function DAK:Class_ReplaceMethod(className, methodName, method)
 
 	local original = _G[className][methodName]
 	
