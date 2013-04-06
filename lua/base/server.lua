@@ -2,7 +2,6 @@
 
 if Server then
 
-	//Going to finally move to a single global variable DAK, with functions being nested under that.  Should have done this originally TBH.
 	DAK = { }
 	DAK.__index = DAK
 	DAK.events = { }							//List used to track events, used by event hook system.
@@ -16,8 +15,8 @@ if Server then
 	DAK.chatcommands = { }						//List of chat commands.
 	DAK.gameid = { }							//Used to track client joins for game IDs
 	DAK.gaggedplayers = { }						//Used to track gagged clients
-	DAK.enabled = true
-	DAK.version = "0.1.404a"
+	DAK.enabled = true							//Can be used to block most DAK events, or indicate errors.
+	DAK.version = "0.1.406a"
 	
 	local Scripts = { }
 	table.insert(Scripts, "lua/dkjson.lua")

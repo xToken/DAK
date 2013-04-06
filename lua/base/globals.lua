@@ -614,7 +614,7 @@ function DAK:GetClientUIDString(client)
 			name = player:GetName()
 			teamnumber = player:GetTeamNumber()
 		end
-		return string.format("<%s><%s><%s><%s>", name, ToString(self:GetGameIdMatchingClient(client)), client:GetUserId(), teamnumber)
+		return string.format("<%s><%s><%s><%s>", name, ToString(self:GetGameIdMatchingClient(client)), GetReadableSteamId(client:GetUserId()), teamnumber)
 	end
 	return ""
 	
@@ -639,26 +639,18 @@ function DAK:VerifyClient(client)
 end
 
 function DAK:GetPlayerMatching(id)
-
-	local player = self:GetPlayerMatchingName(tostring(id))
-	if player then
-		return player
-	else
-		local idNum = tonumber(id)
-		if idNum then
-			return self:GetPlayerMatchingGameId(idNum) or self:GetPlayerMatchingSteamId(idNum)
-		end
-	end
-	
+	return self:GetPlayerMatchingName(id) or self:GetPlayerMatchingGameId(idNum) or self:GetPlayerMatchingSteamId(idNum)	
 end
 
 function DAK:GetPlayerMatchingGameId(id)
 
-	assert(type(id) == "number")
-	if id > 0 and id <= #self.gameid then
-		local client = self.gameid[id]
-		if client ~= nil and self:VerifyClient(client) ~= nil then
-			return client:GetControllingPlayer()
+	id = tonumber(id)
+	if id ~= nil then
+		if id > 0 and id <= #self.gameid then
+			local client = self.gameid[id]
+			if client ~= nil and self:VerifyClient(client) ~= nil then
+				return client:GetControllingPlayer()
+			end
 		end
 	end
 	
@@ -668,11 +660,13 @@ end
 
 function DAK:GetClientMatchingGameId(id)
 
-	assert(type(id) == "number")
-	if id > 0 and id <= #self.gameid then
-		local client = self.gameid[id]
-		if client ~= nil and self:VerifyClient(client) ~= nil then
-			return client
+	id = tonumber(id)
+	if id ~= nil then
+		if id > 0 and id <= #self.gameid then
+			local client = self.gameid[id]
+			if client ~= nil and self:VerifyClient(client) ~= nil then
+				return client
+			end
 		end
 	end
 	
@@ -693,7 +687,7 @@ function DAK:GetGameIdMatchingClient(client)
 	return 0
 end
 
-function DAK:GetSteamIdMatchingClient(client)
+function DAK:GetNS2IdMatchingClient(client)
 
 	if client ~= nil and self:VerifyClient(client) ~= nil then
 		local steamId = client:GetUserId()
@@ -705,9 +699,26 @@ function DAK:GetSteamIdMatchingClient(client)
 	return 0
 end
 
+function DAK:GetSteamIdMatchingClient(client)
+
+	if client ~= nil and self:VerifyClient(client) ~= nil then
+		local steamId = client:GetUserId()
+		if steamId ~= nil and tonumber(steamId) ~= nil then
+			return GetReadableSteamId(steamId)
+		end
+	end
+	
+	return 0
+end
+
 function DAK:GetGameIdMatchingPlayer(player)
 	local client = Server.GetOwner(player)
 	return self:GetGameIdMatchingClient(client)
+end
+
+function DAK:GetNS2IdMatchingPlayer(player)
+	local client = Server.GetOwner(player)
+	return self:GetNS2IdMatchingClient(client)
 end
 
 function DAK:GetSteamIdMatchingPlayer(player)
@@ -717,15 +728,13 @@ end
 
 function DAK:GetClientMatchingSteamId(steamId)
 
-	assert(type(steamId) == "number")
-	
 	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
 	for r = #playerList, 1, -1 do
 		if playerList[r] ~= nil then
 			local plyr = playerList[r]
 			local clnt = playerList[r]:GetClient()
 			if plyr ~= nil and clnt ~= nil then
-				if clnt:GetUserId() == steamId then
+				if clnt:GetUserId() == steamId or GetReadableSteamId(clnt:GetUserId()) == steamId then
 					return clnt
 				end
 			end
@@ -738,15 +747,13 @@ end
 
 function DAK:GetPlayerMatchingSteamId(steamId)
 
-	assert(type(steamId) == "number")
-	
 	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
 	for r = #playerList, 1, -1 do
 		if playerList[r] ~= nil then
 			local plyr = playerList[r]
 			local clnt = playerList[r]:GetClient()
 			if plyr ~= nil and clnt ~= nil then
-				if clnt:GetUserId() == steamId then
+				if clnt:GetUserId() == steamId or GetReadableSteamId(clnt:GetUserId()) == steamId then
 					return plyr
 				end
 			end
@@ -759,8 +766,6 @@ end
 
 function DAK:GetPlayerMatchingName(name)
 
-	assert(type(name) == "string")
-	
 	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
 	for r = #playerList, 1, -1 do
 		if playerList[r] ~= nil then

@@ -5,6 +5,9 @@
 //Would allow help menus and such to be generated.
 //Dont think that plugins need to be syncd, menu system designed is almost fully server side so client needs very little information. - Client should always load shared defs.
 
+DAK = { }
+DAK.__index = DAK
+
 Script.Load("lua/base/class.lua")
 
 local MenuMessageTag = "#^DAK"

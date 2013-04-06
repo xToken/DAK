@@ -1,5 +1,9 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.406a
+- Added in use of GetReadableSteamID function to sv_status.
+- Added check of real steamID when looking for a player by ID, also changed SDK functions for Get*BySteamID to Get*ByNS2ID, and added ones for the real SteamID also.
+
 ## v0.1.404a
 - Corrected issues with commbans plugin
 - Corrected missing then statement in serverredirect plugin.

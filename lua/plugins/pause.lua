@@ -682,16 +682,19 @@ local function UpdateEntStates(deltatime)
 	//Umbra,Spores,Ink,HealingWave,Bonewall,Scan
 	local CommanderAbilities = Shared.GetEntitiesWithClassname("CommanderAbility")
 	for _, CommanderAbility in ientitylist(CommanderAbilities) do
+		if CommanderAbility.timeCreated == nil then CommanderAbility.timeCreated = Shared.GetTime() end
 		CommanderAbility.timeCreated = CommanderAbility.timeCreated + deltatime
 	end
 	//Meds/Ammo
 	local DropPacks = Shared.GetEntitiesWithClassname("DropPack")
 	for _, DropPack in ientitylist(DropPacks) do
+		if DropPack.adjustedcreationtime == nil then DropPack.adjustedcreationtime = Shared.GetTime() end
 		DropPack.adjustedcreationtime = DropPack.adjustedcreationtime + deltatime
 	end
 	//Babblers
 	local Babblers = Shared.GetEntitiesWithClassname("Babbler")
 	for _, Babbler in ientitylist(Babblers) do
+		if Babbler.adjustedcreationtime == nil then Babbler.adjustedcreationtime = Shared.GetTime() end
 		Babbler.adjustedcreationtime = Babbler.adjustedcreationtime + deltatime
 	end
 	//Grenades
@@ -759,6 +762,7 @@ local function UpdateEntStates(deltatime)
 	//Update DOTS (only BB???) lifetime  - MOAR DOTS
 	local Dots = Shared.GetEntitiesWithClassname("DotMarker")
 	for _, dot in ientitylist(Dots) do
+		if dot.adjustedcreationtime == nil then dot.adjustedcreationtime = Shared.GetTime() end
 		dot.adjustedcreationtime = dot.adjustedcreationtime + deltatime
 	end
 	//Infestation
