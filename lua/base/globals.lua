@@ -639,7 +639,7 @@ function DAK:VerifyClient(client)
 end
 
 function DAK:GetPlayerMatching(id)
-	return self:GetPlayerMatchingName(id) or self:GetPlayerMatchingGameId(idNum) or self:GetPlayerMatchingSteamId(idNum)	
+	return self:GetPlayerMatchingName(id) or self:GetPlayerMatchingGameId(id) or self:GetPlayerMatchingSteamId(id)	
 end
 
 function DAK:GetPlayerMatchingGameId(id)
