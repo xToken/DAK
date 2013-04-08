@@ -734,7 +734,7 @@ function DAK:GetClientMatchingSteamId(steamId)
 			local plyr = playerList[r]
 			local clnt = playerList[r]:GetClient()
 			if plyr ~= nil and clnt ~= nil then
-				if clnt:GetUserId() == steamId or GetReadableSteamId(clnt:GetUserId()) == steamId then
+				if clnt:GetUserId() == tonumber(steamId) or GetReadableSteamId(clnt:GetUserId()) == steamId then
 					return clnt
 				end
 			end
@@ -753,7 +753,7 @@ function DAK:GetPlayerMatchingSteamId(steamId)
 			local plyr = playerList[r]
 			local clnt = playerList[r]:GetClient()
 			if plyr ~= nil and clnt ~= nil then
-				if clnt:GetUserId() == steamId or GetReadableSteamId(clnt:GetUserId()) == steamId then
+				if clnt:GetUserId() == tonumber(steamId) or GetReadableSteamId(clnt:GetUserId()) == steamId then
 					return plyr
 				end
 			end
