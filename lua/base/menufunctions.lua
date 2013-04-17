@@ -5,8 +5,6 @@
 //.validforclient
 //.selectionfunction
 
-local ConfirmationMenus
-
 function DAK:GetMainMenuItemByName(friendlyname, list)
 	for i, menuitem in pairs(list or DAK.activemenuitems) do
 		if menuitem.fname == friendlyname then
@@ -81,31 +79,16 @@ end
 
 /// Confirmation Menu Functions
 // These are really just a small extension to allow easy confirm/deny menus
-local function UpdateConfirmationMenuHook(ns2id, LastUpdateMessage, page)
-	return DAK:UpdateConfirmationMenu(ns2id, LastUpdateMessage, page)
-end
-
-local function SelectConfirmationMenuItemHook(client, selecteditem, page)
-	return DAK:SelectConfirmationMenuItem(client, selecteditem, page)
-end
-
-function DAK:DisplayConfirmationMenuItem(ns2id, HeadingText, ConfirmationFunction, DenyFunction, ...)
-	if ns2id ~= nil then
-		local menuitem = {heading = HeadingText, confirmfunc = ConfirmationFunction, denyfunc = DenyFunction, args = arg}
-		ConfirmationMenus[ns2id] = menuitem
-		DAK:CreateGUIMenuBase(ns2id, SelectConfirmationMenuItemHook, UpdateConfirmationMenuHook, true)
-	end
-end
 
 function DAK:UpdateConfirmationMenu(ns2id, LastUpdateMessage, page)
-	if ConfirmationMenus[ns2id] ~= nil then
+	if DAK.confirmationmenus[ns2id] ~= nil then
 		local MenuUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
 		if MenuUpdateMessage == nil then
 			MenuUpdateMessage = { }
 		end
-		MenuUpdateMessage.header = ConfirmationMenus[ns2id].heading
-		kVoteUpdateMessage.option[1] = "Confirm"
-		kVoteUpdateMessage.option[2] = "Deny"
+		MenuUpdateMessage.header = DAK.confirmationmenus[ns2id].heading
+		MenuUpdateMessage.option[1] = "Confirm"
+		MenuUpdateMessage.option[2] = "Deny"
 		MenuUpdateMessage.footer = "Press a number key to select that option."
 		MenuUpdateMessage.inputallowed = true
 		return MenuUpdateMessage
@@ -117,15 +100,31 @@ end
 function DAK:SelectConfirmationMenuItem(client, selecteditem, page)
 	if client ~= nil then
 		local ns2id = client:GetUserId()
-		if ConfirmationMenus[ns2id] ~= nil then
-			if selecteditem == 1 and ConfirmationMenus[ns2id].confirmfunc ~= nil and type(ConfirmationMenus[ns2id].confirmfunc) == "function" then
-				ConfirmationMenus[ns2id].confirmfunc(client, unpack(ConfirmationMenus[ns2id].args or { }))
-			elseif selecteditem == 2 and ConfirmationMenus[ns2id].denyfunc ~= nil and type(ConfirmationMenus[ns2id].denyfunc) == "function" then
-				ConfirmationMenus[ns2id].denyfunc(client, unpack(ConfirmationMenus[ns2id].args or { }))
+		if DAK.confirmationmenus[ns2id] ~= nil then
+			if selecteditem == 1 and DAK.confirmationmenus[ns2id].confirmfunc ~= nil and type(DAK.confirmationmenus[ns2id].confirmfunc) == "function" then
+				DAK.confirmationmenus[ns2id].confirmfunc(client, unpack(DAK.confirmationmenus[ns2id].args or { }))
+			elseif selecteditem == 2 and DAK.confirmationmenus[ns2id].denyfunc ~= nil and type(DAK.confirmationmenus[ns2id].denyfunc) == "function" then
+				DAK.confirmationmenus[ns2id].denyfunc(client, unpack(DAK.confirmationmenus[ns2id].args or { }))
 			end
-			ConfirmationMenus[ns2id] = nil
+			table.remove(DAK.confirmationmenus, ns2id)
 		end
 		return true
+	end
+end
+
+local function UpdateConfirmationMenuHook(ns2id, LastUpdateMessage, page)
+	return DAK:UpdateConfirmationMenu(ns2id, LastUpdateMessage, page)
+end
+
+local function UpdateConfirmationMenuSelectItemHook(client, selecteditem, page)
+	return DAK:SelectConfirmationMenuItem(client, selecteditem, page)
+end
+
+function DAK:DisplayConfirmationMenuItem(ns2id, HeadingText, ConfirmationFunction, DenyFunction, ...)
+	if ns2id ~= nil then
+		local menuitem = {heading = HeadingText, confirmfunc = ConfirmationFunction, denyfunc = DenyFunction, args = arg}
+		DAK.confirmationmenus[ns2id] = menuitem
+		DAK:CreateGUIMenuBase(ns2id, UpdateConfirmationMenuSelectItemHook, UpdateConfirmationMenuHook, true)
 	end
 end
 /// End Confirmation Menus
@@ -156,7 +155,7 @@ function DAK:CreateGUIMenuBase(id, OnMenuFunction, OnMenuUpdateFunction, overrid
 	for i = #DAK.runningmenus, 1, -1 do
 		if DAK.runningmenus[i] ~= nil and DAK.runningmenus[i].clientNS2Id == id then
 			if override then
-				DAK.runningmenus[i] = nil
+				table.remove(DAK.runningmenus, i)
 			else
 				return false
 			end

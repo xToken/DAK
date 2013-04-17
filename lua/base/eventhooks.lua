@@ -54,7 +54,7 @@ local function UpdateMenuObject(menuitem)
 		success, newMenuBaseUpdateMessage = pcall(menuitem.MenuUpdateFunction, menuitem.clientNS2Id, menuitem.MenuBaseUpdateMessage, menuitem.activepage)
 	end
 	if not success then
-		Shared.Message(string.format("Error encountered in menu function: %s", ""))
+		Shared.Message(string.format("Error encountered in menu function: %s", newMenuBaseUpdateMessage or "No Error?"))
 		menuitem = nil
 	else
 		//Check to see if message is updated, if not then send term message and clear
@@ -129,7 +129,7 @@ local function DAKUpdateServer(deltaTime)
 							DAK.runningmenus[i] = UpdateMenuObject(DAK.runningmenus[i])
 						end
 					else
-						DAK.runningmenus[i] = nil
+						table.remove(DAK.runningmenus, i)
 					end
 				end
 			end
@@ -382,7 +382,7 @@ local function OnCommandMenuBaseSelection(client, selection)
 						DAK.runningmenus[i].activepage = DAK.runningmenus[i].activepage + 1
 					elseif DAK.runningmenus[i].MenuFunction(client, selection, DAK.runningmenus[i].activepage) then
 						if menufunction == DAK.runningmenus[i].MenuFunction then
-							DAK.runningmenus[i] = nil
+							DAK.runningmenus[i].MenuUpdateFunction = nil
 						end
 					end
 					break

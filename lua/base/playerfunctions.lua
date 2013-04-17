@@ -73,7 +73,7 @@ function DAK:GetClientUIDString(client)
 			name = player:GetName()
 			teamnumber = player:GetTeamNumber()
 		end
-		return string.format("<%s><%s><%s><%s>", name, ToString(self:GetGameIdMatchingClient(client)), DAK:GetSteamIdfromNS2ID(client:GetUserId()), teamnumber)
+		return string.format("<%s><%s><%s><%s><%s>", name, ToString(self:GetGameIdMatchingClient(client)), client:GetUserId(), DAK:GetSteamIdfromNS2ID(client:GetUserId()), teamnumber)
 	end
 	return ""
 	
@@ -82,9 +82,6 @@ end
 function DAK:VerifyClient(client)
 
 	if client ~= nil then
-		if type(client) == "userdata" then
-			return nil
-		end
 		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
 		for r = #playerList, 1, -1 do
 			if playerList[r] ~= nil then

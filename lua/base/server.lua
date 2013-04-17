@@ -10,13 +10,14 @@ if Server then
 	DAK.activemoddedclients = { }				//Tracks what clients have ack'd that they have the client side workshop mod.
 	DAK.runningmenus = { }						//List of currently open client menus.
 	DAK.activemenuitems = { }					//List of active menu items.
+	DAK.confirmationmenus = { }					//List of confirmation menu items.
 	DAK.networkmessagefunctions = { }			//List used to track network message functions, can be used to replace functions raised on network message recieving.
 	DAK.registerednetworkmessages = { }			//List used to track network messages to their corresponding functions.
 	DAK.chatcommands = { }						//List of chat commands.
 	DAK.gameid = { }							//Used to track client joins for game IDs
 	DAK.gaggedplayers = { }						//Used to track gagged clients
 	DAK.enabled = true							//Can be used to block most DAK events, or indicate errors.
-	DAK.version = "0.1.416a"
+	DAK.version = "0.1.417a"
 	
 	local Scripts = { }
 	table.insert(Scripts, "lua/dkjson.lua")

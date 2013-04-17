@@ -1,5 +1,11 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.417a
+- Corrected issue with bans, now also allow for bans by steamID.
+- Corrected issue with VerifyClient function.
+- Corrected issue with GUIMenus.
+- Corrected issue with confirmation menus.
+
 ## v0.1.416a
 - Renamed many key functions to align with recent changes regarding NS2 and Steam IDs.
 - Added new functions for NS2IDs, left original functions in place to maintain compatibility.
