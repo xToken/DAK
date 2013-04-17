@@ -46,17 +46,17 @@ local function OnPluginInitialized()
 
 	local badgeCache = {}
 	local function cacheGet(client)
-		local steamId = client:GetUserId()
-		local badge = badgeCache[steamId]
+		local ns2id = client:GetUserId()
+		local badge = badgeCache[ns2id]
 		if badge then
 			return badge
 		end
 		-- cache miss
-		Shared.SendHTTPRequest("http://ns2comp.herokuapp.com/t/badge/"..tostring(steamId), "GET", function(response)
+		Shared.SendHTTPRequest("http://ns2comp.herokuapp.com/t/badge/"..tostring(ns2id), "GET", function(response)
 			local info = json.decode(response)
 			-- user override, no badge specified by the server, or pax badges will cause global badge to show
-			if info.override or badgeCache[steamId] == nil or badgeCache[steamId] == kBadges.None or badgeCache[steamId] == kBadges.PAX2012 then
-				badgeCache[steamId] = kBadges[info.badge]
+			if info.override or badgeCache[ns2id] == nil or badgeCache[ns2id] == kBadges.None or badgeCache[ns2id] == kBadges.PAX2012 then
+				badgeCache[ns2id] = kBadges[info.badge]
 			end
 		end)
 		badge = kBadges.None
@@ -68,7 +68,7 @@ local function OnPluginInitialized()
 			end
 			
 		end
-		badgeCache[steamId] = badge
+		badgeCache[ns2id] = badge
 		return badge
 		
 	end

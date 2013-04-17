@@ -17,7 +17,7 @@ function GetIsPlayerAFK(player)
 		for i = #AFKClientTracker, 1, -1 do
 			local PEntry = AFKClientTracker[i]
 			if PEntry ~= nil and PEntry.ID == client:GetUserId() then
-				if player:GetViewAngles() == PEntry.MVec and player:GetOrigin() == PEntry.POrig and PEntry.Time - Shared.GetTime() < (DAK.config.afkkick.kAFKKickDelay - 30) then
+				if player:GetViewAngles() == PEntry.MVec and player:GetOrigin() == PEntry.POrig and PEntry.Time ~= 0 and PEntry.Time - Shared.GetTime() < (DAK.config.afkkick.kAFKKickDelay - 30) then
 					return true
 				end
 			end
@@ -48,7 +48,21 @@ DAK:RegisterEventHook("OnClientDelayedConnect", AFKOnClientConnect, 5, "afkkick"
 local function UpdateAFKClient(client, PEntry, player)
 	if player ~= nil then
 	
+		local validteam
 		if DAK:GetClientCanRunCommand(client, "sv_afkimmune") then
+			PEntry.Time = 0
+			return PEntry
+		end
+		
+		for id, teamnum in pairs(DAK.config.afkkick.kMonitoredTeams) do
+			if player:GetTeamNumber() == teamnum then
+				validteam = true
+				break
+			end
+		end
+		
+		if not validteam then
+			PEntry.Time = 0
 			return PEntry
 		end
 	

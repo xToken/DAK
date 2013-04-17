@@ -40,7 +40,7 @@ local function PrintStatus(player, client, index)
 			ServerAdminPrint(client, player:GetName() .. " : Game Id = " 
 			.. ToString(DAK:GetGameIdMatchingClient(playerClient))
 			.. " : NS2 Id = " .. playerId
-			.. " : Steam Id = " .. GetReadableSteamId(playerId)
+			.. " : Steam Id = " .. DAK:GetSteamIdfromNS2ID(playerId)
 			.. " : Team = " .. player:GetTeamNumber()
 			.. " : Address = " .. playerAddressString
 			.. " : Connection Time = " .. DAK:GetClientConnectionTime(playerClient))
@@ -48,7 +48,7 @@ local function PrintStatus(player, client, index)
 			ServerAdminPrint(client, player:GetName() .. " : Game Id = " 
 			.. ToString(DAK:GetGameIdMatchingClient(playerClient))
 			.. " : NS2 Id = " .. playerId
-			.. " : Steam Id = " .. GetReadableSteamId(playerId)
+			.. " : Steam Id = " .. DAK:GetSteamIdfromNS2ID(playerId)
 			.. " : Team = " .. player:GetTeamNumber())
 		end
 
@@ -323,6 +323,7 @@ local function Ban(client, playerId, name, duration, ...)
 
 	local player = DAK:GetPlayerMatching(playerId)
 	local reason =  StringConcatArgs(...) or "No Reason"
+	local ns2Id = DAK:GetNS2IDFromSteamID(playerId)
 	if tonumber(name) ~= nil and tonumber(duration) == nil then
 		duration = tonumber(name)
 		if player then
@@ -338,7 +339,7 @@ local function Ban(client, playerId, name, duration, ...)
 		end
 		local bannedclient = Server.GetOwner(player)
 		if bannedclient then
-			if DAK:AddSteamIDBan(bannedclient:GetUserId(), name or player:GetName(), duration, reason) then
+			if DAK:AddNS2IDBan(bannedclient:GetUserId(), name or player:GetName(), duration, reason) then
 				ServerAdminPrint(client, player:GetName() .. " has been banned.")
 				DAK:PrintToAllAdmins("sv_ban", client, string.format("on %s for %s for %s.", DAK:GetClientUIDString(bannedclient), duration, reason))
 				bannedclient.disconnectreason = reason
@@ -346,16 +347,19 @@ local function Ban(client, playerId, name, duration, ...)
 			end
 		end
 
-	elseif tonumber(playerId) > 0 then
+	elseif tonumber(playerId) ~= nil or ns2Id ~= nil then
 	
+		if tonumber(playerId) == nil and ns2Id ~= nil then
+			playerId = ns2Id
+		end
 		if not DAK:GetLevelSufficient(client, playerId) then
 			return
 		end
-		if DAK:AddSteamIDBan(tonumber(playerId), name or "Unknown", duration, reason) then
-			ServerAdminPrint(client, "Player with SteamId " .. playerId .. " has been banned.")
-			DAK:PrintToAllAdmins("sv_ban", client, string.format("on SteamID:%s for %s for %s.", playerId, duration, reason))
+		if DAK:AddNS2IDBan(tonumber(playerId), name or "Unknown", duration, reason) then
+			ServerAdminPrint(client, "Player with NS2Id " .. playerId .. " has been banned.")
+			DAK:PrintToAllAdmins("sv_ban", client, string.format("on NS2Id:%s for %s for %s.", playerId, duration, reason))
 		end
-
+	
 	else
 		ServerAdminPrint(client, "No matching player.")
 	end
@@ -364,18 +368,18 @@ end
 
 DAK:CreateServerAdminCommand("Console_sv_ban", Ban, "<player id> <player name> <duration in minutes> <reason text> Bans the player from the server, pass in 0 for duration to ban forever")
 
-local function UnBan(client, steamId)
+local function UnBan(client, playerId)
 
-	if DAK:UnBanSteamID(steamId) then
-		DAK:PrintToAllAdmins("sv_unban", client, string.format(" on SteamID:%s.", steamId))
-		ServerAdminPrint(client, "Player with SteamId " .. steamId .. " has been unbanned.")
+	if DAK:UnBanNS2ID(playerId) or DAK:UnBanSteamID(playerId) then
+		DAK:PrintToAllAdmins("sv_unban", client, string.format(" on ID : %s.", playerId))
+		ServerAdminPrint(client, "Player with ID " .. playerId .. " has been unbanned.")
 	else
-		ServerAdminPrint(client, "No matching Steam Id in ban list.")
+		ServerAdminPrint(client, "No matching ID in ban list.")
 	end
 	
 end
 
-DAK:CreateServerAdminCommand("Console_sv_unban", UnBan, "<steam id> Removes the player matching the passed in Steam Id from the ban list")
+DAK:CreateServerAdminCommand("Console_sv_unban", UnBan, "<ID> Removes the player matching the passed in ID from the ban list")
 
 local function UpdateNick(client, playerId, nick)
 
@@ -529,7 +533,7 @@ local function PopulateMenuItemWithClientList(VoteUpdateMessage, page)
 	end
 end
 
-local function OnCommandUpdateBanMenu(steamId, LastUpdateMessage, page)
+local function OnCommandUpdateBanMenu(ns2id, LastUpdateMessage, page)
 	local kVoteUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
 	kVoteUpdateMessage.header = string.format("Player to ban.")
 	PopulateMenuItemWithClientList(kVoteUpdateMessage, page)
@@ -546,7 +550,7 @@ local function OnCommandBanSelection(client, selectionnumber, page)
 	end
 end
 
-local function OnCommandUpdateKickMenu(steamId, LastUpdateMessage, page)
+local function OnCommandUpdateKickMenu(ns2id, LastUpdateMessage, page)
 	local kVoteUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
 	kVoteUpdateMessage.header = string.format("Player to kick.")
 	PopulateMenuItemWithClientList(kVoteUpdateMessage, page)
@@ -563,7 +567,7 @@ local function OnCommandKickSelection(client, selectionnumber, page)
 	end
 end
 
-local function OnCommandUpdateSlayMenu(steamId, LastUpdateMessage, page)
+local function OnCommandUpdateSlayMenu(ns2id, LastUpdateMessage, page)
 	local kVoteUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
 	kVoteUpdateMessage.header = string.format("Player to slay.")
 	PopulateMenuItemWithClientList(kVoteUpdateMessage, page)

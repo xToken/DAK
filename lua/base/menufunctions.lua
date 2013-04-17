@@ -44,12 +44,12 @@ function DAK:GetMenuItemsList(client)
 	return relevantitems
 end
 
-function DAK:UpdateClientMainMenu(steamId, LastUpdateMessage, page)
+function DAK:UpdateClientMainMenu(ns2id, LastUpdateMessage, page)
 	local MenuUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
 	if MenuUpdateMessage == nil then
 		MenuUpdateMessage = { }
 	end
-	local client = DAK:GetClientMatchingSteamId(steamId)
+	local client = DAK:GetClientMatchingNS2Id(ns2id)
 	if client == nil then
 		return LastUpdateMessage
 	end
@@ -81,29 +81,29 @@ end
 
 /// Confirmation Menu Functions
 // These are really just a small extension to allow easy confirm/deny menus
-local function UpdateConfirmationMenuHook(steamId, LastUpdateMessage, page)
-	return DAK:UpdateConfirmationMenu(steamId, LastUpdateMessage, page)
+local function UpdateConfirmationMenuHook(ns2id, LastUpdateMessage, page)
+	return DAK:UpdateConfirmationMenu(ns2id, LastUpdateMessage, page)
 end
 
 local function SelectConfirmationMenuItemHook(client, selecteditem, page)
 	return DAK:SelectConfirmationMenuItem(client, selecteditem, page)
 end
 
-function DAK:DisplayConfirmationMenuItem(steamId, HeadingText, ConfirmationFunction, DenyFunction, ...)
-	if steamId ~= nil then
+function DAK:DisplayConfirmationMenuItem(ns2id, HeadingText, ConfirmationFunction, DenyFunction, ...)
+	if ns2id ~= nil then
 		local menuitem = {heading = HeadingText, confirmfunc = ConfirmationFunction, denyfunc = DenyFunction, args = arg}
-		ConfirmationMenus[steamId] = menuitem
-		DAK:CreateGUIMenuBase(steamid, SelectConfirmationMenuItemHook, UpdateConfirmationMenuHook, true)
+		ConfirmationMenus[ns2id] = menuitem
+		DAK:CreateGUIMenuBase(ns2id, SelectConfirmationMenuItemHook, UpdateConfirmationMenuHook, true)
 	end
 end
 
-function DAK:UpdateConfirmationMenu(steamId, LastUpdateMessage, page)
-	if ConfirmationMenus[steamId] ~= nil then
+function DAK:UpdateConfirmationMenu(ns2id, LastUpdateMessage, page)
+	if ConfirmationMenus[ns2id] ~= nil then
 		local MenuUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
 		if MenuUpdateMessage == nil then
 			MenuUpdateMessage = { }
 		end
-		MenuUpdateMessage.header = ConfirmationMenus[steamId].heading
+		MenuUpdateMessage.header = ConfirmationMenus[ns2id].heading
 		kVoteUpdateMessage.option[1] = "Confirm"
 		kVoteUpdateMessage.option[2] = "Deny"
 		MenuUpdateMessage.footer = "Press a number key to select that option."
@@ -116,30 +116,30 @@ end
 
 function DAK:SelectConfirmationMenuItem(client, selecteditem, page)
 	if client ~= nil then
-		local steamId = client:GetUserId()
-		if ConfirmationMenus[steamId] ~= nil then
-			if selecteditem == 1 and ConfirmationMenus[steamId].confirmfunc ~= nil and type(ConfirmationMenus[steamId].confirmfunc) == "function" then
-				ConfirmationMenus[steamId].confirmfunc(client, unpack(ConfirmationMenus[steamId].args or { }))
-			elseif selecteditem == 2 and ConfirmationMenus[steamId].denyfunc ~= nil and type(ConfirmationMenus[steamId].denyfunc) == "function" then
-				ConfirmationMenus[steamId].denyfunc(client, unpack(ConfirmationMenus[steamId].args or { }))
+		local ns2id = client:GetUserId()
+		if ConfirmationMenus[ns2id] ~= nil then
+			if selecteditem == 1 and ConfirmationMenus[ns2id].confirmfunc ~= nil and type(ConfirmationMenus[ns2id].confirmfunc) == "function" then
+				ConfirmationMenus[ns2id].confirmfunc(client, unpack(ConfirmationMenus[ns2id].args or { }))
+			elseif selecteditem == 2 and ConfirmationMenus[ns2id].denyfunc ~= nil and type(ConfirmationMenus[ns2id].denyfunc) == "function" then
+				ConfirmationMenus[ns2id].denyfunc(client, unpack(ConfirmationMenus[ns2id].args or { }))
 			end
-			ConfirmationMenus[steamId] = nil
+			ConfirmationMenus[ns2id] = nil
 		end
 		return true
 	end
 end
 /// End Confirmation Menus
 
-function DAK:DoesSteamIDHaveClientSideMenus(steamId)
-	if steamId ~= nil and tonumber(steamId) ~= nil then
-		return DAK.activemoddedclients[tonumber(steamId)]
+function DAK:DoesNS2IDHaveClientSideMenus(ns2id)
+	if ns2id ~= nil and tonumber(ns2id) ~= nil then
+		return DAK.activemoddedclients[tonumber(ns2id)]
 	end
 	return false
 end
 
 function DAK:DoesClientHaveClientSideMenus(client)
 	if client ~= nil then
-		return DAK:DoesSteamIDHaveClientSideMenus(client:GetUserId())
+		return DAK:DoesNS2IDHaveClientSideMenus(client:GetUserId())
 	end
 	return false
 end
@@ -152,9 +152,9 @@ end
 
 function DAK:CreateGUIMenuBase(id, OnMenuFunction, OnMenuUpdateFunction, override)
 
-	if id == nil or id == 0 or tonumber(id) == nil or not DAK:DoesSteamIDHaveClientSideMenus(id) or not DAK.config.loader.AllowClientMenus then return false end
+	if id == nil or id == 0 or tonumber(id) == nil or not DAK:DoesNS2IDHaveClientSideMenus(id) or not DAK.config.loader.AllowClientMenus then return false end
 	for i = #DAK.runningmenus, 1, -1 do
-		if DAK.runningmenus[i] ~= nil and DAK.runningmenus[i].clientSteamId == id then
+		if DAK.runningmenus[i] ~= nil and DAK.runningmenus[i].clientNS2Id == id then
 			if override then
 				DAK.runningmenus[i] = nil
 			else
@@ -164,7 +164,7 @@ function DAK:CreateGUIMenuBase(id, OnMenuFunction, OnMenuUpdateFunction, overrid
 	end
 	
 	local GameMenu = {UpdateTime = math.max(Shared.GetTime() - 2, 0), MenuFunction = OnMenuFunction, MenuUpdateFunction = OnMenuUpdateFunction,
-						MenuBaseUpdateMessage = nil, clientSteamId = id, activepage = 0}
+						MenuBaseUpdateMessage = nil, clientNS2Id = id, activepage = 0}
 	table.insert(DAK.runningmenus, GameMenu)
 	return true
 	

@@ -187,31 +187,31 @@ function DAK:UpdateConnectionTimeTracker(client)
 		DAK.settings.connectedclients = { }
 	end
 	if client ~= nil then
-		local steamId = tonumber(client:GetUserId())
-		if DAK.settings.connectedclients[steamId] == nil or tonumber(DAK.settings.connectedclients[steamId]) == nil then
-			DAK.settings.connectedclients[steamId] = Shared.GetSystemTime()
+		local ns2id = tonumber(client:GetUserId())
+		if DAK.settings.connectedclients[ns2id] == nil or tonumber(DAK.settings.connectedclients[ns2id]) == nil then
+			DAK.settings.connectedclients[ns2id] = Shared.GetSystemTime()
 		end
 	end
 end
 
 function DAK:RemoveConnectionTimeTracker(client)
 	if client ~= nil and self.settings.connectedclients ~= nil then
-		local steamId = tonumber(client:GetUserId())
-		if steamId ~= nil then
-			DAK.settings.connectedclients[steamId] = nil
+		local ns2id = tonumber(client:GetUserId())
+		if ns2id ~= nil then
+			DAK.settings.connectedclients[ns2id] = nil
 		end
 	end
 end
 
 function DAK:GetClientConnectionTime(client)
 	if client ~= nil and DAK.settings.connectedclients ~= nil then
-		local steamId = tonumber(client:GetUserId())
-		if steamId ~= nil then
-			if DAK.settings.connectedclients[steamId] ~= nil and tonumber(DAK.settings.connectedclients[steamId]) ~= nil then
-				return math.floor(Shared.GetSystemTime() - DAK.settings.connectedclients[steamId])
+		local ns2id = tonumber(client:GetUserId())
+		if ns2id ~= nil then
+			if DAK.settings.connectedclients[ns2id] ~= nil and tonumber(DAK.settings.connectedclients[ns2id]) ~= nil then
+				return math.floor(Shared.GetSystemTime() - DAK.settings.connectedclients[ns2id])
 			else
 				//This shouldnt happen, but I think somehow it is :/
-				DAK.settings.connectedclients[steamId] = Shared.GetSystemTime()
+				DAK.settings.connectedclients[ns2id] = Shared.GetSystemTime()
 				return 0
 			end
 		end
@@ -229,27 +229,27 @@ end
 //Client Gag tracking
 function DAK:AddClientToGaggedList(client, duration)
 	if client ~= nil then
-		local steamID = tonumber(client:GetUserId())
-		if steamID ~= nil then
-			self.gaggedplayers[steamID] = Shared.GetTime() + duration
+		local ns2id = tonumber(client:GetUserId())
+		if ns2id ~= nil then
+			self.gaggedplayers[ns2id] = Shared.GetTime() + duration
 		end
 	end
 end
 
 function DAK:RemoveClientFromGaggedList(client)
 	if client ~= nil then
-		local steamID = tonumber(client:GetUserId())
-		if steamID ~= nil then
-			self.gaggedplayers[steamID] = nil
+		local ns2id = tonumber(client:GetUserId())
+		if ns2id ~= nil then
+			self.gaggedplayers[ns2id] = nil
 		end
 	end
 end
 
 function DAK:IsClientGagged(client)
 	if client ~= nil then
-		local steamID = tonumber(client:GetUserId())
-		if steamID ~= nil then
-			return self.gaggedplayers[steamID] ~= nil and self.gaggedplayers[steamID] > Shared.GetTime()
+		local ns2id = tonumber(client:GetUserId())
+		if ns2id ~= nil then
+			return self.gaggedplayers[ns2id] ~= nil and self.gaggedplayers[ns2id] > Shared.GetTime()
 		end
 	end
 	return false

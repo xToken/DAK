@@ -1,5 +1,14 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.416a
+- Renamed many key functions to align with recent changes regarding NS2 and Steam IDs.
+- Added new functions for NS2IDs, left original functions in place to maintain compatibility.
+- Plan to adjust SteamID functions to only check for SteamID - there are times where these checks need to be seperate, and its important for more correct obtaining of players.
+	There are many possible exploits currently regarding names and IDs and bans - want to make sure to minimize this via careful player lookups.
+- Renamed many local and function level variables to be more correct regarding what they contain (NS2 vs Player vs Steam IDs).
+- Added block to hopefully prevent reloading looping in pause plugin.
+- Added valid teams config option to afk plugin.
+
 ## v0.1.415a
 - Split Globals.lua into smaller files.
 - Corrected issue with pause plugin preventing medpacks.

@@ -82,6 +82,7 @@ local function OnCommandCommBan(client, playerId, pname, duration, ...)
 
 	local player = DAK:GetPlayerMatching(playerId)
 	local bannedUntilTime = Shared.GetSystemTime()
+	local ns2Id = DAK:GetNS2IDFromSteamID(playerId)
 	duration = tonumber(duration)
 	if duration == nil or duration <= 0 then
 		bannedUntilTime = 0
@@ -94,16 +95,18 @@ local function OnCommandCommBan(client, playerId, pname, duration, ...)
 		if pname == nil then pname = player:GetName() end
 	end
 	
-	if tonumber(playerId) > 0 then
+	if tonumber(playerId) ~= nil or ns2Id ~= nil then
 		if not DAK:GetLevelSufficient(client, playerId) then
 			return
 		end
-		
+		if tonumber(playerId) == nil and ns2Id ~= nil then
+			playerId = ns2Id
+		end
 		local bentry = { name = pname, reason = StringConcatArgs(...), time = bannedUntilTime }
 		LoadCommanderBannedPlayers()
 		CommBans[tostring(playerId)] = bentry
 		SaveCommanderBannedPlayers()
-		ServerAdminPrint(client, "Player with SteamId " .. playerId .. " has been banned from the command chair")
+		ServerAdminPrint(client, "Player with ID " .. playerId .. " has been banned from the command chair")
 	else
 		ServerAdminPrint(client, "No matching player")
 	end
@@ -112,22 +115,27 @@ end
 
 DAK:CreateServerAdminCommand("Console_sv_commban", OnCommandCommBan, "<player id> <name> <duration in minutes> <reason text>, Bans the player from commanding, pass in 0 for duration to ban forever")
 
-local function OnCommandUnCommBan(client, steamId)
+local function OnCommandUnCommBan(client, playerId)
 
-	steamId = tostring(steamId)
-	if steamId ~= nil then
+	playerId = tostring(playerId)
+	local ns2Id = DAK:GetNS2IDFromSteamID(playerId)
+	if playerId ~= nil then
 		LoadCommanderBannedPlayers()
-		if CommBans[steamId] ~= nil then
-			CommBans[steamId] = nil
+		if CommBans[playerId] ~= nil then
+			CommBans[playerId] = nil
 			SaveCommanderBannedPlayers()
-			ServerAdminPrint(client, "Player with SteamId " .. steamId .. " has been unbanned from the command chair.")
+			ServerAdminPrint(client, "Player with ID " .. playerId .. " has been unbanned from the command chair.")
+		elseif CommBans[ns2Id] ~= nil then
+			CommBans[ns2Id] = nil
+			SaveCommanderBannedPlayers()
+			ServerAdminPrint(client, "Player with ID " .. ns2Id .. " has been unbanned from the command chair.")
 		else
-			ServerAdminPrint(client, "No matching Steam Id in commander ban list")
+			ServerAdminPrint(client, "No matching ID in commander ban list")
 		end
 	end
 end
 
-DAK:CreateServerAdminCommand("Console_sv_uncommban", OnCommandUnCommBan, "<steam id>, Removes the player matching the passed in Steam Id from the commander ban list")
+DAK:CreateServerAdminCommand("Console_sv_uncommban", OnCommandUnCommBan, "<player id>, Removes the player matching the passed in ID from the commander ban list")
 
 local function ListCommanderBans(client)
 

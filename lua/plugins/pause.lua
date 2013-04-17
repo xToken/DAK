@@ -932,6 +932,7 @@ local function SaveEntStates()
 	for _, player in ientitylist(playerRecords) do
 		if player ~= nil then
 			player:PrimaryAttackEnd()
+			player:GetActiveWeapon().reloading = false
 			player.countingDown = true
 			player.followMoveEnabled = false
 			player.cachedorigin = player:GetOrigin()

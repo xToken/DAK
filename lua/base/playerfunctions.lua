@@ -73,7 +73,7 @@ function DAK:GetClientUIDString(client)
 			name = player:GetName()
 			teamnumber = player:GetTeamNumber()
 		end
-		return string.format("<%s><%s><%s><%s>", name, ToString(self:GetGameIdMatchingClient(client)), GetReadableSteamId(client:GetUserId()), teamnumber)
+		return string.format("<%s><%s><%s><%s>", name, ToString(self:GetGameIdMatchingClient(client)), DAK:GetSteamIdfromNS2ID(client:GetUserId()), teamnumber)
 	end
 	return ""
 	
@@ -81,24 +81,29 @@ end
 
 function DAK:VerifyClient(client)
 
-	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
-	for r = #playerList, 1, -1 do
-		if playerList[r] ~= nil then
-			local plyr = playerList[r]
-			local clnt = playerList[r]:GetClient()
-			if plyr ~= nil and clnt ~= nil then
-				if client ~= nil and clnt == client then
-					return clnt
+	if client ~= nil then
+		if type(client) == "userdata" then
+			return nil
+		end
+		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
+		for r = #playerList, 1, -1 do
+			if playerList[r] ~= nil then
+				local plyr = playerList[r]
+				local clnt = playerList[r]:GetClient()
+				if plyr ~= nil and clnt ~= nil then
+					if client ~= nil and clnt == client then
+						return clnt
+					end
 				end
-			end
-		end				
+			end				
+		end
 	end
 	return nil
 
 end
 
 function DAK:GetPlayerMatching(id)
-	return self:GetPlayerMatchingName(id) or self:GetPlayerMatchingGameId(id) or self:GetPlayerMatchingSteamId(id)	
+	return self:GetPlayerMatchingName(id) or self:GetPlayerMatchingGameId(id) or self:GetPlayerMatchingNS2Id(id)	
 end
 
 function DAK:GetPlayerMatchingGameId(id)
@@ -149,9 +154,9 @@ end
 function DAK:GetNS2IdMatchingClient(client)
 
 	if client ~= nil and self:VerifyClient(client) ~= nil then
-		local steamId = client:GetUserId()
-		if steamId ~= nil and tonumber(steamId) ~= nil then
-			return steamId
+		local ns2id = client:GetUserId()
+		if ns2id ~= nil and tonumber(ns2id) ~= nil then
+			return ns2id
 		end
 	end
 	
@@ -161,9 +166,9 @@ end
 function DAK:GetSteamIdMatchingClient(client)
 
 	if client ~= nil and self:VerifyClient(client) ~= nil then
-		local steamId = client:GetUserId()
-		if steamId ~= nil and tonumber(steamId) ~= nil then
-			return GetReadableSteamId(steamId)
+		local ns2id = client:GetUserId()
+		if ns2id ~= nil and tonumber(ns2id) ~= nil then
+			return DAK:GetSteamIdfromNS2ID(ns2id)
 		end
 	end
 	
@@ -185,6 +190,21 @@ function DAK:GetSteamIdMatchingPlayer(player)
 	return self:GetSteamIdMatchingClient(client)
 end
 
+function DAK:GetSteamIdfromNS2ID(steamIdNumber)
+    return "STEAM_0:" .. (steamIdNumber % 2) .. ":" .. math.floor(steamIdNumber / 2)
+end
+
+function DAK:GetNS2IDFromSteamID(steamId)
+	if string.sub(steamId, 1, 8) == "STEAM_0:" then
+		local firstpart = tonumber(string.sub(steamId, 9, 9))
+		local lastpart = tonumber(string.sub(steamId, 11))
+		if tonumber(firstpart) ~= nil and tonumber(lastpart) ~= nil then
+			return ((lastpart * 2) + firstpart)
+		end
+	end
+	return nil
+end
+
 function DAK:GetClientMatchingSteamId(steamId)
 
 	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
@@ -193,7 +213,7 @@ function DAK:GetClientMatchingSteamId(steamId)
 			local plyr = playerList[r]
 			local clnt = playerList[r]:GetClient()
 			if plyr ~= nil and clnt ~= nil then
-				if clnt:GetUserId() == tonumber(steamId) or GetReadableSteamId(clnt:GetUserId()) == steamId then
+				if clnt:GetUserId() == tonumber(steamId) or DAK:GetSteamIdfromNS2ID(clnt:GetUserId()) == steamId then
 					return clnt
 				end
 			end
@@ -204,6 +224,11 @@ function DAK:GetClientMatchingSteamId(steamId)
 	
 end
 
+//Adding these to not break all old calls for no reason, but want to rename these eventually for greater clarity.
+function DAK:GetClientMatchingNS2Id(ns2id)
+	return DAK:GetClientMatchingSteamId(ns2id)
+end
+
 function DAK:GetPlayerMatchingSteamId(steamId)
 
 	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
@@ -212,7 +237,7 @@ function DAK:GetPlayerMatchingSteamId(steamId)
 			local plyr = playerList[r]
 			local clnt = playerList[r]:GetClient()
 			if plyr ~= nil and clnt ~= nil then
-				if clnt:GetUserId() == tonumber(steamId) or GetReadableSteamId(clnt:GetUserId()) == steamId then
+				if clnt:GetUserId() == tonumber(steamId) or DAK:GetSteamIdfromNS2ID(clnt:GetUserId()) == steamId then
 					return plyr
 				end
 			end
@@ -221,6 +246,11 @@ function DAK:GetPlayerMatchingSteamId(steamId)
 	
 	return nil
 	
+end
+
+//Adding these to not break all old calls for no reason, but want to rename these eventually for greater clarity.
+function DAK:GetPlayerMatchingNS2Id(ns2id)
+	return DAK:GetPlayerMatchingSteamId(ns2id)
 end
 
 function DAK:GetPlayerMatchingName(name)

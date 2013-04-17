@@ -35,6 +35,12 @@ end
 
 Event.Hook("ClientDisconnect", DAKOnClientDisconnected)
 
+local function DAKOnClientConnectRequested(...)
+	Print(ToString(args))
+end
+
+Event.Hook("ConnectRequested", DAKOnClientConnectRequested)
+
 local function UpdateClientMenu(player, menumessage)
 	Server.SendNetworkMessage(player, "ServerAdminPrint", { message = menumessage }, true)	
 end
@@ -45,7 +51,7 @@ local function UpdateMenuObject(menuitem)
 		newMenuBaseUpdateMessage = menuitem.MenuBaseUpdateMessage
 		success = true
 	else
-		success, newMenuBaseUpdateMessage = pcall(menuitem.MenuUpdateFunction, menuitem.clientSteamId, menuitem.MenuBaseUpdateMessage, menuitem.activepage)
+		success, newMenuBaseUpdateMessage = pcall(menuitem.MenuUpdateFunction, menuitem.clientNS2Id, menuitem.MenuBaseUpdateMessage, menuitem.activepage)
 	end
 	if not success then
 		Shared.Message(string.format("Error encountered in menu function: %s", ""))
@@ -53,7 +59,7 @@ local function UpdateMenuObject(menuitem)
 	else
 		//Check to see if message is updated, if not then send term message and clear
 		if newMenuBaseUpdateMessage == menuitem.MenuBaseUpdateMessage then
-			UpdateClientMenu(DAK:GetPlayerMatchingSteamId(menuitem.clientSteamId), string.sub(MenuMessageTag .. "menutime|0", 0, kMaxPrintLength))
+			UpdateClientMenu(DAK:GetPlayerMatchingNS2Id(menuitem.clientNS2Id), string.sub(MenuMessageTag .. "menutime|0", 0, kMaxPrintLength))
 			newMenuBaseUpdateMessage.menutime = 0
 		else
 			//Add in page messages if applicable
@@ -72,11 +78,11 @@ local function UpdateMenuObject(menuitem)
 				if item == "option" then
 					for o, opt in pairs(message) do
 						if menuitem.MenuBaseUpdateMessage == nil or menuitem.MenuBaseUpdateMessage.option == nil or opt ~= menuitem.MenuBaseUpdateMessage.option[o] then
-							UpdateClientMenu(DAK:GetPlayerMatchingSteamId(menuitem.clientSteamId), string.sub(MenuMessageTag .. "option" .. tostring(o) .. "|" .. tostring(opt), 0, kMaxPrintLength))
+							UpdateClientMenu(DAK:GetPlayerMatchingNS2Id(menuitem.clientNS2Id), string.sub(MenuMessageTag .. "option" .. tostring(o) .. "|" .. tostring(opt), 0, kMaxPrintLength))
 						end
 					end
 				elseif menuitem.MenuBaseUpdateMessage == nil or message ~= menuitem.MenuBaseUpdateMessage[item] then
-					UpdateClientMenu(DAK:GetPlayerMatchingSteamId(menuitem.clientSteamId), string.sub(MenuMessageTag .. tostring(item) .. "|" .. tostring(message), 0, kMaxPrintLength))
+					UpdateClientMenu(DAK:GetPlayerMatchingNS2Id(menuitem.clientNS2Id), string.sub(MenuMessageTag .. tostring(item) .. "|" .. tostring(message), 0, kMaxPrintLength))
 				end
 			end
 		end
@@ -297,16 +303,16 @@ local function DelayedEventHooks()
 	local originalServerAddChatToHistory
 	
 	originalServerAddChatToHistory = DAK:Class_ReplaceMethod("Server", "AddChatToHistory", 
-		function(message, playerName, steamId, teamNumber, teamOnly)
+		function(message, playerName, ns2Id, teamNumber, teamOnly)
 
 			if originalServerAddChatToHistory ~= nil then
-				originalServerAddChatToHistory(message, playerName, steamId, teamNumber, teamOnly)
+				originalServerAddChatToHistory(message, playerName, ns2Id, teamNumber, teamOnly)
 			end
 
-			local client = DAK:GetClientMatchingSteamId(steamId)
+			local client = DAK:GetClientMatchingNS2Id(ns2Id)
 			DAK:ExecuteChatCommands(client, message)
 			//Leaving this for now as there are times when greater control is needed/useful.
-			DAK:ExecuteEventHooks("OnClientChatMessage", message, playerName, steamId, teamNumber, teamOnly, client)
+			DAK:ExecuteEventHooks("OnClientChatMessage", message, playerName, ns2Id, teamNumber, teamOnly, client)
 
 		end
 	)
@@ -349,9 +355,9 @@ DAK:RegisterEventHook("OnClientConnect", SetServerConfigOnClientConnected, 5, "e
 
 local function EnableClientMenus(client)
 	if client ~= nil then
-		local steamid = client:GetUserId()
-		if steamid ~= nil and tonumber(steamid) ~= nil and DAK.config.loader.AllowClientMenus then
-			DAK.activemoddedclients[tonumber(steamid)] = true
+		local ns2id = client:GetUserId()
+		if ns2id ~= nil and tonumber(ns2id) ~= nil and DAK.config.loader.AllowClientMenus then
+			DAK.activemoddedclients[tonumber(ns2id)] = true
 		end
 	end
 end
@@ -362,10 +368,10 @@ local function OnCommandMenuBaseSelection(client, selection)
 
 	if selection ~= nil and tonumber(selection) ~= nil and client ~= nil then
 		selection = tonumber(selection)
-		local steamId = client:GetUserId()
-		if steamId ~= nil and tonumber(steamId) ~= nil then
+		local ns2id = client:GetUserId()
+		if ns2id ~= nil and tonumber(ns2id) ~= nil then
 			for i = #DAK.runningmenus, 1, -1 do
-				if DAK.runningmenus[i].clientSteamId == steamId then
+				if DAK.runningmenus[i].clientNS2Id == ns2id then
 					local menufunction = DAK.runningmenus[i].MenuFunction
 					DAK.runningmenus[i].MenuBaseUpdateMessage.inputallowed = nil
 					if selection == 10 and DAK.runningmenus[i].activepage > 0 then
@@ -390,8 +396,8 @@ end
 
 Event.Hook("Console_menubaseselection", OnCommandMenuBaseSelection)
 
-local function UpdateClientMenuHook(steamId, LastUpdateMessage, page)
-	return DAK:UpdateClientMainMenu(steamId, LastUpdateMessage, page)
+local function UpdateClientMenuHook(ns2id, LastUpdateMessage, page)
+	return DAK:UpdateClientMainMenu(ns2id, LastUpdateMessage, page)
 end
 
 local function UpdateClientSelectMainMenuHook(client, selecteditem, page)
@@ -400,9 +406,9 @@ end
 
 local function DisplayDAKMenu(client)
 	if client ~= nil then
-		local steamid = client:GetUserId()
-		if steamid ~= nil and tonumber(steamid) ~= nil and DAK.config.loader.AllowClientMenus then
-			DAK:CreateGUIMenuBase(steamid, UpdateClientSelectMainMenuHook, UpdateClientMenuHook, true)
+		local ns2id = client:GetUserId()
+		if ns2id ~= nil and tonumber(ns2id) ~= nil and DAK.config.loader.AllowClientMenus then
+			DAK:CreateGUIMenuBase(ns2id, UpdateClientSelectMainMenuHook, UpdateClientMenuHook, true)
 		end
 	end
 end

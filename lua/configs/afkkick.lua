@@ -7,6 +7,7 @@ local function SetupDefaultConfig()
 	DefaultConfig.kAFKKickMinimumPlayers = 5
 	DefaultConfig.kAFKKickWarning1 = 30
 	DefaultConfig.kAFKKickWarning2 = 10
+	DefaultConfig.kMonitoredTeams = { 0, 1, 2, 3 }
 	return DefaultConfig
 end
 

@@ -16,8 +16,8 @@ end
 
 local function IsAcceptedClient(client)
 	if client ~= nil then
-		local steamid = tostring(client:GetUserId())
-		if DAK.settings.MOTDAcceptedClients[steamid] ~= nil and DAK.settings.MOTDAcceptedClients[steamid] == DAK.config.motd.kMOTDMessageRevision then
+		local ns2id = tostring(client:GetUserId())
+		if DAK.settings.MOTDAcceptedClients[ns2id] ~= nil and DAK.settings.MOTDAcceptedClients[ns2id] == DAK.config.motd.kMOTDMessageRevision then
 			return true		
 		end
 	end
@@ -135,7 +135,7 @@ local function OnCommandAcceptMOTD(client)
 			return
 		end
 		
-		local steamid = client:GetUserId()
+		local ns2id = client:GetUserId()
 		local player = client:GetControllingPlayer()
 		local name = "acceptedclient"
 
@@ -143,12 +143,12 @@ local function OnCommandAcceptMOTD(client)
 			name = player:GetName()
 		end
 		
-		if tonumber(steamid) == nil then
+		if tonumber(ns2id) == nil then
 			return
 		end
 		
 		DAK:DisplayMessageToClient(client, "MOTDAccepted")
-		DAK.settings.MOTDAcceptedClients[tostring(steamid)] = DAK.config.motd.kMOTDMessageRevision
+		DAK.settings.MOTDAcceptedClients[tostring(ns2id)] = DAK.config.motd.kMOTDMessageRevision
 		DAK:SaveSettings()
 	end
 	

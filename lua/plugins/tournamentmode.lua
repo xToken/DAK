@@ -272,7 +272,7 @@ local function OnCommandSetupCaptain(client, teamnum, captain)
 	
 end
 
-DAK:CreateServerAdminCommand("Console_sv_setcaptain", OnCommandSetupCaptain, "<team> <captain> Set the captain for a team by gameid/steamid.")
+DAK:CreateServerAdminCommand("Console_sv_setcaptain", OnCommandSetupCaptain, "<team> <captain> Set the captain for a team by gameid/ns2id.")
 
 local function OnCommandForceStartRound(client)
 

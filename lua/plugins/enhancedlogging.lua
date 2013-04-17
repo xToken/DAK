@@ -250,8 +250,8 @@ if DAK.config and DAK.config.loader and DAK.config.loader.GamerulesExtensions th
 	DAK:RegisterEventHook("OnPluginInitialized", OnPluginInitialized, 5, "enhancedlogging")
 end
 
-function EnhancedLoggingChatMessage(message, playerName, steamId, teamNumber, teamOnly, client)
-	if client and steamId and steamId ~= 0 then
+function EnhancedLoggingChatMessage(message, playerName, ns2id, teamNumber, teamOnly, client)
+	if client and ns2id and ns2id ~= 0 then
 		PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(client) .. ConditionalValue(teamOnly, " teamsay ", " say ") .. message)
 	else
 		PrintToEnhancedLog(DAK:GetTimeStamp() .. playerName .. ConditionalValue(teamOnly, " teamsay ", " say ")  .. message)

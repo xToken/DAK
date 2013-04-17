@@ -214,14 +214,14 @@ local function OnCommandMenuVote(client, mapnumber, page)
 	OnCommandVote(client, (page * 8) + mapnumber)
 end
 
-local function OnCommandUpdateVote(steamId, LastUpdateMessage, page)
+local function OnCommandUpdateVote(ns2id, LastUpdateMessage, page)
 	//OnVoteUpdateFunction
 	if mapvoterunning then
 		local kVoteUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
 		if kVoteUpdateMessage == nil then
 			kVoteUpdateMessage = { }
 		end
-		local client =  DAK:GetClientMatchingSteamId(steamId)
+		local client =  DAK:GetClientMatchingNS2Id(ns2id)
 		kVoteUpdateMessage.header = string.format("%.1f seconds are left to vote.", mapvotedelay - Shared.GetTime())
 		i = 1
 		for map, votes in pairs(MapVotes) do
@@ -376,7 +376,7 @@ local function UpdateMapVotes(deltaTime)
 			
 			local playerRecords = Shared.GetEntitiesWithClassname("Player")				
 			for _, player in ientitylist(playerRecords) do
-				DAK:CreateGUIMenuBase(DAK:GetSteamIdMatchingPlayer(player), OnCommandMenuVote, OnCommandUpdateVote, false)
+				DAK:CreateGUIMenuBase(DAK:GetNS2IdMatchingPlayer(player), OnCommandMenuVote, OnCommandUpdateVote, false)
 			end
 			
 		end
