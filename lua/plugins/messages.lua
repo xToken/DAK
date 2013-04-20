@@ -15,7 +15,7 @@ end
 local function ProcessMessagesforUser(client, messagestart)
 
 	local messages = DAK:GetLanguageSpecificMessage("PeriodicMessages", DAK:GetClientLanguageSetting(client))
-	if messages ~= nil then
+	if messages ~= nil and messagestart <= #messages then
 		for i = messagestart, #messages do
 		
 			if i < DAK.config.messages.kMessagesPerTick + messagestart then
@@ -27,7 +27,6 @@ local function ProcessMessagesforUser(client, messagestart)
 			end
 		end
 	end
-
 	messagetick = 0
 	messageline = 0
 
@@ -39,14 +38,14 @@ local function ProcessMessageQueue(deltatime)
 	if lastMessageTime + (DAK.config.messages.kMessageInterval * 60) < tt and messagetick < tt then
 	
 		local oldmessageline = ConditionalValue(messageline > 0, messageline, 1)
-		for index, player in ientitylist(Shared.GetEntitiesWithClassname("Player")) do
+		
+		DAK:ForAllPlayers(function (player, oldmessageline)
 			local client = Server.GetOwner(player)
-			
-			if client ~= nil and DAK:VerifyClient(client) ~= nil then
+			if client ~= nil then
 				ProcessMessagesforUser(client, oldmessageline)
 			end
-			
-		end
+		end, oldmessageline)
+		
 		if messageline == 0 then
 			lastMessageTime = Shared.GetTime()
 		end

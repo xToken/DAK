@@ -199,7 +199,7 @@ local function OnPluginInitialized()
 		end
 	)
 	
-	local originalNS2RecycleMixinOnResearch
+	/*local originalNS2RecycleMixinOnResearch
 	
 	originalNS2RecycleMixinOnResearch = DAK:Class_ReplaceMethod("RecycleMixin", "OnResearch", 
 		function(self, researchId)
@@ -218,6 +218,50 @@ local function OnPluginInitialized()
 			end
 			originalNS2RecycleMixinOnResearch( self, researchId )
 		end
+	)*/
+	
+	local originalNS2ResearchMixinSetResearching
+	
+	originalNS2ResearchMixinSetResearching = DAK:Class_ReplaceMethod("ResearchMixin", "SetResearching", 
+		function(self, techNode, player)
+		
+			if techNode.techId ~= kTechId.Recycle then
+				local researchname = EnumToString(kTechId, techNode.techId)
+				local buildingID = self:GetId()
+				local buildingname = self:GetClassName()
+				if player then
+					local Client = Server.GetOwner(player)
+					if Client then        
+						PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(Client) .. " started research of " .. researchname .. " on " .. buildingname .. " id: " .. ToString(buildingID))
+					end
+				end
+			end
+			originalNS2ResearchMixinSetResearching( self, techNode, player )
+		end
+	)
+	
+	local originalNS2ResearchMixinPerformAction
+	
+	originalNS2ResearchMixinPerformAction = DAK:Class_ReplaceMethod("ResearchMixin", "PerformAction", 
+		function(self, techNode, position)
+		
+			if techNode.techId == kTechId.Cancel and self:GetIsResearching() then
+				local researchname = EnumToString(kTechId, self.researchingId)
+				local buildingID = self:GetId()
+				local buildingname = self:GetClassName()
+				local team = self:GetTeam()
+				if team then
+					local commander = team:GetCommander()
+					if commander then
+						local Client = Server.GetOwner(commander)
+						if Client then        
+							PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(Client) .. " cancelled research of " .. researchname .. " on " .. buildingname .. " id: " .. ToString(buildingID))
+						end
+					end
+				end
+			end
+			originalNS2ResearchMixinPerformAction( self, techNode, position )
+		end
 	)
 	
 	local originalNS2ConstructMixinOnInitialized
@@ -235,7 +279,7 @@ local function OnPluginInitialized()
 				end
 				if owner then
 					local Client = Server.GetOwner(owner)
-					if researchId == kTechId.Recycle and Client then        
+					if Client then        
 						PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(Client) .. " started construction of " .. buildingname .. " id: " .. ToString(buildingID))
 					end
 				end

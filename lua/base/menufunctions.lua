@@ -106,7 +106,7 @@ function DAK:SelectConfirmationMenuItem(client, selecteditem, page)
 			elseif selecteditem == 2 and DAK.confirmationmenus[ns2id].denyfunc ~= nil and type(DAK.confirmationmenus[ns2id].denyfunc) == "function" then
 				DAK.confirmationmenus[ns2id].denyfunc(client, unpack(DAK.confirmationmenus[ns2id].args or { }))
 			end
-			table.remove(DAK.confirmationmenus, ns2id)
+			DAK.confirmationmenus[ns2id] = nil
 		end
 		return true
 	end
@@ -187,4 +187,14 @@ function DAK:CreateMenuBaseNetworkMessage()
 	kVoteUpdateMessage.inputallowed = false
 	kVoteUpdateMessage.menutime = Shared.GetTime()
 	return kVoteUpdateMessage
+end
+
+function DAK:PopulateClientMenuItemWithClientList(VoteUpdateMessage, page)
+	local clientlist = DAK:GetClientList()
+	for p = 1, #clientlist do
+		local ci = p - (page * 8)
+		if ci > 0 and ci < 9 then
+			VoteUpdateMessage.option[ci] = string.format(DAK:GetClientUIDString(clientlist[p]))
+		end
+	end
 end

@@ -42,11 +42,9 @@ end
 
 local function LoadLanguageDefinitions()
 	for i = 1, #DAK.config.language.LanguageList do
-		if DAK.config.language.LanguageList[i] ~= defaultlang then
-			local lang = DAK.config.language.LanguageList[i]
-			if lang ~= nil then
-				LanguageStrings[lang] = DAK:LoadConfigFile(string.format("config://lang\\%s.json", lang)) or { }
-			end
+		local lang = DAK.config.language.LanguageList[i]
+		if lang ~= nil then
+			LanguageStrings[lang] = DAK:LoadConfigFile(string.format("config://lang\\%s.json", lang)) or { }
 		end
 	end
 end
@@ -126,7 +124,7 @@ local function GetIsLanguageValid(lang)
 	return false
 end
 
-local function ClientLanguageOverride(client)
+function DAK:GetClientLanguageSetting(client)
 	if client ~= nil then
 		local clientID = tonumber(client:GetUserId())
 		if clientID ~= nil then
@@ -156,15 +154,11 @@ function DAK:GetLanguageSpecificMessage(messageId, lang)
 	Shared.Message(string.format("Invalid MessageId provided - %s", messageId))
 	return ""
 end
-
-function DAK:GetClientLanguageSetting(client)
-	return ClientLanguageOverride(client)
-end
    
 function DAK:DisplayMessageToClient(client, messageId, ...)
 
 	if client ~= nil then
-		local language = ClientLanguageOverride(client)
+		local language = DAK:GetClientLanguageSetting(client)
 		local player = client:GetControllingPlayer()
 		local message = DAK:GetLanguageSpecificMessage(messageId, language)
 		local chatMessage = string.sub(string.format(message, ...), 1, kMaxChatLength)
@@ -175,17 +169,11 @@ end
 
 function DAK:DisplayMessageToAllClients(messageId, ...)
 
-	local playerRecords = Shared.GetEntitiesWithClassname("Player")
 	//local message = DAK:GetLanguageSpecificMessage(messageId, "GB")
 	//Shared.Message(string.format(message, ...))
-	for _, player in ientitylist(playerRecords) do
-		
-		local client = Server.GetOwner(player)
-		if client ~= nil then
-			DAK:DisplayMessageToClient(client, messageId, ...)
-		end
-	
-	end
+	DAK:ForAllClients(function (client, messageId, ...)
+		DAK:DisplayMessageToClient(client, messageId, ...)
+	end, messageId, ...)
 end
 
 function DAK:DisplayMessageToTeam(teamnum, messageId, ...)
@@ -210,13 +198,11 @@ function DAK:DisplayLegacyChatMessageToClientWithoutMenus(client, messageId, ...
 end
 
 function DAK:DisplayLegacyChatMessageToAllClientWithoutMenus(messageId, ...)
-	local playerRecords = Shared.GetEntitiesWithClassname("Player")
-	for _, player in ientitylist(playerRecords) do
-		local client = Server.GetOwner(player)
+	DAK:ForAllClients(function (client, messageId, ...)
 		if client ~= nil and not client:GetIsVirtual() and not DAK:DoesClientHaveClientSideMenus(client) then
 			DAK:DisplayMessageToClient(client, messageId, ...)
 		end
-	end
+	end, messageId, ...)
 end
 
 function DAK:DisplayLegacyChatMessageToTeamClientsWithoutMenus(teamnum, messageId, ...)

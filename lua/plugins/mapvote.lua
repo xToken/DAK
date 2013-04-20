@@ -44,11 +44,11 @@ end
 DAK:RegisterEventHook("CheckMapChange", CheckMapVote, 5, "mapvote")
 
 local function ResetPlayerScores()
-	for _, player in ientitylist(Shared.GetEntitiesWithClassname("Player")) do            
+	DAK:ForAllPlayers(function (player)
 		if player.ResetScores then
 			player:ResetScores()
-		end            
-	end
+		end    
+	end)
 end
 
 local function StartCountdown(gamerules)
@@ -300,7 +300,11 @@ local function ProcessandSelectMap()
 		else
 			local TiedMap = TiedMaps[math.random(1, #TiedMaps)]
 			DAK:DisplayMessageToAllClients("VoteMapTieBreaker", TiedMap)
-			nextmap = TiedMap
+			if TiedMap == string.format("extend %s", tostring(Shared.GetMapName())) then
+				nextmap = "extend"
+			else
+				nextmap = TiedMap
+			end
 			mapvotedelay = Shared.GetTime() + DAK.config.mapvote.kVoteChangeDelay
 			votepassed = true
 			mapvotecomplete = true
@@ -373,11 +377,9 @@ local function UpdateMapVotes(deltaTime)
 		if Shared.GetTime() > mapvotedelay then
 		
 			UpdateMapVoteCountDown()
-			
-			local playerRecords = Shared.GetEntitiesWithClassname("Player")				
-			for _, player in ientitylist(playerRecords) do
+			DAK:ForAllPlayers(function (player)
 				DAK:CreateGUIMenuBase(DAK:GetNS2IdMatchingPlayer(player), OnCommandMenuVote, OnCommandUpdateVote, false)
-			end
+			end)
 			
 		end
 		
@@ -579,12 +581,9 @@ local function OnCommandStartMapVote(client)
 		else
 			Shared.Message("Map vote already running")
 		end
-	
 	else
-	
 		StartMapVote()
 		DAK:PrintToAllAdmins("sv_votemap", client)
-		
 	end
 
 end

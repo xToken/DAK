@@ -23,13 +23,6 @@ local function DisconnectClientForReserveSlot(client)
 	Server.DisconnectClient(client)	
 end
 
-local function GetPlayerList()
-
-	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
-	return playerList
-	
-end
-
 local function CheckReserveStatus(client, silent)
 
 	if client:GetIsVirtual() then
@@ -67,7 +60,7 @@ end
 local function CheckOccupiedReserveSlots()
 	//check for current number of occupied reserveslots
 	local reserveCount = 0
-	local playerList = GetPlayerList()
+	local playerList = DAK:GetPlayerList()
 	for r = #playerList, 1, -1 do
 		if playerList[r] ~= nil then
 			local plyr = playerList[r]
@@ -110,9 +103,9 @@ local function CheckReserveSlotSync()
 	
 	if #disconnectclients > 0 then
 		for r = #disconnectclients, 1, -1 do
-			if disconnectclients[r] ~= nil and DAK:VerifyClient(disconnectclients[r].clnt) ~= nil and disconnectclients[r].disctime < Shared.GetTime() then
+			if disconnectclients[r] ~= nil and DAK:VerifyClient(disconnectclients[r].clnt) and disconnectclients[r].disctime < Shared.GetTime() then
 				DisconnectClientForReserveSlot(disconnectclients[r].clnt)
-				disconnectclients[r] = nil
+				table.remove(disconnectclients, r)
 			end
 		end
 	end
@@ -156,7 +149,7 @@ local function OnReserveSlotClientConnected(client)
 
 		local playertokick
 		local connectiontime = 0
-		local playerList = GetPlayerList()
+		local playerList = DAK:GetPlayerList()
 				
 		for r = #playerList, 1, -1 do
 			if playerList[r] ~= nil then
@@ -199,36 +192,30 @@ DAK:RegisterEventHook("OnClientDisconnect", ReserveSlotClientDisconnect, 5, "res
 local function AddReservePlayer(client, parm1, parm2, parm3, parm4)
 
 	local idNum = tonumber(parm2)
+	if idNum == nil then
+		idNum = DAK:GetNS2IDFromSteamID(idNum)
+	end
 	local exptime = tonumber(parm4)
 	if parm1 and idNum then
+		LoadReservedPlayers()
 		local ReservePlayer = { name = ToString(parm1), id = idNum, reason = ToString(parm3 or ""), time = ConditionalValue(exptime, exptime, 0) }
 		table.insert(ReservedPlayers, ReservePlayer)
 		DAK:PrintToAllAdmins("sv_addreserve", client, ToString(parm1) .. ToString(parm2) .. ToString(parm3) .. ToString(parm4))
 		if client ~= nil then
-			DAK:DisplayMessageToClient(client, "ReserveSlotGranted", ToString(parm2))
+			DAK:DisplayMessageToClient(client, "ReserveSlotGranted", ToString(idNum))
 		end
+		SaveReservedPlayers()
 	end
-	SaveReservedPlayers()
 end
 
-DAK:CreateServerAdminCommand("Console_sv_addreserve", AddReservePlayer, "<name> <id> <reason> <time> Will add a reserve player to the list.")
+DAK:CreateServerAdminCommand("Console_sv_addreserve", AddReservePlayer, "<name> <player id> <reason> <time> Will add a reserve player to the list.")
 
 local function DebugReserveSlots(client)
-
-	if client ~= nil then
-		for r = 1, #reserveslotactionslog, 1 do
-			if reserveslotactionslog[r] ~= nil then
-				ServerAdminPrint(client, reserveslotactionslog[r])
-			end
-		end
-	else
-		for r = 1, #reserveslotactionslog, 1 do
-			if reserveslotactionslog[r] ~= nil then
-				Shared.Message(reserveslotactionslog[r])
-			end
+	for r = 1, #reserveslotactionslog, 1 do
+		if reserveslotactionslog[r] ~= nil then
+			ServerAdminPrint(client, reserveslotactionslog[r])
 		end
 	end
-
 end
 
 DAK:CreateServerAdminCommand("Console_sv_reservedebug", DebugReserveSlots, "Will print messages logged during actions taken by reserve slot plugin.")

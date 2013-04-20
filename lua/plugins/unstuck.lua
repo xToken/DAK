@@ -49,18 +49,18 @@ local function ProcessStuckUsers(deltatime)
 									//Client still active, unstuck them
 									UnstuckClient(client, player, PEntry)
 									LastUnstuckTracker[PEntry.ID] = Shared.GetTime()
-									UnstuckClientTracker[i] = nil
+									table.remove(UnstuckClientTracker, i)
 								end
 							else
-								UnstuckClientTracker[i] = nil
+								table.remove(UnstuckClientTracker, i)
 							end
 						else
-							UnstuckClientTracker[i] = nil
+							table.remove(UnstuckClientTracker, i)
 						end
 					end
 				end
 			else
-				UnstuckClientTracker[i] = nil
+				table.remove(UnstuckClientTracker, i)
 			end
 		end
 	end

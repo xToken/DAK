@@ -92,10 +92,10 @@ function DAK:ProcessTimedCallBacks()
 				local success, result = pcall(self.timedcalledbacks[i].func, unpack(self.timedcalledbacks[i].args or { }))
 				if not success then
 					Shared.Message(string.format("Callback ERROR: %s", result))
-					self.timedcalledbacks[i] = nil
+					table.remove(self.timedcalledbacks, i)
 				else
 					if result == nil or result == false then
-						self.timedcalledbacks[i] = nil
+						table.remove(self.timedcalledbacks, i)
 					elseif result == true then
 						self.timedcalledbacks[i].when = Shared.GetTime() + self.timedcalledbacks[i].lastinterval
 					elseif tonumber(result) ~= nil then

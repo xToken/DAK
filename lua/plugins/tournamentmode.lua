@@ -26,11 +26,11 @@ end
 DAK:RegisterEventHook("CheckMapChange", BlockMapChange, 5, "tournamentmode")
 
 local function ResetPlayerScores()
-	for _, player in ientitylist(Shared.GetEntitiesWithClassname("Player")) do            
+	DAK:ForAllPlayers(function (player)
 		if player.ResetScores then
 			player:ResetScores()
-		end            
-	end
+		end    
+	end)
 end
 
 local function StartCountdown(gamerules)

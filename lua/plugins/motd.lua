@@ -54,9 +54,9 @@ local function MOTDOnClientDisconnect(client)
 	if #MOTDClientTracker > 0 then
 		for i = 1, #MOTDClientTracker do
 			local PEntry = MOTDClientTracker[i]
-			if PEntry ~= nil and PEntry.Client ~= nil and DAK:VerifyClient(PEntry.Client) ~= nil then
+			if PEntry ~= nil and PEntry.Client ~= nil and DAK:VerifyClient(PEntry.Client) then
 				if client == PEntry.Client then
-					MOTDClientTracker[i] = nil
+					table.remove(MOTDClientTracker, i)
 					break
 				end
 			end
@@ -74,15 +74,15 @@ local function ProcessRemainingMOTDMessages(deltatime)
 		for i = 1, #MOTDClientTracker do
 			local PEntry = MOTDClientTracker[i]
 			if PEntry ~= nil then
-				if PEntry.Client ~= nil and DAK:VerifyClient(PEntry.Client) ~= nil then
+				if PEntry.Client ~= nil and DAK:VerifyClient(PEntry.Client) then
 					if PEntry.Time < Shared.GetTime() then
 						MOTDClientTracker[i] = ProcessMessagesforUser(PEntry)
 					end
 				else
-					MOTDClientTracker[i] = nil
+					table.remove(MOTDClientTracker, i)
 				end
 			else
-				MOTDClientTracker[i] = nil
+				table.remove(MOTDClientTracker, i)
 			end
 		end
 		if #MOTDClientTracker == 0 then
@@ -102,7 +102,7 @@ local function MOTDOnClientConnect(client)
 		return false
 	end
 	
-	if DAK:VerifyClient(client) == nil then
+	if not DAK:VerifyClient(client) then
 		return true
 	end
 	
@@ -111,7 +111,7 @@ local function MOTDOnClientConnect(client)
 	end
 	
 	//if DAK.config.motd.kMOTDOnConnectURL ~= "" then
-		//DAK:ExecuteFunctionOnClient(client, string.format("oneffectdebug SetMenuWebView(%s, function return Vector(Client.GetScreenWidth() * 0.8, Client.GetScreenHeight() * 0.8, 0) end )", DAK.config.motd.kMOTDOnConnectURL))
+		//DAK:ExecuteFunctionOnClient(client, string.format("SetMenuWebView(%s, Vector(Client.GetScreenWidth() * 0.8, Client.GetScreenHeight() * 0.8, 0))", DAK.config.motd.kMOTDOnConnectURL))
 	//end	
 	
 	local PEntry = { ID = client:GetUserId(), Client = client, Message = 1, Time = 0 }

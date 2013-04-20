@@ -66,9 +66,8 @@ local function UpdateAFKClient(client, PEntry, player)
 			return PEntry
 		end
 	
-		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
 		PEntry.Active = true
-		if player:GetViewAngles() ~= PEntry.MVec or (player:GetOrigin() ~= PEntry.POrig and player:GetIsOverhead()) or #playerList < DAK.config.afkkick.kAFKKickMinimumPlayers then
+		if player:GetViewAngles() ~= PEntry.MVec or (player:GetOrigin() ~= PEntry.POrig and player:GetIsOverhead()) or Server.GetNumPlayers() < DAK.config.afkkick.kAFKKickMinimumPlayers then
 			PEntry.MVec = player:GetViewAngles()
 			PEntry.POrig = player:GetOrigin()
 			PEntry.Time = Shared.GetTime() + DAK.config.afkkick.kAFKKickDelay
@@ -114,7 +113,7 @@ local function AFKOnClientDisconnect(client)
 			local PEntry = AFKClientTracker[i]
 			if PEntry ~= nil and client ~= nil then
 				if PEntry.ID == client:GetUserId() then
-					AFKClientTracker[i] = nil
+					table.remove(AFKClientTracker, i)
 					break
 				end
 			end
@@ -144,10 +143,10 @@ local function ProcessPlayingUsers(deltatime)
 					end
 				end
 				if not PEntry.Active then
-					AFKClientTracker[i] = nil
+					table.remove(AFKClientTracker, i)
 				end
 			else
-				AFKClientTracker[i] = nil
+				table.remove(AFKClientTracker, i)
 			end
 		end
 		lastAFKUpdate = Shared.GetTime()

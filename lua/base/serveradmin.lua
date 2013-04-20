@@ -248,7 +248,7 @@ function DAK:IsNS2IDBanned(playerId)
 				return true, bentry.reason or "Banned"
 			else
 				LoadBannedPlayers()
-				table.remove(DAK.bannedplayers, playerId)
+				DAK.bannedplayers[playerId] = nil
 				SaveBannedPlayers()
 			end
 		end
@@ -259,7 +259,7 @@ function DAK:IsNS2IDBanned(playerId)
 				if bwentry.time == 0 or now < bwentry.time then
 					return true, bwentry.reason or "Banned"
 				else
-					table.remove(DAK.bannedplayersweb, playerId)
+					DAK.bannedplayers[playerId] = nil
 					SaveBannedPlayersWeb()
 				end
 			end
@@ -273,7 +273,7 @@ function DAK:UnBanNS2ID(playerId)
 	if playerId ~= nil then
 		LoadBannedPlayers()
 		if DAK.bannedplayers[playerId] ~= nil then
-			table.remove(DAK.bannedplayers, playerId)
+			DAK.bannedplayers[playerId] = nil
 			SaveBannedPlayers()
 			return true
 		end

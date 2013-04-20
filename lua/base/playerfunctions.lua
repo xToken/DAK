@@ -1,5 +1,8 @@
 //DAK loader/Base Config
 
+local kMaxPrintLength = 128
+local FunctionMessageTag = "#&DAK"
+
 function DAK:PrintToAllAdmins(commandname, triggeringclient, parm1)
 
 	local message
@@ -12,16 +15,11 @@ function DAK:PrintToAllAdmins(commandname, triggeringclient, parm1)
 		message = message .. " " .. parm1
 	end
 
-	local playerRecords = Shared.GetEntitiesWithClassname("Player")
-	for _, player in ientitylist(playerRecords) do
-
-		local playerClient = Server.GetOwner(player)
-		if playerClient ~= nil then
-			if playerClient ~= triggeringclient and self:GetClientCanRunCommand(playerClient, commandname) then
-				ServerAdminPrint(playerClient, message)
-			end
+	DAK:ForAllClients(function (client, triggeringclient, message, commandname)
+		if client ~= triggeringclient and self:GetClientCanRunCommand(client, commandname) then
+			ServerAdminPrint(client, message)
 		end
-	end
+	end, triggeringclient, message, commandname)
 	
 	DAK:ExecutePluginGlobalFunction("enhancedlogging", EnhancedLogMessage, message)
 	
@@ -29,6 +27,12 @@ function DAK:PrintToAllAdmins(commandname, triggeringclient, parm1)
 		Shared.Message(string.format(message))
 	end
 	
+end
+
+function DAK:ExecuteFunctionOnClient(client, functionstring)
+	if client ~= nil and DAK:DoesNS2IDHaveClientSideMenus(client:GetUserId()) and DAK.config.loader.AllowClientMenus then
+		Server.SendNetworkMessage(player, "ServerAdminPrint", { message = string.sub(FunctionMessageTag .. functionstring, 0, kMaxPrintLength) }, true)	
+	end
 end
 
 function DAK:IsPlayerAFK(player)
@@ -40,9 +44,43 @@ function DAK:IsPlayerAFK(player)
 	return false
 end
 
+function DAK:GetPlayerList()
+	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
+	return playerList
+end
+
+function DAK:GetClientList()
+	local clientList = { }
+	DAK:ForAllPlayers(function (player)
+		if player ~= nil then
+			local clnt = player:GetClient()
+			if clnt ~= nil then
+				table.insert(clientList, clnt)
+			end
+		end
+	end)
+	return clientList
+end
+
+function DAK:ForAllPlayers(doThis, ...)
+	local playerList = DAK:GetPlayerList()
+	for p = 1, #playerList do
+		local player = playerList[p]
+		doThis(player, ...)
+	end
+end
+
+function DAK:ForAllClients(doThis, ...)
+	local clientList = DAK:GetClientList()
+	for p = 1, #clientList do
+		local client = clientList[p]
+		doThis(client, ...)
+	end
+end
+
 function DAK:ShuffledPlayerList()
 
-	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
+	local playerList = DAK:GetPlayerList()
 	for i = #playerList, 1, -1 do
 		if playerList[i] ~= nil then
 			if playerList[i]:GetTeamNumber() ~= 0 or DAK:IsPlayerAFK(playerList[i]) then
@@ -80,23 +118,20 @@ function DAK:GetClientUIDString(client)
 end
 
 function DAK:VerifyClient(client)
-
+	local valid = false
 	if client ~= nil then
-		local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
-		for r = #playerList, 1, -1 do
-			if playerList[r] ~= nil then
-				local plyr = playerList[r]
-				local clnt = playerList[r]:GetClient()
-				if plyr ~= nil and clnt ~= nil then
+		DAK:ForAllPlayers(function (player, client)
+			if player ~= nil then
+				local clnt = player:GetClient()
+				if clnt ~= nil then
 					if client ~= nil and clnt == client then
-						return clnt
+						valid = true
 					end
 				end
-			end				
-		end
+			end
+		end, client)
 	end
-	return nil
-
+	return valid
 end
 
 function DAK:GetPlayerMatching(id)
@@ -109,7 +144,7 @@ function DAK:GetPlayerMatchingGameId(id)
 	if id ~= nil then
 		if id > 0 and id <= #self.gameid then
 			local client = self.gameid[id]
-			if client ~= nil and self:VerifyClient(client) ~= nil then
+			if client ~= nil and self:VerifyClient(client) then
 				return client:GetControllingPlayer()
 			end
 		end
@@ -125,7 +160,7 @@ function DAK:GetClientMatchingGameId(id)
 	if id ~= nil then
 		if id > 0 and id <= #self.gameid then
 			local client = self.gameid[id]
-			if client ~= nil and self:VerifyClient(client) ~= nil then
+			if client ~= nil and self:VerifyClient(client) then
 				return client
 			end
 		end
@@ -137,7 +172,7 @@ end
 
 function DAK:GetGameIdMatchingClient(client)
 
-	if client ~= nil and self:VerifyClient(client) ~= nil then
+	if client ~= nil and self:VerifyClient(client) then
 		for p = 1, #self.gameid do
 			if client == self.gameid[p] then
 				return p
@@ -150,7 +185,7 @@ end
 
 function DAK:GetNS2IdMatchingClient(client)
 
-	if client ~= nil and self:VerifyClient(client) ~= nil then
+	if client ~= nil and self:VerifyClient(client) then
 		local ns2id = client:GetUserId()
 		if ns2id ~= nil and tonumber(ns2id) ~= nil then
 			return ns2id
@@ -162,7 +197,7 @@ end
 
 function DAK:GetSteamIdMatchingClient(client)
 
-	if client ~= nil and self:VerifyClient(client) ~= nil then
+	if client ~= nil and self:VerifyClient(client) then
 		local ns2id = client:GetUserId()
 		if ns2id ~= nil and tonumber(ns2id) ~= nil then
 			return DAK:GetSteamIdfromNS2ID(ns2id)
@@ -192,11 +227,13 @@ function DAK:GetSteamIdfromNS2ID(steamIdNumber)
 end
 
 function DAK:GetNS2IDFromSteamID(steamId)
-	if string.sub(steamId, 1, 8) == "STEAM_0:" then
-		local firstpart = tonumber(string.sub(steamId, 9, 9))
-		local lastpart = tonumber(string.sub(steamId, 11))
-		if tonumber(firstpart) ~= nil and tonumber(lastpart) ~= nil then
-			return ((lastpart * 2) + firstpart)
+	if steamId ~= nil then
+		if string.sub(steamId, 1, 8) == "STEAM_0:" then
+			local firstpart = tonumber(string.sub(steamId, 9, 9))
+			local lastpart = tonumber(string.sub(steamId, 11))
+			if tonumber(firstpart) ~= nil and tonumber(lastpart) ~= nil then
+				return ((lastpart * 2) + firstpart)
+			end
 		end
 	end
 	return nil
@@ -204,20 +241,15 @@ end
 
 function DAK:GetClientMatchingSteamId(steamId)
 
-	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
-	for r = #playerList, 1, -1 do
-		if playerList[r] ~= nil then
-			local plyr = playerList[r]
-			local clnt = playerList[r]:GetClient()
-			if plyr ~= nil and clnt ~= nil then
-				if clnt:GetUserId() == tonumber(steamId) or DAK:GetSteamIdfromNS2ID(clnt:GetUserId()) == steamId then
-					return clnt
-				end
+	local client = nil
+	DAK:ForAllClients(function (clnt, steamId)
+		if clnt ~= nil then
+			if clnt:GetUserId() == tonumber(steamId) or DAK:GetSteamIdfromNS2ID(clnt:GetUserId()) == steamId then
+				client = clnt
 			end
-		end				
-	end
-	
-	return nil
+		end
+	end, steamId)
+	return client
 	
 end
 
@@ -228,20 +260,16 @@ end
 
 function DAK:GetPlayerMatchingSteamId(steamId)
 
-	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
-	for r = #playerList, 1, -1 do
-		if playerList[r] ~= nil then
-			local plyr = playerList[r]
-			local clnt = playerList[r]:GetClient()
-			if plyr ~= nil and clnt ~= nil then
-				if clnt:GetUserId() == tonumber(steamId) or DAK:GetSteamIdfromNS2ID(clnt:GetUserId()) == steamId then
-					return plyr
-				end
+	local player = nil
+	DAK:ForAllPlayers(function (plyr, steamId)
+		local clnt = plyr:GetClient()
+		if clnt ~= nil then
+			if clnt:GetUserId() == tonumber(steamId) or DAK:GetSteamIdfromNS2ID(clnt:GetUserId()) == steamId then
+				player = plyr
 			end
-		end				
-	end
-	
-	return nil
+		end
+	end, steamId)
+	return player
 	
 end
 
@@ -252,16 +280,12 @@ end
 
 function DAK:GetPlayerMatchingName(name)
 
-	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
-	for r = #playerList, 1, -1 do
-		if playerList[r] ~= nil then
-			local plyr = playerList[r]
-			if plyr:GetName() == name then
-				return plyr
-			end
+	local player = nil
+	DAK:ForAllPlayers(function (plyr, name)
+		if plyr:GetName() == name then
+			player = plyr
 		end
-	end
-	
-	return nil
+	end, name)
+	return player
 	
 end

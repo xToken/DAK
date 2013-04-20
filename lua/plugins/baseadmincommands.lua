@@ -1,62 +1,35 @@
 //Base Admin Commands
 //This is designed to replace the base admin commands.
 
-local function GetPlayerList()
-
-	local playerList = EntityListToTable(Shared.GetEntitiesWithClassname("Player"))
-	table.sort(playerList, function(p1, p2) return p1:GetName() < p2:GetName() end)
-	return playerList
-	
-end
-
-/**
- * Iterates over all players sorted in alphabetically calling the passed in function.
- */
-local function AllPlayers(doThis)
-
-	return function(client)
-	
-		local playerList = GetPlayerList()
-		for p = 1, #playerList do
-		
-			local player = playerList[p]
-			doThis(player, client, p)
-			
-		end
-		
-	end
-	
-end
-
-local function PrintStatus(player, client, index)
-
-	local playerClient = Server.GetOwner(player)
-	if not playerClient then
-		Shared.Message("playerClient is nil in PrintStatus, alert Brian")
-	else
-		local playerId = playerClient:GetUserId()
-		if DAK:GetClientCanRunCommand(client, "sv_status") then
-			local playerAddressString = IPAddressToString(Server.GetClientAddress(playerClient))
-			ServerAdminPrint(client, player:GetName() .. " : Game Id = " 
-			.. ToString(DAK:GetGameIdMatchingClient(playerClient))
-			.. " : NS2 Id = " .. playerId
-			.. " : Steam Id = " .. DAK:GetSteamIdfromNS2ID(playerId)
-			.. " : Team = " .. player:GetTeamNumber()
-			.. " : Address = " .. playerAddressString
-			.. " : Connection Time = " .. DAK:GetClientConnectionTime(playerClient))
+local function PrintStatus(client)
+	DAK:ForAllPlayers(function (player, client)
+		local playerClient = Server.GetOwner(player)
+		if not playerClient then
+			Shared.Message("playerClient is nil in PrintStatus, alert Brian")
 		else
-			ServerAdminPrint(client, player:GetName() .. " : Game Id = " 
-			.. ToString(DAK:GetGameIdMatchingClient(playerClient))
-			.. " : NS2 Id = " .. playerId
-			.. " : Steam Id = " .. DAK:GetSteamIdfromNS2ID(playerId)
-			.. " : Team = " .. player:GetTeamNumber())
-		end
+			local playerId = playerClient:GetUserId()
+			if DAK:GetClientCanRunCommand(client, "sv_status") then
+				local playerAddressString = IPAddressToString(Server.GetClientAddress(playerClient))
+				ServerAdminPrint(client, player:GetName() .. " : Game Id = " 
+				.. ToString(DAK:GetGameIdMatchingClient(playerClient))
+				.. " : NS2 Id = " .. playerId
+				.. " : Steam Id = " .. DAK:GetSteamIdfromNS2ID(playerId)
+				.. " : Team = " .. player:GetTeamNumber()
+				.. " : Address = " .. playerAddressString
+				.. " : Connection Time = " .. DAK:GetClientConnectionTime(playerClient))
+			else
+				ServerAdminPrint(client, player:GetName() .. " : Game Id = " 
+				.. ToString(DAK:GetGameIdMatchingClient(playerClient))
+				.. " : NS2 Id = " .. playerId
+				.. " : Steam Id = " .. DAK:GetSteamIdfromNS2ID(playerId)
+				.. " : Team = " .. player:GetTeamNumber())
+			end
 
-	end
-	
+		end
+	end, client)
 end
 
-DAK:CreateServerAdminCommand("Console_sv_status", AllPlayers(PrintStatus), "Lists player Ids and names for use in sv commands", true)
+DAK:CreateServerAdminCommand("Console_sv_status", PrintStatus, "Lists player Ids and names for use in sv commands", true)
 
 local function OnCommandChangeMap(client, mapName)
 
@@ -87,7 +60,7 @@ DAK:CreateServerAdminCommand("Console_sv_reset", OnCommandSVReset, "Resets the g
 local function OnCommandSVrrall(client)
 
 	DAK:PrintToAllAdmins("sv_rrall", client)
-	local playerList = GetPlayerList()
+	local playerList = DAK:GetPlayerList()
 	for i = 1, (#playerList) do
 		local gamerules = GetGamerules()
 		if gamerules then
@@ -524,26 +497,77 @@ end
 
 DAK:CreateServerAdminCommand("Console_sv_ungag", OnCommandUnGagPlayer, "<player id> Ungags the provided player.")
 
-local function PopulateMenuItemWithClientList(VoteUpdateMessage, page)
-	for p = 1, #DAK.gameid do
-		local ci = p - (page * 8)
-		if ci > 0 and ci < 9 then
-			VoteUpdateMessage.option[ci] = string.format(DAK:GetClientUIDString(DAK.gameid[p]))
-		end
-	end
+local function PLogAll(client)
+
+    Shared.ConsoleCommand("p_logall")
+    ServerAdminPrint(client, "Performance logging enabled")
+    
 end
+
+DAK:CreateServerAdminCommand("Console_sv_p_logall", PLogAll, "Starts performance logging")
+
+local function PEndLog(client)
+
+    Shared.ConsoleCommand("p_endlog")
+    ServerAdminPrint(client, "Performance logging disabled")
+    
+end
+
+DAK:CreateServerAdminCommand("Console_sv_p_endlog", PEndLog, "Ends performance logging")
+
+local function AutoBalance(client, enabled, playerCount, seconds)
+
+    if enabled == "true" then
+    
+        playerCount = playerCount and tonumber(playerCount) or 2
+        seconds = seconds and tonumber(seconds) or 10
+        Server.SetConfigSetting("auto_team_balance", { enabled_on_unbalance_amount = playerCount, enabled_after_seconds = seconds })
+        ServerAdminPrint(client, "Auto Team Balance is now Enabled. Player unbalance amount: " .. playerCount .. " Activate delay: " .. seconds)
+        
+    else
+    
+        Server.SetConfigSetting("auto_team_balance", nil)
+        ServerAdminPrint(client, "Auto Team Balance is now Disabled")
+        
+    end
+    
+end
+
+DAK:CreateServerAdminCommand("Console_sv_autobalance", AutoBalance, "<true/false> <player count> <seconds>, Toggles auto team balance. The player count and seconds are optional. Count defaults to 2 over balance to enable. Defaults to 10 second wait to enable.")
+
+local function AutoKickAFK(client, time, capacity)
+
+    time = tonumber(time) or 300
+    capacity = tonumber(capacity) or 0.5
+    Server.SetConfigSetting("auto_kick_afk_time", time)
+    Server.SetConfigSetting("auto_kick_afk_capacity", capacity)
+    ServerAdminPrint(client, "Auto-kick AFK players is " .. (time <= 0 and "disabled" or "enabled") .. ". Kick after: " .. math.floor(time) .. " seconds when server is at: " .. math.floor(capacity * 100) .. "% capacity")
+    
+end
+
+DAK:CreateServerAdminCommand("Console_sv_auto_kick_afk", AutoKickAFK, "<seconds> <number>, Auto-kick is disabled when the first argument is 0. A player will be kicked only when the server is at the defined capacity (0-1).")
+
+local function EnableEventTesting(client, enabled)
+
+    enabled = not (enabled == "false")
+    SetEventTestingEnabled(enabled)
+    ServerAdminPrint(client, "Event testing " .. (enabled and "enabled" or "disabled"))
+    
+end
+
+DAK:CreateServerAdminCommand("Console_sv_test_events", EnableEventTesting, "<true/false>, Toggles event testing mode")
 
 local function OnCommandUpdateBanMenu(ns2id, LastUpdateMessage, page)
 	local kVoteUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
 	kVoteUpdateMessage.header = string.format("Player to ban.")
-	PopulateMenuItemWithClientList(kVoteUpdateMessage, page)
+	DAK:PopulateClientMenuItemWithClientList(kVoteUpdateMessage, page)
 	kVoteUpdateMessage.inputallowed = true
-	kVoteUpdateMessage.footer = "BANT"
+	kVoteUpdateMessage.footer = "DAK Ban Menu"
 	return kVoteUpdateMessage
 end
 
 local function OnCommandBanSelection(client, selectionnumber, page)
-	local targetclient = DAK.gameid[selectionnumber + (page * 8)]
+	local targetclient = DAK:GetClientList()[selectionnumber + (page * 8)]
 	if targetclient ~= nil then
 		local HeadingText = string.format("Please confirm you wish to ban %s?", DAK:GetClientUIDString(targetclient))
 		DAK:DisplayConfirmationMenuItem(DAK:GetNS2IdMatchingClient(client), HeadingText, Ban, nil, DAK:GetNS2IdMatchingClient(targetclient))
@@ -553,14 +577,14 @@ end
 local function OnCommandUpdateKickMenu(ns2id, LastUpdateMessage, page)
 	local kVoteUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
 	kVoteUpdateMessage.header = string.format("Player to kick.")
-	PopulateMenuItemWithClientList(kVoteUpdateMessage, page)
+	DAK:PopulateClientMenuItemWithClientList(kVoteUpdateMessage, page)
 	kVoteUpdateMessage.inputallowed = true
 	kVoteUpdateMessage.footer = "KICK'D"
 	return kVoteUpdateMessage
 end
 
 local function OnCommandKickSelection(client, selectionnumber, page)
-	local targetclient = DAK.gameid[selectionnumber + (page * 8)]
+	local targetclient = DAK:GetClientList()[selectionnumber + (page * 8)]
 	if targetclient ~= nil then
 		local HeadingText = string.format("Please confirm you wish to kick %s?", DAK:GetClientUIDString(targetclient))
 		DAK:DisplayConfirmationMenuItem(DAK:GetNS2IdMatchingClient(client), HeadingText, Kick, nil, DAK:GetNS2IdMatchingClient(targetclient))
@@ -570,14 +594,14 @@ end
 local function OnCommandUpdateSlayMenu(ns2id, LastUpdateMessage, page)
 	local kVoteUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
 	kVoteUpdateMessage.header = string.format("Player to slay.")
-	PopulateMenuItemWithClientList(kVoteUpdateMessage, page)
+	DAK:PopulateClientMenuItemWithClientList(kVoteUpdateMessage, page)
 	kVoteUpdateMessage.inputallowed = true
 	kVoteUpdateMessage.footer = "Slay'D"
 	return kVoteUpdateMessage
 end
 
 local function OnCommandSlaySelection(client, selectionnumber, page)
-	local targetclient = DAK.gameid[selectionnumber + (page * 8)]
+	local targetclient = DAK:GetClientList()[selectionnumber + (page * 8)]
 	if targetclient ~= nil then
 		local HeadingText = string.format("Please confirm you wish to slay %s?", DAK:GetClientUIDString(targetclient))
 		DAK:DisplayConfirmationMenuItem(DAK:GetNS2IdMatchingClient(client), HeadingText, Slay, nil, DAK:GetNS2IdMatchingClient(targetclient))
@@ -599,3 +623,5 @@ end
 DAK:RegisterMainMenuItem("Kick Menu", function(client) return DAK:GetClientCanRunCommand(client, "sv_kick") end, GetKickMenu)
 DAK:RegisterMainMenuItem("Ban Menu", function(client) return DAK:GetClientCanRunCommand(client, "sv_ban") end, GetBansMenu)
 DAK:RegisterMainMenuItem("Slay Menu", function(client) return DAK:GetClientCanRunCommand(client, "sv_slay") end, GetSlayMenu)
+
+DAK:OverrideScriptLoad("lua/ServerAdminCommands.lua")

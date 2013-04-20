@@ -83,7 +83,7 @@ local function GenerateDefaultDAKConfig(Plugin, Save)
 		DAK.config["serveradmin"] = tablemerge(DAK.config["serveradmin"], DefaultConfig)
 		
 		DefaultConfig = { }
-		DefaultConfig.LanguageList = { "EN", "Default" }
+		DefaultConfig.LanguageList = { "EN" }
 		DefaultConfig.LanguageChatCommands = { "/lang" }
 		DefaultConfig.DefaultLanguage = "EN"
 		DefaultConfig.MessageSender = "Admin"

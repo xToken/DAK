@@ -27,19 +27,13 @@ end
 Event.Hook("ClientConnect", DAKOnClientConnected)
 
 local function DAKOnClientDisconnected(client)
-	if client ~= nil and DAK:VerifyClient(client) ~= nil and DAK.enabled then
+	if client ~= nil and DAK:VerifyClient(client) and DAK.enabled then
 		DAK:RemoveConnectionTimeTracker(client)
 		DAK:ExecuteEventHooks("OnClientDisconnect", client)
 	end	
 end
 
 Event.Hook("ClientDisconnect", DAKOnClientDisconnected)
-
-local function DAKOnClientConnectRequested(...)
-	Print(ToString(args))
-end
-
-Event.Hook("ConnectRequested", DAKOnClientConnectRequested)
 
 local function UpdateClientMenu(player, menumessage)
 	Server.SendNetworkMessage(player, "ServerAdminPrint", { message = menumessage }, true)	
@@ -58,10 +52,10 @@ local function UpdateMenuObject(menuitem)
 		menuitem = nil
 	else
 		//Check to see if message is updated, if not then send term message and clear
-		if newMenuBaseUpdateMessage == menuitem.MenuBaseUpdateMessage then
+		if newMenuBaseUpdateMessage ~= nil and newMenuBaseUpdateMessage == menuitem.MenuBaseUpdateMessage then
 			UpdateClientMenu(DAK:GetPlayerMatchingNS2Id(menuitem.clientNS2Id), string.sub(MenuMessageTag .. "menutime|0", 0, kMaxPrintLength))
 			newMenuBaseUpdateMessage.menutime = 0
-		else
+		elseif newMenuBaseUpdateMessage ~= nil then
 			//Add in page messages if applicable
 			if newMenuBaseUpdateMessage.option[8] ~= "" then
 				newMenuBaseUpdateMessage.option[9] = "Next Page."
@@ -111,13 +105,13 @@ local function DAKUpdateServer(deltaTime)
 			if #DelayedClientConnect > 0 then
 				for i = #DelayedClientConnect, 1, -1 do
 					local CEntry = DelayedClientConnect[i]
-					if CEntry ~= nil and CEntry.Client ~= nil and DAK:VerifyClient(CEntry.Client) ~= nil then
+					if CEntry ~= nil and CEntry.Client ~= nil and DAK:VerifyClient(CEntry.Client) then
 						if CEntry.Time < Shared.GetTime() then
 							DAK:ExecuteEventHooks("OnClientDelayedConnect", CEntry.Client)
-							DelayedClientConnect[i] = nil
+							table.remove(DelayedClientConnect, i)
 						end
 					else
-						DelayedClientConnect[i] = nil
+						table.remove(DelayedClientConnect, i)
 					end
 				end
 			end
@@ -326,7 +320,7 @@ local function DelayedEventHooks()
 	end
 		
 	if DAK.config and DAK.config.loader and DAK.config.loader.AllowClientMenus then
-		Server.RemoveFileHashes("EventTester.lua")
+		//Server.RemoveFileHashes("EventTester.lua")
 	end
 
 	Script.Load("lua/base/mapcycle.lua")

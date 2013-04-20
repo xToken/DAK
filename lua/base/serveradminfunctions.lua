@@ -146,7 +146,7 @@ end
 local function GetObjectLevel(target)
 	if tonumber(target) ~= nil then
 		return GetNS2IDLevel(tonumber(target))
-	elseif DAK:VerifyClient(target) ~= nil then
+	elseif DAK:VerifyClient(target) then
 		return GetClientLevel(target)
 	elseif Server.GetOwner(target) ~= nil then
 		return GetPlayerLevel(target)

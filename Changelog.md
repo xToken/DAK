@@ -1,5 +1,11 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.420a
+- Switched back from table.remove where applicable.
+- Fixed issue with GetClientList
+- Changed client side load method.
+- Logging fixes for structure creation and researches.
+
 ## v0.1.417a
 - Corrected issue with bans, now also allow for bans by steamID.
 - Corrected issue with VerifyClient function.
