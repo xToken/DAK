@@ -292,6 +292,12 @@ end
 
 DAK:CreateServerAdminCommand("Console_sv_password", SetPassword, "<string> Changes the password on the server")
 
+local function SetCheats(client, enabled)
+    Shared.ConsoleCommand("cheats " .. ((enabled == "true" or enabled == "1") and "1" or "0"))
+end
+
+DAK:CreateServerAdminCommand("Console_sv_cheats", SetCheats, "<boolean>, Turns cheats on and off")
+
 local function Ban(client, playerId, name, duration, ...)
 
 	local player = DAK:GetPlayerMatching(playerId)

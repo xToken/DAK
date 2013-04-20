@@ -225,15 +225,13 @@ local function OnPluginInitialized()
 	originalNS2ResearchMixinSetResearching = DAK:Class_ReplaceMethod("ResearchMixin", "SetResearching", 
 		function(self, techNode, player)
 		
-			if techNode.techId ~= kTechId.Recycle then
-				local researchname = EnumToString(kTechId, techNode.techId)
-				local buildingID = self:GetId()
-				local buildingname = self:GetClassName()
-				if player then
-					local Client = Server.GetOwner(player)
-					if Client then        
-						PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(Client) .. " started research of " .. researchname .. " on " .. buildingname .. " id: " .. ToString(buildingID))
-					end
+			local researchname = EnumToString(kTechId, techNode.techId)
+			local buildingID = self:GetId()
+			local buildingname = self:GetClassName()
+			if player then
+				local Client = Server.GetOwner(player)
+				if Client then        
+					PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(Client) .. " started research of " .. researchname .. " on " .. buildingname .. " id: " .. ToString(buildingID))
 				end
 			end
 			originalNS2ResearchMixinSetResearching( self, techNode, player )
