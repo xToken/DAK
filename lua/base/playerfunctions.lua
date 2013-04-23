@@ -66,7 +66,9 @@ function DAK:ForAllPlayers(doThis, ...)
 	local playerList = DAK:GetPlayerList()
 	for p = 1, #playerList do
 		local player = playerList[p]
-		doThis(player, ...)
+		if player ~= nil then
+			doThis(player, ...)
+		end
 	end
 end
 

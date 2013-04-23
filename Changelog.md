@@ -1,5 +1,10 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.423a
+- Fixed error in DAK:ForAllPlayers.
+- Changed enhanced logging to use global function.
+- Removed debug assert from mapcycle.
+
 ## v0.1.420a
 - Switched back from table.remove where applicable.
 - Fixed issue with GetClientList

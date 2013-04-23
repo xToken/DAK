@@ -106,7 +106,7 @@ function MapCycle_VerifyMapName(mapName)
 			break
 		end
 	end
-	assert(false)
+	
 	return false
 end
 

@@ -101,7 +101,7 @@ local function LogOnClientConnect(client)
 
 	if client ~= nil then
 		//Shared.Message( DAK:GetTimeStamp() .. DAK:GetClientUIDString(client) .. " connected," .. GetClientIPAddress(client))
-		PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(client) .. " connected," .. GetClientIPAddress(client))
+		EnhancedLogMessage(DAK:GetClientUIDString(client) .. " connected," .. GetClientIPAddress(client))
 	end
 	
 end
@@ -115,7 +115,7 @@ local function LogOnClientDisconnect(client)
 			reason = client.disconnectreason
 		end
 		//Shared.Message(DAK:GetTimeStamp() .. DAK:GetClientUIDString(client) .. " disconnected, " .. reason)
-		PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(client) .. " disconnected, " .. reason)
+		EnhancedLogMessage(DAK:GetClientUIDString(client) .. " disconnected, " .. reason)
 	end
 	
 end
@@ -132,7 +132,7 @@ function OnCommandSetName(client, name)
 
 		if name ~= player:GetName() and name ~= kDefaultPlayerName and string.len(name) > 0 then
 		
-			PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(client) .. " changed name to " .. name .. ".")
+			EnhancedLogMessage(DAK:GetClientUIDString(client) .. " changed name to " .. name .. ".")
 			
 			local prevName = player:GetName()
 			player:SetName(name)
@@ -161,7 +161,7 @@ local function OnPluginInitialized()
 				local Client = Server.GetOwner(player)
 				local teamNum = self:GetTeamNumber()
 				if Client and teamNum then
-					PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(Client) .. " logged into commander for team " .. ToString(teamNum))
+					EnhancedLogMessage(DAK:GetClientUIDString(Client) .. " logged into commander for team " .. ToString(teamNum))
 				end
 			end
 			originalNS2CommandStructureLoginPlayer( self, player )
@@ -178,7 +178,7 @@ local function OnPluginInitialized()
 				local Client = Server.GetOwner(commander)
 				local teamNum = self:GetTeamNumber()
 				if Client and teamNum then
-					PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(Client) .. " logged out of commander for team " .. ToString(teamNum))
+					EnhancedLogMessage(DAK:GetClientUIDString(Client) .. " logged out of commander for team " .. ToString(teamNum))
 				end
 			end
 			originalNS2CommandStructureLogout( self )
@@ -193,7 +193,7 @@ local function OnPluginInitialized()
 			local buildingID = self:GetId()
 			local buildingname = self:GetClassName()
 			if researchId == kTechId.Recycle then        
-				PrintToEnhancedLog(DAK:GetTimeStamp() .. buildingname .. " id: " .. ToString(buildingID) .. " was recycled.")
+				EnhancedLogMessage(buildingname .. " id: " .. ToString(buildingID) .. " was recycled.")
 			end
 			originalNS2RecycleMixinOnResearchComplete( self, researchId )
 		end
@@ -212,7 +212,7 @@ local function OnPluginInitialized()
 				if commander then
 					local Client = Server.GetOwner(commander)
 					if researchId == kTechId.Recycle and Client then        
-						PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(Client) .. " started recycle of " .. buildingname .. " id: " .. ToString(buildingID))
+						EnhancedLogMessage(DAK:GetClientUIDString(Client) .. " started recycle of " .. buildingname .. " id: " .. ToString(buildingID))
 					end
 				end
 			end
@@ -231,7 +231,7 @@ local function OnPluginInitialized()
 			if player then
 				local Client = Server.GetOwner(player)
 				if Client then        
-					PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(Client) .. " started research of " .. researchname .. " on " .. buildingname .. " id: " .. ToString(buildingID))
+					EnhancedLogMessage(DAK:GetClientUIDString(Client) .. " started research of " .. researchname .. " on " .. buildingname .. " id: " .. ToString(buildingID))
 				end
 			end
 			originalNS2ResearchMixinSetResearching( self, techNode, player )
@@ -253,7 +253,7 @@ local function OnPluginInitialized()
 					if commander then
 						local Client = Server.GetOwner(commander)
 						if Client then        
-							PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(Client) .. " cancelled research of " .. researchname .. " on " .. buildingname .. " id: " .. ToString(buildingID))
+							EnhancedLogMessage(DAK:GetClientUIDString(Client) .. " cancelled research of " .. researchname .. " on " .. buildingname .. " id: " .. ToString(buildingID))
 						end
 					end
 				end
@@ -278,7 +278,7 @@ local function OnPluginInitialized()
 				if owner then
 					local Client = Server.GetOwner(owner)
 					if Client then        
-						PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(Client) .. " started construction of " .. buildingname .. " id: " .. ToString(buildingID))
+						EnhancedLogMessage(DAK:GetClientUIDString(Client) .. " started construction of " .. buildingname .. " id: " .. ToString(buildingID))
 					end
 				end
 			end
@@ -294,9 +294,9 @@ end
 
 function EnhancedLoggingChatMessage(message, playerName, ns2id, teamNumber, teamOnly, client)
 	if client and ns2id and ns2id ~= 0 then
-		PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(client) .. ConditionalValue(teamOnly, " teamsay ", " say ") .. message)
+		EnhancedLogMessage(DAK:GetClientUIDString(client) .. ConditionalValue(teamOnly, " teamsay ", " say ") .. message)
 	else
-		PrintToEnhancedLog(DAK:GetTimeStamp() .. playerName .. ConditionalValue(teamOnly, " teamsay ", " say ")  .. message)
+		EnhancedLogMessage(playerName .. ConditionalValue(teamOnly, " teamsay ", " say ")  .. message)
 	end
 end
 
@@ -308,7 +308,7 @@ local function EnhancedLoggingSetGameState(self, state, currentstate)
 		if state == kGameState.Started then
 			local version = ToString(Shared.GetBuildNumber())
 			local map = Shared.GetMapName()
-			PrintToEnhancedLog(DAK:GetTimeStamp() .. "game_started" .. " build " .. version .. " map " .. map)
+			EnhancedLogMessage("game_started" .. " build " .. version .. " map " .. map)
 		end
 	end
 	
@@ -320,7 +320,7 @@ function EnhancedLoggingJoinTeam(self, player, newTeamNumber, force)
 
 	local client = Server.GetOwner(player)
 	if client ~= nil then
-		PrintToEnhancedLog(DAK:GetTimeStamp() .. string.format("%s joined team %s.", DAK:GetClientUIDString(client), newTeamNumber))
+		EnhancedLogMessage(string.format("%s joined team %s.", DAK:GetClientUIDString(client), newTeamNumber))
 	end
 	
 end
@@ -335,7 +335,7 @@ function EnhancedLoggingEndGame(self, winningTeam)
 	local map = Shared.GetMapName()
 	local start_location1 = self.startingLocationNameTeam1
 	local start_location2 = self.startingLocationNameTeam2
-	PrintToEnhancedLog(DAK:GetTimeStamp() .. "game_ended" .. " build " .. version .. " winning_team " .. winner .. " game_length " .. length .. 
+	EnhancedLogMessage("game_ended" .. " build " .. version .. " winning_team " .. winner .. " game_length " .. length .. 
 		" map " .. map .. " marine_start_loc " .. start_location1 .. " alien_start_loc " .. start_location2)
 	
 end
@@ -354,7 +354,7 @@ function EnhancedLoggingCastVoteByPlayer(self, voteTechId, player)
 				local targetClient = Server.GetOwner(targetCommander)
 				local Client = Server.GetOwner(player)
 				if targetClient and Client then
-					PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(Client) .. " voted to eject " .. DAK:GetClientUIDString(targetClient))
+					EnhancedLogMessage(DAK:GetClientUIDString(Client) .. " voted to eject " .. DAK:GetClientUIDString(targetClient))
 				end
 			end
 		end
@@ -372,13 +372,13 @@ function EnhancedLoggingOnEntityKilled(self, targetEntity, attacker, doer, point
 		local attacker_client = Server.GetOwner(attacker)
 		local target_client = Server.GetOwner(targetEntity)
 		if target_client == nil and attacker_client == nil then
-			PrintToEnhancedLog(DAK:GetTimeStamp() .. attacker:GetClassName() .. " killed " .. targetEntity:GetClassName() .. " with " .. doer:GetClassName() .. " at " .. GetFormattedPositions(attackerOrigin, targetOrigin))
+			EnhancedLogMessage(attacker:GetClassName() .. " killed " .. targetEntity:GetClassName() .. " with " .. doer:GetClassName() .. " at " .. GetFormattedPositions(attackerOrigin, targetOrigin))
 		elseif target_client == nil then
-			PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(attacker_client) .. " killed " .. targetEntity:GetClassName() .. " with " .. doer:GetClassName() .. " at " .. GetFormattedPositions(attackerOrigin, targetOrigin))
+			EnhancedLogMessage(DAK:GetClientUIDString(attacker_client) .. " killed " .. targetEntity:GetClassName() .. " with " .. doer:GetClassName() .. " at " .. GetFormattedPositions(attackerOrigin, targetOrigin))
 		elseif attacker_client == nil then
-			PrintToEnhancedLog(DAK:GetTimeStamp() .. attacker:GetClassName() .. " killed " .. DAK:GetClientUIDString(target_client) .. " with " .. doer:GetClassName() .. " at " .. GetFormattedPositions(attackerOrigin, targetOrigin))
+			EnhancedLogMessage(attacker:GetClassName() .. " killed " .. DAK:GetClientUIDString(target_client) .. " with " .. doer:GetClassName() .. " at " .. GetFormattedPositions(attackerOrigin, targetOrigin))
 		else
-			PrintToEnhancedLog(DAK:GetTimeStamp() .. DAK:GetClientUIDString(attacker_client) .. " killed " .. DAK:GetClientUIDString(target_client) .. " with " .. doer:GetClassName() .. " at " .. GetFormattedPositions(attackerOrigin, targetOrigin))
+			EnhancedLogMessage(DAK:GetClientUIDString(attacker_client) .. " killed " .. DAK:GetClientUIDString(target_client) .. " with " .. doer:GetClassName() .. " at " .. GetFormattedPositions(attackerOrigin, targetOrigin))
 		end
 	end
 
