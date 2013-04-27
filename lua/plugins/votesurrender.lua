@@ -144,13 +144,15 @@ DAK:RegisterChatCommand(DAK.config.votesurrender.kSurrenderChatCommands, OnComma
 local function VoteSurrenderOff(client, teamnum)
 
 	local tmNum = tonumber(teamnum)
-	if tmNum ~= nil and ValidateTeamNumber(tmNum) and kVoteSurrenderRunning[tmNum] ~= 0 then
+	if tmNum ~= nil and ValidateTeamNumber(tmNum) and kSurrenderVoteArray[tmNum].VoteSurrenderRunning ~= 0 then
 		kSurrenderVoteArray[tmNum].SurrenderVotesAlertTime = 0
 		kSurrenderVoteArray[tmNum].VoteSurrenderRunning = 0
 		kSurrenderVoteArray[tmNum].SurrenderVotes = { }
 		DAK:DisplayMessageToTeam(tmNum, "SurrenderVoteCancelled", tmNum)
 		ServerAdminPrint(client, string.format("Surrender vote cancelled for team %s.", ToString(tmNum)))
 		DAK:PrintToAllAdmins("sv_cancelsurrendervote", client, teamnum)
+	else
+		ServerAdminPrint(client, string.format("No vote running or invalid team provided."))
 	end
 
 end
@@ -159,11 +161,13 @@ DAK:CreateServerAdminCommand("Console_sv_cancelsurrendervote", VoteSurrenderOff,
 
 local function VoteSurrenderOn(client, teamnum)
 	local tmNum = tonumber(teamnum)
-	if tmNum ~= nil and ValidateTeamNumber(tmNum) and kVoteSurrenderRunning[tmNum] == 0 then
+	if tmNum ~= nil and ValidateTeamNumber(tmNum) and kSurrenderVoteArray[tmNum].VoteSurrenderRunning ~= 0 then
 		kSurrenderVoteArray[tmNum].VoteSurrenderRunning = Shared.GetTime()
 		ServerAdminPrint(client, string.format("Surrender vote started for team %s.", ToString(tmNum)))
 		DAK:PrintToAllAdmins("sv_surrendervote", client, teamnum)
 		DAK:RegisterEventHook("OnServerUpdate", UpdateSurrenderVotes, 5, "votesurrender")
+	else
+		ServerAdminPrint(client, string.format("Vote already running or invalid team provided."))
 	end
 
 end

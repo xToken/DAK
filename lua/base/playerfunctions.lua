@@ -7,9 +7,9 @@ function DAK:PrintToAllAdmins(commandname, triggeringclient, parm1)
 
 	local message
 	if triggeringclient ~= nil then
-		message = self:GetTimeStamp() .. self:GetClientUIDString(triggeringclient) .. " executed " .. commandname
+		message = self:GetClientUIDString(triggeringclient) .. " executed " .. commandname
 	else
-		message = self:GetTimeStamp() .. "ServerConsole" .. " executed " .. commandname
+		message = "ServerConsole" .. " executed " .. commandname
 	end
 	if parm1 ~= nil then
 		message = message .. " " .. parm1

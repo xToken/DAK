@@ -10,7 +10,6 @@ local RTVVotes = { }
 local mapvoteintiated = false
 local mapvoterunning = false
 local mapvotecomplete = false
-local mapvoterocked = false
 local mapvotenotify = 0
 local mapvotedelay = 0
 local mapvoteextend = 0
@@ -338,7 +337,7 @@ local function ProcessandSelectMap()
 	if mapvotecomplete then
 		mapvoterunning = false
 		mapvoteintiated = false
-		if not votepassed and not mapvoterocked then
+		if not votepassed then
 			DAK:DisplayMessageToAllClients("VoteMapAutomaticChange")
 			nextmap = nil
 			mapvotedelay = Shared.GetTime() + DAK.config.mapvote.kVoteChangeDelay
@@ -359,11 +358,10 @@ local function UpdateMapVotes(deltaTime)
 					DAK:SaveSettings()
 					MapCycle_ChangeToMap(nextmap)
 				end
-			elseif not mapvoterocked then
+			else
 				MapCycle_ChangeToMap(GetMapName(MapCycle_GetNextMapInCycle()))
 			end
 			DAK:DeregisterEventHook("OnServerUpdate", UpdateMapVotes)
-			mapvoterocked = false
 			nextmap = nil
 			mapvotecomplete = false
 			tievotes = 0
@@ -518,7 +516,6 @@ local function UpdateRTV(silent, playername)
 	if totalvotes >= math.ceil((playerRecords:GetSize() * (DAK.config.mapvote.kRTVMinimumPercentage / 100))) then
 	
 		StartMapVote()
-		mapvoterocked = true
 		RTVVotes = { }
 		
 	elseif not silent then

@@ -1,13 +1,22 @@
 //NS2 Vote Random Teams
 
-local kVoteRandomTeamsEnabled = false
+local kVoteRandomTeamsEnabled
 local RandomNewRoundDelay = 15
 local RandomVotes = { }
 local RandomDuration = 0
 local RandomRoundRecentlyEnded = 0
 
+function RandomTeamsEnabled()
+	return kVoteRandomTeamsEnabled ~= nil
+end
+
+function UpdateRandomTeamsState(newstate)
+	kVoteRandomTeamsEnabled = newstate == true or nil
+	Shared.Message(tostring(kVoteRandomTeamsEnabled))
+end
+
 local function UpdateRandomStatus()
-	kVoteRandomTeamsEnabled = (DAK.settings.RandomEnabledTill ~= 0 and DAK.settings.RandomEnabledTill > Shared.GetSystemTime()) or DAK.config.voterandom.kVoteRandomAlwaysEnabled
+	UpdateRandomTeamsState((DAK.settings.RandomEnabledTill ~= 0 and DAK.settings.RandomEnabledTill > Shared.GetSystemTime()) or DAK.config.voterandom.kVoteRandomAlwaysEnabled)
 end
 
 local function LoadVoteRandom()
@@ -16,7 +25,7 @@ local function LoadVoteRandom()
 		DAK.settings.RandomEnabledTill = 0
 	end
 	UpdateRandomStatus()
-	if kVoteRandomTeamsEnabled then
+	if RandomTeamsEnabled() then
 		DAK:ExecutePluginGlobalFunction("enhancedlogging", EnhancedLogMessage, string.format("RandomTeams enabled"))
 	end
 	
@@ -47,23 +56,16 @@ local function ShuffleTeams()
 	
 end
 
-local function OnServerUpdateRandomTeams()
-	
+local function UpdateRandomTeams()
 	UpdateRandomStatus()
-	if kVoteRandomTeamsEnabled then
-		if RandomRoundRecentlyEnded + RandomNewRoundDelay < Shared.GetTime() and not DAK.config.voterandom.kVoteRandomOnGameStart then
-			ShuffleTeams()
-			RandomRoundRecentlyEnded = 0
-		end
-	else
-		DAK:DeregisterEventHook("OnServerUpdate", OnServerUpdateRandomTeams)
+	if RandomTeamsEnabled() and not DAK.config.voterandom.kVoteRandomOnGameStart then
+		ShuffleTeams()
+		RandomRoundRecentlyEnded = 0
 	end
-
+	return false
 end
 
-DAK:RegisterEventHook("OnServerUpdate", OnServerUpdateRandomTeams, 5, "voterandom")
-
-local function ExecuteRandomTeams()
+local function EnableRandomTeams()
 	if DAK.config.voterandom.kVoteRandomInstantly then
 		DAK:DisplayMessageToAllClients("VoteRandomEnabled")
 		Shared.ConsoleCommand("sv_rrall")
@@ -73,7 +75,7 @@ local function ExecuteRandomTeams()
 		DAK:DisplayMessageToAllClients("VoteRandomEnabledDuration", DAK.config.voterandom.kVoteRandomDuration)
 		DAK.settings.RandomEnabledTill = Shared.GetSystemTime() + (DAK.config.voterandom.kVoteRandomDuration * 60)
 		DAK:SaveSettings()
-		kVoteRandomTeamsEnabled = true
+		UpdateRandomTeamsState(true)
 		DAK:RegisterEventHook("OnServerUpdate", OnServerUpdateRandomTeams, 5, "voterandom")
 	end
 end
@@ -119,7 +121,7 @@ local function UpdateRandomVotes(silent, playername)
 	if totalvotes >= math.ceil((playerRecords:GetSize() * (DAK.config.voterandom.kVoteRandomMinimumPercentage / 100))) then
 	
 		RandomVotes = { }
-		ExecuteRandomTeams()
+		EnableRandomTeams()
 		
 	elseif not silent then
 	
@@ -133,7 +135,7 @@ DAK:RegisterEventHook("OnClientDisconnect", UpdateRandomVotes, 5, "voterandom")
 
 local function VoteRandomClientConnect(client)
 
-	if client ~= nil and kVoteRandomTeamsEnabled then
+	if client ~= nil and RandomTeamsEnabled() then
 		local player = client:GetControllingPlayer()
 		if player ~= nil then
 			DAK:DisplayMessageToClient(client, "VoteRandomConnectAlert")
@@ -155,8 +157,9 @@ end
 DAK:RegisterEventHook("OnTeamJoin", VoteRandomJoinTeam, 5, "voterandom")
 
 local function VoteRandomEndGame(self, winningTeam)
-	if kVoteRandomTeamsEnabled then
+	if RandomTeamsEnabled() then
 		RandomRoundRecentlyEnded = Shared.GetTime()
+		DAK:SetupTimedCallBack(UpdateRandomTeams, RandomNewRoundDelay)
 	end
 end
 
@@ -168,7 +171,7 @@ local function OnCommandVoteRandom(client)
 	
 		local player = client:GetControllingPlayer()
 		if player ~= nil then
-			if kVoteRandomTeamsEnabled then
+			if RandomTeamsEnabled() then
 				DAK:DisplayMessageToClient(client, "VoteRandomAlreadyEnabled")
 				return
 			end
@@ -194,8 +197,8 @@ DAK:RegisterChatCommand(DAK.config.voterandom.kVoteRandomChatCommands, OnCommand
 
 local function VoteRandomOff(client)
 
-	if kVoteRandomTeamsEnabled then
-		kVoteRandomTeamsEnabled = false
+	if RandomTeamsEnabled() then
+		UpdateRandomTeamsState(false)
 		DAK.settings.RandomEnabledTill = 0
 		DAK:SaveSettings()
 		DAK:DisplayMessageToAllClients("VoteRandomDisabled")
@@ -211,8 +214,8 @@ DAK:CreateServerAdminCommand("Console_sv_randomoff", VoteRandomOff, "Turns off a
 
 local function VoteRandomOn(client)
 
-	if not kVoteRandomTeamsEnabled then
-		ExecuteRandomTeams()
+	if not RandomTeamsEnabled() then
+		EnableRandomTeams()
 		DAK:PrintToAllAdmins("sv_randomon", client)
 		ServerAdminPrint(client, "Random teams have been enabled.")
 	else

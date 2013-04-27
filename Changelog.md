@@ -1,5 +1,11 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.427a
+- Removed Duplicate TimeStamp in DAK:ForAllAdmins.
+- Corrected issues with surrender vote cancellation/starting.
+- Reworked random plugin slightly to clean it up and hopefully resolve an issue with map changes breaking it.
+- Removed block on RTV automatic map change.
+
 ## v0.1.423a
 - Fixed error in DAK:ForAllPlayers.
 - Changed enhanced logging to use global function.
