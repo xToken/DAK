@@ -30,8 +30,8 @@ function DAK:PrintToAllAdmins(commandname, triggeringclient, parm1)
 end
 
 function DAK:ExecuteFunctionOnClient(client, functionstring)
-	if client ~= nil and DAK:DoesNS2IDHaveClientSideMenus(client:GetUserId()) and DAK.config.loader.AllowClientMenus then
-		Server.SendNetworkMessage(player, "ServerAdminPrint", { message = string.sub(FunctionMessageTag .. functionstring, 0, kMaxPrintLength) }, true)	
+	if client ~= nil and DAK:DoesClientHaveClientSideMenus(client) and DAK.config.loader.AllowClientMenus then
+		Server.SendNetworkMessage(client, "ServerAdminPrint", { message = string.sub(FunctionMessageTag .. functionstring, 0, kMaxPrintLength) }, true)	
 	end
 end
 

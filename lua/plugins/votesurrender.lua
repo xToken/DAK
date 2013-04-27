@@ -161,7 +161,7 @@ DAK:CreateServerAdminCommand("Console_sv_cancelsurrendervote", VoteSurrenderOff,
 
 local function VoteSurrenderOn(client, teamnum)
 	local tmNum = tonumber(teamnum)
-	if tmNum ~= nil and ValidateTeamNumber(tmNum) and kSurrenderVoteArray[tmNum].VoteSurrenderRunning ~= 0 then
+	if tmNum ~= nil and ValidateTeamNumber(tmNum) and kSurrenderVoteArray[tmNum].VoteSurrenderRunning == 0 then
 		kSurrenderVoteArray[tmNum].VoteSurrenderRunning = Shared.GetTime()
 		ServerAdminPrint(client, string.format("Surrender vote started for team %s.", ToString(tmNum)))
 		DAK:PrintToAllAdmins("sv_surrendervote", client, teamnum)

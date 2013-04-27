@@ -12,7 +12,6 @@ end
 
 function UpdateRandomTeamsState(newstate)
 	kVoteRandomTeamsEnabled = newstate == true or nil
-	Shared.Message(tostring(kVoteRandomTeamsEnabled))
 end
 
 local function UpdateRandomStatus()
@@ -76,7 +75,7 @@ local function EnableRandomTeams()
 		DAK.settings.RandomEnabledTill = Shared.GetSystemTime() + (DAK.config.voterandom.kVoteRandomDuration * 60)
 		DAK:SaveSettings()
 		UpdateRandomTeamsState(true)
-		DAK:RegisterEventHook("OnServerUpdate", OnServerUpdateRandomTeams, 5, "voterandom")
+		DAK:SetupTimedCallBack(UpdateRandomTeams, RandomNewRoundDelay)
 	end
 end
 

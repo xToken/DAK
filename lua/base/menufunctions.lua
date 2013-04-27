@@ -131,7 +131,7 @@ end
 
 function DAK:DoesNS2IDHaveClientSideMenus(ns2id)
 	if ns2id ~= nil and tonumber(ns2id) ~= nil then
-		return DAK.activemoddedclients[tonumber(ns2id)]
+		return DAK.activemoddedclients[tonumber(ns2id)] ~= nil
 	end
 	return false
 end
