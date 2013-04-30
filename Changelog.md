@@ -1,5 +1,8 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.430a
+- Fixed issue with scores resetting.
+
 ## v0.1.427a
 - Removed Duplicate TimeStamp in DAK:ForAllAdmins.
 - Corrected issues with surrender vote cancellation/starting.
