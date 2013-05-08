@@ -1,17 +1,17 @@
 //NS2 Vote Random Teams
 
 local kVoteRandomTeamsEnabled
-local RandomNewRoundDelay = 15
+local RandomNewRoundDelay = 10
 local RandomVotes = { }
 local RandomDuration = 0
 local RandomRoundRecentlyEnded = 0
 
 function RandomTeamsEnabled()
-	return kVoteRandomTeamsEnabled ~= nil
+	return kVoteRandomTeamsEnabled
 end
 
 function UpdateRandomTeamsState(newstate)
-	kVoteRandomTeamsEnabled = newstate == true or nil
+	kVoteRandomTeamsEnabled = (newstate == true) or false
 end
 
 local function UpdateRandomStatus()
@@ -42,7 +42,7 @@ local function ShuffleTeams()
 		if client ~= nil then
 			//Trying just making team decision based on position in array.. two randoms seems to somehow result in similar teams..
 			local gamerules = GetGamerules()
-			if gamerules and not DAK:GetClientCanRunCommand(client, "sv_dontrandom") then
+			if gamerules then //and not DAK:GetClientCanRunCommand(client, "sv_dontrandom") then
 				if not gamerules:GetCanJoinTeamNumber(teamnum) and gamerules:GetCanJoinTeamNumber(math.fmod(teamnum,2) + 1) then
 					teamnum = math.fmod(teamnum,2) + 1						
 				end
@@ -58,8 +58,8 @@ end
 local function UpdateRandomTeams()
 	UpdateRandomStatus()
 	if RandomTeamsEnabled() and not DAK.config.voterandom.kVoteRandomOnGameStart then
-		ShuffleTeams()
 		RandomRoundRecentlyEnded = 0
+		ShuffleTeams()
 	end
 	return false
 end
@@ -75,7 +75,7 @@ local function EnableRandomTeams()
 		DAK.settings.RandomEnabledTill = Shared.GetSystemTime() + (DAK.config.voterandom.kVoteRandomDuration * 60)
 		DAK:SaveSettings()
 		UpdateRandomTeamsState(true)
-		DAK:SetupTimedCallBack(UpdateRandomTeams, RandomNewRoundDelay)
+		UpdateRandomTeams()
 	end
 end
 

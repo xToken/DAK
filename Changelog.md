@@ -1,5 +1,11 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.507a
+- Fixed up some issues with webbans, cleaned up code.
+- Fixed some issues with random plugin.
+- Tested some client side code for webpage MOTD, still needs work.
+- Removed config setting for client side menus.
+
 ## v0.1.430a
 - Fixed issue with scores resetting.
 

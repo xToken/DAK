@@ -1,7 +1,7 @@
 //DAK loader/Base Config
 
 local kMaxPrintLength = 128
-local FunctionMessageTag = "#&DAK"
+local WebViewMessageTag = "#&DAK"
 
 function DAK:PrintToAllAdmins(commandname, triggeringclient, parm1)
 
@@ -29,10 +29,12 @@ function DAK:PrintToAllAdmins(commandname, triggeringclient, parm1)
 	
 end
 
-function DAK:ExecuteFunctionOnClient(client, functionstring)
-	if client ~= nil and DAK:DoesClientHaveClientSideMenus(client) and DAK.config.loader.AllowClientMenus then
-		Server.SendNetworkMessage(client, "ServerAdminPrint", { message = string.sub(FunctionMessageTag .. functionstring, 0, kMaxPrintLength) }, true)	
+function DAK:DisplayWebViewOnClient(client, URL)
+	if client ~= nil and DAK:DoesClientHaveClientSideMenus(client) then
+		Server.SendNetworkMessage(client, "ServerAdminPrint", { message = string.sub(WebViewMessageTag .. URL, 0, kMaxPrintLength) }, true)	
+		return true
 	end
+	return false
 end
 
 function DAK:IsPlayerAFK(player)
@@ -206,7 +208,7 @@ function DAK:GetSteamIdMatchingClient(client)
 		end
 	end
 	
-	return 0
+	return "STEAM_0:0:0"
 end
 
 function DAK:GetGameIdMatchingPlayer(player)

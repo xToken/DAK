@@ -64,7 +64,6 @@ local function GenerateDefaultDAKConfig(Plugin, Save)
 		DefaultConfig.GamerulesClassName = "NS2Gamerules"
 		DefaultConfig.TeamOneName = "Marines"
 		DefaultConfig.TeamTwoName = "Aliens"
-		DefaultConfig.AllowClientMenus = false
 		
 		DAK.config["loader"] = tablemerge(DAK.config["loader"], DefaultConfig)
 		
@@ -78,7 +77,7 @@ local function GenerateDefaultDAKConfig(Plugin, Save)
 		DefaultConfig.BansQueryURL = ""
 		DefaultConfig.BanSubmissionURL = ""
 		DefaultConfig.UnBanSubmissionURL = ""
-		DefaultConfig.CryptographyKey = ""
+		DefaultConfig.BanSubmissionKey = ""
 		
 		DAK.config["serveradmin"] = tablemerge(DAK.config["serveradmin"], DefaultConfig)
 		

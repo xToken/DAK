@@ -318,10 +318,6 @@ local function DelayedEventHooks()
 		end
 		return returnList
 	end
-		
-	if DAK.config and DAK.config.loader and DAK.config.loader.AllowClientMenus then
-		//Server.RemoveFileHashes("EventTester.lua")
-	end
 
 	Script.Load("lua/base/mapcycle.lua")
 	
@@ -350,7 +346,7 @@ DAK:RegisterEventHook("OnClientConnect", SetServerConfigOnClientConnected, 5, "e
 local function EnableClientMenus(client)
 	if client ~= nil then
 		local ns2id = client:GetUserId()
-		if ns2id ~= nil and tonumber(ns2id) ~= nil and DAK.config.loader.AllowClientMenus then
+		if ns2id ~= nil and tonumber(ns2id) ~= nil then
 			DAK.activemoddedclients[tonumber(ns2id)] = true
 		end
 	end
@@ -401,7 +397,7 @@ end
 local function DisplayDAKMenu(client)
 	if client ~= nil then
 		local ns2id = client:GetUserId()
-		if ns2id ~= nil and tonumber(ns2id) ~= nil and DAK.config.loader.AllowClientMenus then
+		if ns2id ~= nil and tonumber(ns2id) ~= nil then
 			DAK:CreateGUIMenuBase(ns2id, UpdateClientSelectMainMenuHook, UpdateClientMenuHook, true)
 		end
 	end

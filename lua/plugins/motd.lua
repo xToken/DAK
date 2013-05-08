@@ -110,12 +110,12 @@ local function MOTDOnClientConnect(client)
 		return false
 	end
 	
-	//local function UpdateMOTD()
+	//local function UpdateMOTD(client)
 		//if DAK.config.motd.kMOTDOnConnectURL ~= "" then
-			//DAK:ExecuteFunctionOnClient(client, string.format("SetMenuWebView(%s, Vector(Client.GetScreenWidth() * 0.8, Client.GetScreenHeight() * 0.8, 0))", DAK.config.motd.kMOTDOnConnectURL))
+			//DAK:DisplayWebViewOnClient(client, DAK.config.motd.kMOTDOnConnectURL)
 		//end
 	//end
-	//DAK:SetupTimedCallBack(UpdateMOTD, 2)
+	//DAK:SetupTimedCallBack(UpdateMOTD, 3, client)
 	
 	local PEntry = { ID = client:GetUserId(), Client = client, Message = 1, Time = 0 }
 	PEntry = ProcessMessagesforUser(PEntry)

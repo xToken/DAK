@@ -151,7 +151,7 @@ end
 
 function DAK:CreateGUIMenuBase(id, OnMenuFunction, OnMenuUpdateFunction, override)
 
-	if id == nil or id == 0 or tonumber(id) == nil or not DAK:DoesNS2IDHaveClientSideMenus(id) or not DAK.config.loader.AllowClientMenus then return false end
+	if id == nil or id == 0 or tonumber(id) == nil or not DAK:DoesNS2IDHaveClientSideMenus(id) then return false end
 	for i = #DAK.runningmenus, 1, -1 do
 		if DAK.runningmenus[i] ~= nil and DAK.runningmenus[i].clientNS2Id == id then
 			if override then

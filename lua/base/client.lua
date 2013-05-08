@@ -6,12 +6,13 @@
 //Dont think that plugins need to be syncd, menu system designed is almost fully server side so client needs very little information. - Client should always load shared defs.
 
 local MenuMessageTag = "#^DAK"
-local FunctionMessageTag = "#&DAK"
+local WebViewMessageTag = "#&DAK"
 local MenusRegistered = false
+local webView = nil
 
 local function OnClientLoaded()
 	if guimenubase == nil then
-		guimenubase = GetGUIManager():CreateGUIScriptSingle("gui/GUIMenuBase")			
+		guimenubase = GetGUIManager():CreateGUIScriptSingle("gui/GUIMenuBase")
 	end
 end
 
@@ -66,19 +67,25 @@ local function MenuUpdate(Message)
 	end
 end
 
-local function ExecuteFunction(Message)
-	local result, error = loadstring("return " .. Message)
-	if result then
-		pcall(result)
-	end
+local function OpenWebView(Message)
+	if webView then
+        GetGUIManager():DestroyGUIScript(webView)
+    end
+    webView = GetGUIManager():CreateGUIScript("GUIWebView")
+    webView:LoadUrl(Message, Client.GetScreenWidth() * 0.8, Client.GetScreenHeight() * 0.8)
+    webView:DisableMusic()
+    webView:GetBackground():SetAnchor(GUIItem.Middle, GUIItem.Center)
+    webView:GetBackground():SetPosition(-webView:GetBackground():GetSize() / 2)
+    webView:GetBackground():SetLayer(kGUILayerMainMenuWeb)
+    webView:GetBackground():SetIsVisible(true)
 end
 
 local function OnServerAdminPrint(messageTable)
 	if messageTable ~= nil and messageTable.message ~= nil then
 		if string.sub(messageTable.message, 0, string.len(MenuMessageTag)) == MenuMessageTag then
 			MenuUpdate(string.sub(messageTable.message, string.len(MenuMessageTag) + 1))
-		elseif string.sub(messageTable.message, 0, string.len(FunctionMessageTag)) == FunctionMessageTag then
-			ExecuteFunction(string.sub(messageTable.message, string.len(FunctionMessageTag) + 1))
+		elseif string.sub(messageTable.message, 0, string.len(WebViewMessageTag)) == WebViewMessageTag then
+			//OpenWebView(string.sub(messageTable.message, string.len(WebViewMessageTag) + 1))
 		else
 			Shared.Message(messageTable.message)
 		end
