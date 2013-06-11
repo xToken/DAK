@@ -303,6 +303,7 @@ local function Ban(client, playerId, name, duration, ...)
 	local player = DAK:GetPlayerMatching(playerId)
 	local reason =  StringConcatArgs(...) or "No Reason"
 	local ns2Id = DAK:GetNS2IDFromSteamID(playerId)
+	local adminns2Id = DAK:GetNS2IdMatchingClient(client)
 	if tonumber(name) ~= nil and tonumber(duration) == nil then
 		duration = tonumber(name)
 		if player then
@@ -318,7 +319,7 @@ local function Ban(client, playerId, name, duration, ...)
 		end
 		local bannedclient = Server.GetOwner(player)
 		if bannedclient then
-			if DAK:AddNS2IDBan(bannedclient:GetUserId(), name or player:GetName(), duration, reason) then
+			if DAK:AddNS2IDBan(bannedclient:GetUserId(), name or player:GetName(), duration, reason, adminns2Id) then
 				ServerAdminPrint(client, player:GetName() .. " has been banned.")
 				DAK:PrintToAllAdmins("sv_ban", client, string.format("on %s for %s for %s.", DAK:GetClientUIDString(bannedclient), duration, reason))
 				bannedclient.disconnectreason = reason
@@ -334,7 +335,7 @@ local function Ban(client, playerId, name, duration, ...)
 		if not DAK:GetLevelSufficient(client, playerId) then
 			return
 		end
-		if DAK:AddNS2IDBan(tonumber(playerId), name or "Unknown", duration, reason) then
+		if DAK:AddNS2IDBan(tonumber(playerId), name or "Unknown", duration, reason, adminns2Id) then
 			ServerAdminPrint(client, "Player with NS2Id " .. playerId .. " has been banned.")
 			DAK:PrintToAllAdmins("sv_ban", client, string.format("on NS2Id:%s for %s for %s.", playerId, duration, reason))
 		end
@@ -349,7 +350,8 @@ DAK:CreateServerAdminCommand("Console_sv_ban", Ban, "<player id> <player name> <
 
 local function UnBan(client, playerId)
 
-	if DAK:UnBanNS2ID(playerId) or DAK:UnBanSteamID(playerId) then
+	local adminns2Id = DAK:GetNS2IdMatchingClient(client)
+	if DAK:UnBanNS2ID(playerId, adminns2Id) or DAK:UnBanSteamID(playerId, adminns2Id) then
 		DAK:PrintToAllAdmins("sv_unban", client, string.format(" on ID : %s.", playerId))
 		ServerAdminPrint(client, "Player with ID " .. playerId .. " has been unbanned.")
 	else
@@ -563,6 +565,7 @@ end
 
 DAK:CreateServerAdminCommand("Console_sv_test_events", EnableEventTesting, "<true/false>, Toggles event testing mode")
 
+//Populate basic DAKMenu
 local function OnCommandUpdateBanMenu(ns2id, LastUpdateMessage, page)
 	local kVoteUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
 	kVoteUpdateMessage.header = string.format("Player to ban.")
@@ -585,7 +588,7 @@ local function OnCommandUpdateKickMenu(ns2id, LastUpdateMessage, page)
 	kVoteUpdateMessage.header = string.format("Player to kick.")
 	DAK:PopulateClientMenuItemWithClientList(kVoteUpdateMessage, page)
 	kVoteUpdateMessage.inputallowed = true
-	kVoteUpdateMessage.footer = "KICK'D"
+	kVoteUpdateMessage.footer = "DAK Kick Menu"
 	return kVoteUpdateMessage
 end
 
@@ -602,7 +605,7 @@ local function OnCommandUpdateSlayMenu(ns2id, LastUpdateMessage, page)
 	kVoteUpdateMessage.header = string.format("Player to slay.")
 	DAK:PopulateClientMenuItemWithClientList(kVoteUpdateMessage, page)
 	kVoteUpdateMessage.inputallowed = true
-	kVoteUpdateMessage.footer = "Slay'D"
+	kVoteUpdateMessage.footer = "DAK Slay Menu"
 	return kVoteUpdateMessage
 end
 
@@ -611,6 +614,41 @@ local function OnCommandSlaySelection(client, selectionnumber, page)
 	if targetclient ~= nil then
 		local HeadingText = string.format("Please confirm you wish to slay %s?", DAK:GetClientUIDString(targetclient))
 		DAK:DisplayConfirmationMenuItem(DAK:GetNS2IdMatchingClient(client), HeadingText, Slay, nil, DAK:GetNS2IdMatchingClient(targetclient))
+	end
+end
+
+local function GetMapName(map)
+	if type(map) == "table" and map.map ~= nil then
+		return map.map
+	end
+	return map
+end
+
+local function OnCommandUpdateMapsMenu(ns2id, LastUpdateMessage, page)
+	local kVoteUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
+	kVoteUpdateMessage.header = string.format("What map?")
+	local maps = MapCycle_GetMapCycleArray()
+	if maps ~= nil then
+		for p = 1, #maps do
+			local ci = p - (page * 8)
+			if ci > 0 and ci < 9 then
+				kVoteUpdateMessage.option[ci] = GetMapName(maps[p])
+			end
+		end
+	end
+	kVoteUpdateMessage.inputallowed = true
+	kVoteUpdateMessage.footer = "DAK Change Map Menu"
+	return kVoteUpdateMessage
+end
+
+local function OnCommandMapSelection(client, selectionnumber, page)
+	local maps = MapCycle_GetMapCycleArray()
+	if maps ~= nil then
+		local targetmap = GetMapName(maps[selectionnumber + (page * 8)])
+		if targetmap ~= nil then
+			local HeadingText = string.format("Please confirm you wish to change map to %s?", targetmap)
+			DAK:DisplayConfirmationMenuItem(DAK:GetNS2IdMatchingClient(client), HeadingText, OnCommandChangeMap, nil, targetmap)
+		end
 	end
 end
 
@@ -626,8 +664,13 @@ local function GetSlayMenu(client)
 	DAK:CreateGUIMenuBase(DAK:GetNS2IdMatchingClient(client), OnCommandSlaySelection, OnCommandUpdateSlayMenu, true)
 end
 
+local function GetMapsMenu(client)
+	DAK:CreateGUIMenuBase(DAK:GetNS2IdMatchingClient(client), OnCommandMapSelection, OnCommandUpdateMapsMenu, true)
+end
+
+DAK:RegisterMainMenuItem("Slay Menu", function(client) return DAK:GetClientCanRunCommand(client, "sv_slay") end, GetSlayMenu)
 DAK:RegisterMainMenuItem("Kick Menu", function(client) return DAK:GetClientCanRunCommand(client, "sv_kick") end, GetKickMenu)
 DAK:RegisterMainMenuItem("Ban Menu", function(client) return DAK:GetClientCanRunCommand(client, "sv_ban") end, GetBansMenu)
-DAK:RegisterMainMenuItem("Slay Menu", function(client) return DAK:GetClientCanRunCommand(client, "sv_slay") end, GetSlayMenu)
+DAK:RegisterMainMenuItem("Maps Menu", function(client) return DAK:GetClientCanRunCommand(client, "sv_changemap") end, GetMapsMenu)
 
 DAK:OverrideScriptLoad("lua/ServerAdminCommands.lua")

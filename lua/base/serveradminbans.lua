@@ -135,7 +135,7 @@ function DAK:IsNS2IDBanned(playerId)
 	return false, ""
 end
 
-function DAK:UnBanNS2ID(playerId)
+function DAK:UnBanNS2ID(playerId, adminns2Id)
 	playerId = tonumber(playerId)
 	if playerId ~= nil then
 		LoadBannedPlayers()
@@ -146,7 +146,7 @@ function DAK:UnBanNS2ID(playerId)
 		end
 		if DAK.bannedplayersweb ~= nil and DAK.bannedplayersweb[playerId] ~= nil and DAK.config.serveradmin.UnBanSubmissionURL ~= "" then
 			//Submit unban with key.
-			local bentry = { key = DAK.config.serveradmin.BanSubmissionKey, id = playerId }
+			local bentry = { key = DAK.config.serveradmin.BanSubmissionKey, id = playerId, adminid = adminns2Id }
 			Shared.SendHTTPRequest(DAK.config.serveradmin.UnBanSubmissionURL, "POST", {data=json.encode(bentry)}, OnPlayerUnBannedResponse)
 			return true
 		end
@@ -154,15 +154,15 @@ function DAK:UnBanNS2ID(playerId)
 	return false
 end
 
-function DAK:UnBanSteamID(steamId)
+function DAK:UnBanSteamID(steamId, adminns2Id)
 	local ns2id = DAK:GetNS2IDFromSteamID(steamId)
 	if ns2id ~= nil then
-		return DAK:UnBanNS2ID(ns2id)
+		return DAK:UnBanNS2ID(ns2id, adminns2Id)
 	end
 	return false
 end
 
-function DAK:AddNS2IDBan(playerId, pname, duration, breason)
+function DAK:AddNS2IDBan(playerId, pname, duration, breason, adminns2Id)
 	playerId = tonumber(playerId)
 	if playerId ~= nil then
 		local bannedUntilTime = Shared.GetSystemTime()
@@ -179,6 +179,7 @@ function DAK:AddNS2IDBan(playerId, pname, duration, breason)
 			//Will also want ban response function to reload web bans.
 			//OnPlayerBannedResponse
 			bentry.key = DAK.config.serveradmin.BanSubmissionKey
+			bentry.adminid = adminns2Id
 			bentry.id = playerId
 			Shared.SendHTTPRequest(DAK.config.serveradmin.BanSubmissionURL, "POST", {data=json.encode(bentry)}, OnPlayerBannedResponse)
 			DAK:SaveConfigFile("config://BannedPlayersWebTest.json", {data=json.encode(bentry)})

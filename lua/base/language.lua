@@ -270,3 +270,30 @@ local function SetClientLanguage(client, playerId, language)
 end
 
 DAK:CreateServerAdminCommand("Console_sv_setlanguage", SetClientLanguage, "<player id> <language> Changes the language set for the provided player.")
+
+local function OnCommandUpdateLangMenu(ns2id, LastUpdateMessage, page)
+	local kVoteUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
+	kVoteUpdateMessage.header = string.format("Select your desired language.")
+	for p = 1, #DAK.config.language.LanguageList do
+		local ci = p - (page * 8)
+		if ci > 0 and ci < 9 then
+			kVoteUpdateMessage.option[ci] = DAK.config.language.LanguageList[p]
+		end
+	end
+	kVoteUpdateMessage.inputallowed = true
+	kVoteUpdateMessage.footer = "DAK Language Menu"
+	return kVoteUpdateMessage
+end
+
+local function OnCommandLangSelection(client, selectionnumber, page)
+	local lang = DAK.config.language.LanguageList[selectionnumber + (page * 8)]
+	if lang ~= nil then
+		OnCommandSetLanguage(client, lang)
+	end
+end
+
+local function GetLanguageMenu(client)
+	DAK:CreateGUIMenuBase(DAK:GetNS2IdMatchingClient(client), OnCommandLangSelection, OnCommandUpdateLangMenu, true)
+end
+
+DAK:RegisterMainMenuItem("Language Menu", true, GetLanguageMenu)

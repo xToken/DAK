@@ -222,7 +222,7 @@ local function OnCommandUpdateVote(ns2id, LastUpdateMessage, page)
 		end
 		local client =  DAK:GetClientMatchingNS2Id(ns2id)
 		kVoteUpdateMessage.header = string.format("%.1f seconds are left to vote.", mapvotedelay - Shared.GetTime())
-		i = 1
+		local i = 1
 		for map, votes in pairs(MapVotes) do
 			local ci = i - (page * 8)
 			if ci > 0 and ci < 9 then

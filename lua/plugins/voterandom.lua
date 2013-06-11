@@ -3,6 +3,8 @@
 local kVoteRandomTeamsEnabled
 local RandomNewRoundDelay = 10
 local RandomVotes = { }
+local RandomVoteStart = 0
+local LastRandomVote = 0
 local RandomDuration = 0
 local RandomRoundRecentlyEnded = 0
 
@@ -79,6 +81,12 @@ local function EnableRandomTeams()
 	end
 end
 
+local function EndRandomVote()
+	LastRandomVote = Shared.GetTime()
+	RandomVoteStart = 0
+	RandomVotes = { }
+end
+
 local function VoteRandomSetGameState(self, state, currentstate)
 
 	if state ~= currentstate and state == kGameState.Started and DAK.config.voterandom.kVoteRandomOnGameStart then
@@ -89,11 +97,9 @@ end
 
 DAK:RegisterEventHook("OnSetGameState", VoteRandomSetGameState, 5, "voterandom")
 
-local function UpdateRandomVotes(silent, playername)
-
+local function GetCurrentRandomVotes()
 	local playerRecords = Shared.GetEntitiesWithClassname("Player")
 	local totalvotes = 0
-	
 	for i = #RandomVotes, 1, -1 do
 		local clientid = RandomVotes[i]
 		local stillplaying = false
@@ -116,15 +122,21 @@ local function UpdateRandomVotes(silent, playername)
 		end
 	
 	end
+	return totalvotes
+end
+
+local function UpdateRandomVotes(silent, playername)
+	local playerRecords = Shared.GetEntitiesWithClassname("Player")
+	local totalvotes = GetCurrentRandomVotes()
 	
 	if totalvotes >= math.ceil((playerRecords:GetSize() * (DAK.config.voterandom.kVoteRandomMinimumPercentage / 100))) then
 	
-		RandomVotes = { }
 		EnableRandomTeams()
+		EndRandomVote()
 		
 	elseif not silent then
 	
-		DAK:DisplayMessageToAllClients("VoteRandomVoteCountAlert", playername, totalvotes, math.ceil((playerRecords:GetSize() * (DAK.config.voterandom.kVoteRandomMinimumPercentage / 100))))
+		DAK:DisplayLegacyChatMessageToAllClientWithoutMenus("VoteRandomVoteCountAlert", playername, totalvotes, math.ceil((playerRecords:GetSize() * (DAK.config.voterandom.kVoteRandomMinimumPercentage / 100))))
 		
 	end
 	
@@ -147,7 +159,7 @@ end
 DAK:RegisterEventHook("OnClientDelayedConnect", VoteRandomClientConnect, 5, "voterandom")
 
 local function VoteRandomJoinTeam(self, player, newTeamNumber, force)
-	if RandomRoundRecentlyEnded + RandomNewRoundDelay > Shared.GetTime() and (newTeamNumber == 1 or newTeamNumber == 2) and not DAK.config.voterandom.kVoteRandomOnGameStart then
+	if (RandomRoundRecentlyEnded ~= 0 and RandomRoundRecentlyEnded + RandomNewRoundDelay > Shared.GetTime()) and (newTeamNumber == 1 or newTeamNumber == 2) and not DAK.config.voterandom.kVoteRandomOnGameStart then
 		DAK:DisplayMessageToClient(Server.GetOwner(player), "VoteRandomTeamJoinBlock")
 		return true
 	end
@@ -164,21 +176,66 @@ end
 
 DAK:RegisterEventHook("OnGameEnd", VoteRandomEndGame, 5, "voterandom")
 
+local function OnCommandRandomVote(client, selectionnumber, page)
+	if selectionnumber == 1 then
+		RandomVotes[client:GetUserId()] = true
+	else
+		return true
+	end
+end
+
+local function OnCommandUpdateRandomVote(ns2id, LastUpdateMessage, page)
+	//OnVoteUpdateFunction
+	if RandomVoteStart ~= 0 then
+		local kVoteUpdateMessage = DAK:CreateMenuBaseNetworkMessage()
+		if kVoteUpdateMessage == nil then
+			kVoteUpdateMessage = { }
+		end
+		local client =  DAK:GetClientMatchingNS2Id(ns2id)
+		local playerRecords = Shared.GetEntitiesWithClassname("Player")
+		local totalvotes = GetCurrentRandomVotes()
+		kVoteUpdateMessage.header = string.format("%s votes, %s required to enable random teams.", totalvotes, math.ceil((playerRecords:GetSize() * (DAK.config.voterandom.kVoteRandomMinimumPercentage / 100))))
+		if RandomVotes[client:GetUserId()] == true then
+			kVoteUpdateMessage.option[1] = "You have voted to enable random teams."
+		else
+			kVoteUpdateMessage.option[1] = "Vote to enable random teams."
+			kVoteUpdateMessage.option[2] = "Vote to not random teams."
+		end
+		kVoteUpdateMessage.inputallowed = true
+		kVoteUpdateMessage.footer = "Press a number key to vote on random teams."
+		return kVoteUpdateMessage
+	else
+		return LastUpdateMessage
+	end
+end
+
 local function OnCommandVoteRandom(client)
 
 	if client ~= nil then
-	
+		local ns2id = client:GetUserId()
 		local player = client:GetControllingPlayer()
 		if player ~= nil then
 			if RandomTeamsEnabled() then
 				DAK:DisplayMessageToClient(client, "VoteRandomAlreadyEnabled")
 				return
 			end
-			if RandomVotes[client:GetUserId()] ~= nil then			
+			if LastRandomVote ~= 0 and LastRandomVote >= (Shared.GetTime() - DAK.config.voterandom.kTimeBetweenVotes) then
+				DAK:DisplayMessageToClient(client, "VoteRandomMinimumDuration")
+				return
+			end
+			if RandomVoteStart == 0 then
+				DAK:SetupTimedCallBack(EndRandomVote, DAK.config.voterandom.kVotingDuration)
+				RandomVoteStart = Shared.GetTime()
+				//Start GUI!!!
+				DAK:ForAllPlayers(function (plyr)
+					DAK:CreateGUIMenuBase(DAK:GetNS2IdMatchingPlayer(plyr), OnCommandRandomVote, OnCommandUpdateRandomVote, false)
+				end)
+			end
+			if RandomVotes[ns2id] ~= nil then			
 				DAK:DisplayMessageToClient(client, "VoteRandomAlreadyVoted")
 			else
-				table.insert(RandomVotes,client:GetUserId())
-				RandomVotes[client:GetUserId()] = true
+				table.insert(RandomVotes,ns2id)
+				RandomVotes[ns2id] = true
 				Shared.Message(string.format("%s voted for random teams.", DAK:GetClientUIDString(client)))
 				DAK:ExecutePluginGlobalFunction("enhancedlogging", EnhancedLogMessage, string.format("%s voted for random teams.", DAK:GetClientUIDString(client)))
 				UpdateRandomVotes(false, player:GetName())
@@ -224,3 +281,17 @@ local function VoteRandomOn(client)
 end
 
 DAK:CreateServerAdminCommand("Console_sv_randomon", VoteRandomOn, "Will enable random teams.")
+
+local function CancelRandom(client)
+
+	if RandomVoteStart ~= 0 then
+		EndRandomVote()
+		DAK:PrintToAllAdmins("sv_cancelrandom", client)
+		ServerAdminPrint(client, "Random team vote has been cancelled.")
+	else
+		ServerAdminPrint(client, "No random teams vote in progress.")
+	end
+	
+end
+
+DAK:CreateServerAdminCommand("Console_sv_cancelrandom", CancelRandom, "Will cancel random teams vote.")

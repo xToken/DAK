@@ -1,5 +1,17 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.610a
+- Fixed issue with language escape characters on beta NS2 build.
+- Hopefully fixed some issues with randomvotes, added in basic GUI to random vote.
+
+## v0.1.524a
+- Fixed issue with mapvote menu
+- Added menu option to random vote
+- Added mapchange menu to DAK menu
+- Added adminsNS2ID to ban commands
+- Added some config options for randomvotes
+- Not released.
+
 ## v0.1.507a
 - Fixed up some issues with webbans, cleaned up code.
 - Fixed some issues with random plugin.

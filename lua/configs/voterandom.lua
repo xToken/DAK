@@ -8,6 +8,8 @@ local function SetupDefaultConfig()
 	DefaultConfig.kVoteRandomDuration = 30
 	DefaultConfig.kVoteRandomMinimumPercentage = 60
 	DefaultConfig.kVoteRandomChatCommands = { "voterandom", "random" }
+	DefaultConfig.kVotingDuration = 120
+	DefaultConfig.kTimeBetweenVotes = 120
 	return DefaultConfig
 end
 
@@ -23,6 +25,7 @@ local function SetupDefaultLanguageStrings()
 	DefaultLangStrings["VoteRandomDisabled"] 						= "Random teams have been disabled."
 	DefaultLangStrings["VoteRandomAlreadyVoted"] 					= "You already voted for random teams."
 	DefaultLangStrings["VoteRandomAlreadyEnabled"] 					= "Random teams already enabled."
+	DefaultLangStrings["VoteRandomMinimumDuration"] 				= "A vote was run too recently, please wait longer before starting a new vote."
 	return DefaultLangStrings
 end
 
