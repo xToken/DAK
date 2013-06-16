@@ -60,6 +60,19 @@ originalNS2PlayerGetDrawWorld = Class_ReplaceMethod("Player", "GetDrawWorld",
 	end
 )
 
+local originalNS2GUIWebViewSendKeyEvent
+originalNS2GUIWebViewSendKeyEvent = Class_ReplaceMethod("GUIWebView", "SendKeyEvent", 
+	function(self, key, down, amount)
+
+		if not originalNS2GUIWebViewSendKeyEvent(self, key, down, amount) then
+			return Player.SendKeyEvent(self, key, down)
+		else
+			return true
+		end
+		
+	end
+)
+
 local function MenuUpdate(Message)
 	local GUIMenuBase = GetGUIManager():GetGUIScriptSingle("gui/GUIMenuBase")
 	if GUIMenuBase then

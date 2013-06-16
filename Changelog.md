@@ -1,5 +1,9 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.616a
+- Fixed issue with logging dates being incorrect.
+- Added code to prevent errors with invalid clients.
+
 ## v0.1.610a
 - Fixed issue with language escape characters on beta NS2 build.
 - Hopefully fixed some issues with randomvotes, added in basic GUI to random vote.

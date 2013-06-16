@@ -56,7 +56,7 @@ function DAK:GetClientList()
 	DAK:ForAllPlayers(function (player)
 		if player ~= nil then
 			local clnt = player:GetClient()
-			if clnt ~= nil then
+			if clnt ~= nil and type(clnt) == "ServerClient" then
 				table.insert(clientList, clnt)
 			end
 		end

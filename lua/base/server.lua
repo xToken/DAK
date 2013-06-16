@@ -17,7 +17,7 @@ if Server then
 	DAK.gameid = { }							//Used to track client joins for game IDs
 	DAK.gaggedplayers = { }						//Used to track gagged clients
 	DAK.enabled = true							//Can be used to block most DAK events, or indicate errors.
-	DAK.version = "0.1.610a"
+	DAK.version = "0.1.616a"
 	
 	local Scripts = { }
 	table.insert(Scripts, "lua/dkjson.lua")
