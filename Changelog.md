@@ -3,6 +3,7 @@
 ## v0.1.616a
 - Fixed issue with logging dates being incorrect.
 - Added code to prevent errors with invalid clients.
+- Fixed issue with code change in base NS2 mod loading which prevented menus from functioning.
 
 ## v0.1.610a
 - Fixed issue with language escape characters on beta NS2 build.
