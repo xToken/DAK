@@ -247,7 +247,7 @@ function DAK:GetClientMatchingSteamId(steamId)
 
 	local client = nil
 	DAK:ForAllClients(function (clnt, steamId)
-		if clnt ~= nil then
+		if clnt ~= nil and clnt.GetUserId then
 			if clnt:GetUserId() == tonumber(steamId) or DAK:GetSteamIdfromNS2ID(clnt:GetUserId()) == steamId then
 				client = clnt
 			end

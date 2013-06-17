@@ -1,5 +1,8 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.617a
+- Another attempt at fixing player in client list.
+
 ## v0.1.616b
 - Fixed issue preventing client checks from working.
 
