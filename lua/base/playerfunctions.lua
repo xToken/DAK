@@ -55,7 +55,7 @@ function DAK:GetClientList()
 	local clientList = { }
 	DAK:ForAllPlayers(function (player)
 		if player ~= nil then
-			local clnt = player:GetClient()
+			local clnt = Server.GetOwner(player)
 			if clnt ~= nil and clnt.GetUserId then
 				table.insert(clientList, clnt)
 			end
@@ -126,8 +126,8 @@ function DAK:VerifyClient(client)
 	if client ~= nil then
 		DAK:ForAllPlayers(function (player, client)
 			if player ~= nil then
-				local clnt = player:GetClient()
-				if clnt ~= nil then
+				local clnt = Server.GetOwner(player)
+				if clnt ~= nil and clnt.GetUserId then
 					if client ~= nil and clnt == client then
 						valid = true
 					end
@@ -266,8 +266,8 @@ function DAK:GetPlayerMatchingSteamId(steamId)
 
 	local player = nil
 	DAK:ForAllPlayers(function (plyr, steamId)
-		local clnt = plyr:GetClient()
-		if clnt ~= nil then
+		local clnt = Server.GetOwner(plyr)
+		if clnt ~= nil and clnt.GetUserId then
 			if clnt:GetUserId() == tonumber(steamId) or DAK:GetSteamIdfromNS2ID(clnt:GetUserId()) == steamId then
 				player = plyr
 			end

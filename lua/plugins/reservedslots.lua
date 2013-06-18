@@ -64,7 +64,7 @@ local function CheckOccupiedReserveSlots()
 	for r = #playerList, 1, -1 do
 		if playerList[r] ~= nil then
 			local plyr = playerList[r]
-			local clnt = playerList[r]:GetClient()
+			local clnt = Server.GetOwner(playerList[r])
 			if plyr ~= nil and clnt ~= nil then
 				if CheckReserveStatus(clnt, true) then
 					reserveCount = reserveCount + 1
@@ -154,7 +154,7 @@ local function OnReserveSlotClientConnected(client)
 		for r = #playerList, 1, -1 do
 			if playerList[r] ~= nil then
 				local plyr = playerList[r]
-				local clnt = playerList[r]:GetClient()
+				local clnt = Server.GetOwner(playerList[r])
 				if plyr ~= nil and clnt ~= nil then
 					local clntconntime = DAK:GetClientConnectionTime(clnt)
 					if (clntconntime <= connectiontime or connectiontime == 0) and not plyr:GetIsCommander() and not CheckReserveStatus(clnt, true) then
@@ -166,12 +166,13 @@ local function OnReserveSlotClientConnected(client)
 		end
 
 		if playertokick ~= nil then
-
-			table.insert(reserveslotactionslog, "Kicking player "  .. tostring(playertokick.name) .. " - id: " .. tostring(playertokick:GetClient():GetUserId()) .. " with connection time: " .. tostring(connectiontime))
-			DAK:ExecutePluginGlobalFunction("enhancedlogging", EnhancedLogMessage, "Kicking player "  .. tostring(playertokick.name) .. " - id: " .. tostring(playertokick:GetClient():GetUserId()) .. " with connection time: " .. tostring(connectiontime))
-			DAK:DisplayMessageToClient(playertokick:GetClient(), "ReserveSlotKickedForRoom")
+			local kickclient = Server.GetOwner(playertokick)
+			local ns2id = kickclient:GetUserId()
+			table.insert(reserveslotactionslog, "Kicking player "  .. tostring(playertokick.name) .. " - id: " .. tostring(ns2id) .. " with connection time: " .. tostring(connectiontime))
+			DAK:ExecutePluginGlobalFunction("enhancedlogging", EnhancedLogMessage, "Kicking player "  .. tostring(playertokick.name) .. " - id: " .. tostring(ns2id) .. " with connection time: " .. tostring(connectiontime))
+			DAK:DisplayMessageToClient(ns2id, "ReserveSlotKickedForRoom")
 			playertokick.disconnectreason = "Kicked due to a reserved slot."
-			table.insert(disconnectclients, {clnt = playertokick:GetClient(), disctime = Shared.GetTime() + DAK.config.reservedslots.kDelayedKickTime})
+			table.insert(disconnectclients, {clnt = kickclient, disctime = Shared.GetTime() + DAK.config.reservedslots.kDelayedKickTime})
 		else
 			table.insert(reserveslotactionslog, "Attempted to kick player but no valid player could be located")
 			DAK:ExecutePluginGlobalFunction("enhancedlogging", EnhancedLogMessage, "Attempted to kick player but no valid player could be located")
