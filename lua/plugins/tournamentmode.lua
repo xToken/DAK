@@ -1,6 +1,6 @@
 //NS2 Tournament Mod Server side script
 
-local TournamentModeSettings = { countdownstarted = false, countdownstarttime = 0, countdownstartcount = 0, lastmessage = 0, official = false, roundstarted = 0}
+local TournamentModeSettings = { countdownstarted = false, countdownstarttime = 0, countdownstartcount = 0, lastmessage = 0, official = false, roundstarted = 0, team1spawn = "", team2spawn = ""}
 
 local function LoadTournamentMode()
 	if DAK.settings.TournamentMode then
@@ -176,7 +176,24 @@ local function OnPluginInitialized()
 			end
 		)
 	end
-
+	
+	local originalNS2GRGetChooseTechPoint
+	
+	originalNS2GRGetChooseTechPoint = DAK:Class_ReplaceMethod(DAK.config.loader.GamerulesClassName, "ChooseTechPoint", 
+		function(self, techPoints, teamNumber)
+			
+			if DAK.settings.TournamentMode and not DAK.config.tournamentmode.kTournamentModePubMode then
+				local techPoints = EntityListToTable(Shared.GetEntitiesWithClassname("TechPoint"))
+				for t = 1, #techPoints do
+					local techPointName = string.lower(techPoints[t]:GetLocationName())
+					if (techPointName == team1spawn and teamNumber == 1) or (techPointName == team2spawn and teamNumber == 2) then
+						return techPoints[t]
+					end
+				end
+			end
+			return originalNS2GRGetChooseTechPoint(self, techPoints, teamNumber)
+		end
+	)
 end
 
 if DAK.config and DAK.config.loader and DAK.config.loader.GamerulesExtensions then
@@ -330,7 +347,7 @@ local function ClientReady(client)
 			end
 		end
 	end
-	if teamoneready == false or teamtwoready == false then
+	if TournamentModeSettings[1].ready == false or TournamentModeSettings[2].ready == false then
 		CheckCancelGameStart()
 	end
 	
@@ -339,7 +356,7 @@ end
 local function OnCommandReady(client)
 	local gamerules = GetGamerules()
 	if gamerules ~= nil and client ~= nil then
-		if DAK.settings.TournamentMode and (gamerules:GetGameState() == kGameState.NotStarted or gamerules:GetGameState() == kGameState.PreGame or (TournamentModeSettings.roundstarted ~= 0 and TournamentModeSettings.roundstarted + DAK.config.tournamentmode.kTournamentModeRestartDuration < Shared.GetTime())) and not DAK.config.tournamentmode.kTournamentModePubMode then
+		if DAK.settings.TournamentMode and (gamerules:GetGameState() == kGameState.NotStarted or gamerules:GetGameState() == kGameState.PreGame or (TournamentModeSettings.roundstarted ~= 0 and TournamentModeSettings.roundstarted + DAK.config.tournamentmode.kTournamentModeRestartDuration > Shared.GetTime())) and not DAK.config.tournamentmode.kTournamentModePubMode then
 			gamerules:SetGameState(kGameState.PreGame)
 			ClientReady(client)
 		end
@@ -349,3 +366,60 @@ end
 Event.Hook("Console_ready",                 OnCommandReady)
 
 DAK:RegisterChatCommand(DAK.config.tournamentmode.kReadyChatCommands, OnCommandReady, false)
+
+local function OnCommandSetTeamStartingLocation(client, teamnum, ...)
+
+	if DAK.settings.TournamentMode then
+		local valid = false
+		local location
+		for i, p in ipairs({...}) do
+			if location then
+				location = location .. " " .. p
+			else
+				location = p
+			end
+        end
+		if not location then
+			if teamnum == "1" then
+				team1spawn = location
+			elseif teamnum == "2" then
+				team2spawn = location
+			end
+			ServerAdminPrint(client, string.format("Cleared spawn location set for team %s.", ToString(teamnum)))
+			DAK:PrintToAllAdmins("sv_setspawnlocation", client, " " .. ToString(location) .. " for team " .. ToString(teamnum))
+		else
+			local techPointNames
+			local techPoints = EntityListToTable(Shared.GetEntitiesWithClassname("TechPoint"))
+			for t = 1, #techPoints do
+				local techPointName = string.lower(techPoints[t]:GetLocationName())
+				if techPointNames then
+					techPointNames = techPointNames .. "," .. techPointName
+				else
+					techPointNames = techPointName
+				end
+				if techPointName == location then
+					if teamnum == "1" then
+						team1spawn = techPointName
+						valid = true
+					elseif teamnum == "2" then
+						team2spawn = techPointName
+						valid = true
+					end
+				end
+				if valid then
+					break
+				end
+			end
+			if valid then
+				ServerAdminPrint(client, string.format("Spawn location set to %s for team %s.", location, ToString(teamnum)))
+				DAK:PrintToAllAdmins("sv_setspawnlocation", client, " " .. ToString(location) .. " for team " .. ToString(teamnum))
+			else
+				ServerAdminPrint(client, string.format("Couldn't find spawn location %s, valid locations are %s.", location, techPointNames))
+				DAK:PrintToAllAdmins("sv_setspawnlocation", client, " couldn't find valid spawn for location " .. ToString(location) .. ".")
+			end
+		end
+	end
+
+end
+
+DAK:CreateServerAdminCommand("Console_sv_setspawnlocation", OnCommandSetTeamStartingLocation, "<team> <location> Sets the spawn location for the provided team.")

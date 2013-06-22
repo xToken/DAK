@@ -1,5 +1,9 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.621a
+- Fixed some timing bugs and start cancellation bugs with tournamentmode plugin.
+- Added ability to set spawn locations in tournamentmode plugin.
+
 ## v0.1.617b
 - Removed all instances of player:GetClient() as it may no longer be working as intended
 

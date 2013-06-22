@@ -29,18 +29,19 @@ table.insert(ClassUpdatesBlock, {name = "TunnelUserMixin", OnUpdate = nil, OnPro
 table.insert(ClassUpdatesBlock, {name = "Player", OnUpdate = nil, OnProcessMove = nil })
 table.insert(ClassUpdatesBlock, {name = "TeamSpectator", OnUpdate = nil, OnProcessMove = nil })
 table.insert(ClassUpdatesBlock, {name = "Babbler", OnUpdate = nil, OnProcessMove = nil })
+table.insert(ClassUpdatesBlock, {name = "ResourceTower", OnUpdate = nil, OnProcessMove = nil })
 
 local function OnPluginInitialized()
 
-	local originalNS2PlayingTeamUpdateResourceTowers
+	local originalNS2ResourceTowerOnUpdate
 
-	originalNS2PlayingTeamUpdateResourceTowers = DAK:Class_ReplaceMethod("PlayingTeam", "UpdateResourceTowers", 
-		function(self)
+	originalNS2ResourceTowerOnUpdate = DAK:Class_ReplaceMethod("ResourceTower", "OnUpdate", 
+		function(self, deltaTime)
 
 			if DAK:GetTournamentMode() and GetIsGamePaused() then
 				return true
 			end
-			return originalNS2PlayingTeamUpdateResourceTowers(self)
+			return originalNS2ResourceTowerOnUpdate(self, deltaTime)
 
 		end
 	)

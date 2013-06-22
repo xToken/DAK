@@ -9,7 +9,7 @@ local function SetupDefaultConfig()
 	DefaultConfig.kTournamentModePubGameStartDelay = 15
 	DefaultConfig.kTournamentModeAlertDelay = 30
 	DefaultConfig.kTournamentModeReadyDelay = 2
-	DefaultConfig.kTournamentModeRestartDuration = 120
+	DefaultConfig.kTournamentModeRestartDuration = 90
 	DefaultConfig.kTournamentModeGameStartDelay = 15
 	DefaultConfig.kTournamentModeCountdownDelay = 5
 	DefaultConfig.kTournamentModeFriendlyFirePercent = 0.33
