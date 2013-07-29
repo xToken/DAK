@@ -146,19 +146,6 @@ local function OnPluginInitialized()
 		end
 	)
 
-	local originalNS2FireMixinComputeDamageOverrideMixin
-
-	originalNS2FireMixinComputeDamageOverrideMixin = DAK:Class_ReplaceMethod("FireMixin", "ComputeDamageOverrideMixin", 
-		function(self, attacker, damage, damageType, time)
-
-			if DAK:GetTournamentMode() and GetIsGamePaused() then
-				return 0
-			end
-			return originalNS2FireMixinComputeDamageOverrideMixin(self, attacker, damage, damageType, time)
-
-		end
-	)
-
 	local originalNS2DotMarkerOnUpdate
 
 	originalNS2DotMarkerOnUpdate = DAK:Class_ReplaceMethod("DotMarker", "OnUpdate", 

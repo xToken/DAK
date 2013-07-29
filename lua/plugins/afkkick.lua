@@ -61,6 +61,10 @@ local function UpdateAFKClient(client, PEntry, player)
 			end
 		end
 		
+		if player:GetTeamNumber() == kSpectatorIndex then
+			validteam = false
+		end
+		
 		if not validteam then
 			PEntry.Time = 0
 			return PEntry

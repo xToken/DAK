@@ -34,7 +34,7 @@ function DAK:GetClientCanRunCommand(client, commandName)
 
 	//ServerConsole can run anything
 	if client == nil then return true end
-	// Convert to the old Steam Id format.
+	//Convert to the old Steam Id format.
 	local ns2id = client:GetUserId()
 	for name, user in pairs(DAK.adminsettings.users) do
 	
@@ -182,7 +182,7 @@ local function CreateBaseServerAdminCommand(commandName, commandFunction, helpTe
 		
 	end
 	
-	table.insert(DAK.serveradmincommands, { name = fixedCommandName, help = helpText or "No help provided" })
+	table.insert(DAK.serveradmincommands, { name = fixedCommandName, help = helpText or "No help provided", alwaysallowed = optionalAlwaysAllowed })
 	if DAK.serveradmincommandshooks[commandName] == nil then
 		DAK.serveradmincommandshooks[commandName] = true
 		Event.Hook(commandName, DAK:GetServerAdminFunction(commandName))
@@ -198,10 +198,12 @@ end
 
 function CreateServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
 	//Should catch other plugins commands, filters against blacklist to prevent defaults from being registered twice.
-	for c = 1, #DAK.config.baseadmincommands.kBlacklistedCommands do
-		local command = DAK.config.baseadmincommands.kBlacklistedCommands[c]
-		if commandName == command then
-			return
+	if DAK.config.baseadmincommands ~= nil then
+		for c = 1, #DAK.config.baseadmincommands.kBlacklistedCommands do
+			local command = DAK.config.baseadmincommands.kBlacklistedCommands[c]
+			if commandName == command then
+				return
+			end
 		end
 	end
 	//Assume its not blacklisted and proceed.

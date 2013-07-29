@@ -122,7 +122,7 @@ end
 
 function DAK:DisplayConfirmationMenuItem(ns2id, HeadingText, ConfirmationFunction, DenyFunction, ...)
 	if ns2id ~= nil then
-		local menuitem = {heading = HeadingText, confirmfunc = ConfirmationFunction, denyfunc = DenyFunction, args = arg}
+		local menuitem = {heading = HeadingText, confirmfunc = ConfirmationFunction, denyfunc = DenyFunction, args = {...}}
 		DAK.confirmationmenus[ns2id] = menuitem
 		DAK:CreateGUIMenuBase(ns2id, UpdateConfirmationMenuSelectItemHook, UpdateConfirmationMenuHook, true)
 	end

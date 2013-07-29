@@ -154,7 +154,7 @@ local function PrintHelpForCommand(client, optionalCommand)
 		local command = DAK.serveradmincommands[c]
 		if optionalCommand == command.name or optionalCommand == nil then
 		
-			if not client or DAK:GetClientCanRunCommand(client, command.name, false) then
+			if not client or DAK:GetClientCanRunCommand(client, command.name, false) or command.alwaysallowed then
 				ServerAdminPrint(client, command.name .. ": " .. command.help)
 			elseif optionalCommand then
 				ServerAdminPrint(client, "You do not have access to " .. optionalCommand)

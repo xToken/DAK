@@ -68,7 +68,7 @@ end
 //Timed callbacks with arg support
 function DAK:SetupTimedCallBack(callfunc, calltime, ...)
 	if callfunc ~= nil and tonumber(calltime) ~= nil then
-		local callback = {func = callfunc, when = (Shared.GetTime() + tonumber(calltime)), args = arg, lastinterval = tonumber(calltime)}
+		local callback = {func = callfunc, when = (Shared.GetTime() + tonumber(calltime)), args = {...}, lastinterval = tonumber(calltime)}
 		table.insert(self.timedcalledbacks, callback)
 		return true
 	end

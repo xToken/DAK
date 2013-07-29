@@ -1,5 +1,0 @@
-modEntry = [[
-	Client: lua/base/client.lua,
-	Priority: 5
-]]
-

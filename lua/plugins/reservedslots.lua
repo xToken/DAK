@@ -220,3 +220,9 @@ local function DebugReserveSlots(client)
 end
 
 DAK:CreateServerAdminCommand("Console_sv_reservedebug", DebugReserveSlots, "Will print messages logged during actions taken by reserve slot plugin.")
+
+local function ListReserveSlots(client)
+	ServerAdminPrint(client, string.format("This server will hold %s slots open", (DAK.config.reservedslots.kReservedSlots + DAK.config.reservedslots.kMinimumSlots)))
+end
+
+DAK:CreateServerAdminCommand("Console_sv_reserveslots", ListReserveSlots, "Will provide the number of reserved slots on the server.", true)
