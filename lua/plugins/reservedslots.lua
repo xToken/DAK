@@ -23,6 +23,38 @@ local function DisconnectClientForReserveSlot(client)
 	Server.DisconnectClient(client)	
 end
 
+local function CheckReserveSlotForID(ns2ID, silent)
+	for r = #ReservedPlayers, 1, -1 do
+		local ReservePlayer = ReservedPlayers[r]
+		
+		if ReservePlayer.id == ns2ID then
+			// Check if enough time has passed on a temporary reserve slot.
+			if not silent then table.insert(reserveslotactionslog, "Reserve Slot check for " .. tostring(ReservePlayer.name) .. " - id: " .. tostring(ReservePlayer.id)) end
+			local now = Shared.GetSystemTime()
+			if ReservePlayer.time ~= 0 and now > ReservePlayer.time then
+				return false
+			else
+				return true
+			end
+		end	
+	end
+	
+	//Also Check standard reserve slot system
+	local reservedSlots = Server.GetConfigSetting("reserved_slots")
+    
+    if reservedSlots and reservedSlots.ids then
+		local newPlayerIsReserved = false
+		for name, id in pairs(reservedSlots.ids) do
+			if id == ns2ID then
+				return true
+			end
+		end
+    end
+	
+	return false
+
+end
+
 local function CheckReserveStatus(client, silent)
 
 	if client:GetIsVirtual() then
@@ -38,23 +70,14 @@ local function CheckReserveStatus(client, silent)
 		return true
 	end
 	
-	for r = #ReservedPlayers, 1, -1 do
-		local ReservePlayer = ReservedPlayers[r]
-		local UserId = client:GetUserId()
-		
-		if ReservePlayer.id == UserId then
-			// Check if enough time has passed on a temporary reserve slot.
-			if not silent then table.insert(reserveslotactionslog, "Reserve Slot check for " .. tostring(ReservePlayer.name) .. " - id: " .. tostring(ReservePlayer.id)) end
-			local now = Shared.GetSystemTime()
-			if ReservePlayer.time ~= 0 and now > ReservePlayer.time then
-				if not silent then ServerAdminPrint(client, "Reserved Slot Entry For " .. tostring(ReservePlayer.name) .. " - id: " .. tostring(ReservePlayer.id) .. " - Has Expired") end
-				return false
-			else
-				if not silent then ServerAdminPrint(client, "Reserved Slot Entry For " .. tostring(ReservePlayer.name) .. " - id: " .. tostring(ReservePlayer.id) .. " - Is Valid") end
-				return true
-			end
-		end	
+	
+	if CheckReserveSlotForID(client:GetUserId(), silent) then
+		if not silent then ServerAdminPrint(client, "Reserved Slot Entry For " .. tostring(name) .. " - id: " .. tostring(id) .. " - Is Valid") end
+		return true
 	end
+	
+	return false
+    
 end
 
 local function CheckOccupiedReserveSlots()
@@ -226,3 +249,55 @@ local function ListReserveSlots(client)
 end
 
 DAK:CreateServerAdminCommand("Console_sv_reserveslots", ListReserveSlots, "Will provide the number of reserved slots on the server.", true)
+
+local function OnCheckConnectionAllowed(userId)
+
+	local newPlayerIsReserved = false
+	if DAK:GetNS2IDCanRunCommand(userId, "sv_hasreserve") then
+		newPlayerIsReserved = true
+	end
+	
+	if CheckReserveSlotForID(userId, true) then
+		newPlayerIsReserved = true
+	end
+	
+	local MaxPlayers = Server.GetMaxPlayers()
+	local CurPlayers = Server.GetNumPlayers() + 1 //To account for yourself connecting.
+	
+	local serverFull = MaxPlayers - (CurPlayers - CheckOccupiedReserveSlots()) < (DAK.config.reservedslots.kReservedSlots + DAK.config.reservedslots.kMinimumSlots)
+	
+	if not serverFull or newPlayerIsReserved then
+		return true
+	end
+	
+	return false
+	
+end
+
+//Dislike this
+local originalNS2EventHook = Event.Hook
+function Event.Hook(event, func)
+	if event ~= "CheckConnectionAllowed" then
+		return originalNS2EventHook(event, func)
+	else
+		return originalNS2EventHook(event, OnCheckConnectionAllowed)
+	end
+end
+
+local function UpdateReserveSlotTag()
+
+	local tags = { }
+	Server.GetTags(tags)
+	for t = 1, #tags do
+	
+		if string.find(tags[t], "R_S") then
+			Server.RemoveTag(tags[t])
+		end
+		
+	end
+	
+	Server.AddTag("R_S" .. (DAK.config.reservedslots.kReservedSlots + DAK.config.reservedslots.kMinimumSlots))
+	
+end
+
+UpdateReserveSlotTag()

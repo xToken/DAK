@@ -30,12 +30,8 @@ function DAK:GetGroupCanRunCommand(groupName, commandName)
 	
 end
 
-function DAK:GetClientCanRunCommand(client, commandName)
-
-	//ServerConsole can run anything
-	if client == nil then return true end
-	//Convert to the old Steam Id format.
-	local ns2id = client:GetUserId()
+function DAK:GetNS2IDCanRunCommand(ns2id, commandName)
+	if ns2id == nil then return false end
 	for name, user in pairs(DAK.adminsettings.users) do
 	
 		if user.id == ns2id then
@@ -54,7 +50,13 @@ function DAK:GetClientCanRunCommand(client, commandName)
 	end
 
 	return false
-	
+end
+
+function DAK:GetClientCanRunCommand(client, commandName)
+	//ServerConsole can run anything
+	if client == nil then return true end
+	//Convert to the old Steam Id format.
+	return DAK:GetNS2IDCanRunCommand(client:GetUserId(), commandName)
 end
 
 function DAK:GetClientIsInGroup(client, gpName)
