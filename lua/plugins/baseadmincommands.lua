@@ -305,7 +305,11 @@ local function Ban(client, playerId, name, duration, ...)
 	local ns2Id = DAK:GetNS2IDFromSteamID(playerId)
 	local adminns2Id = DAK:GetNS2IdMatchingClient(client)
 	if tonumber(name) ~= nil and tonumber(duration) == nil then
-		duration = tonumber(name)
+		reason = duration or "No Reason"
+		if ... ~= nil then
+			reason = duration .. " " .. StringConcatArgs(...) or "No Reason"
+		end
+		duration = name
 		if player then
 			name = player:GetName()
 		else
