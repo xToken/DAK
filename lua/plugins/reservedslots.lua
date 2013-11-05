@@ -16,11 +16,26 @@ end
 LoadReservedPlayers()
 
 local function SaveReservedPlayers()
-	DAK:SaveConfigFile(reservedPlayersFileName, ReservedPlayers)
+	DAK:SaveConfigFile(ReservedPlayersFileName, ReservedPlayers)
 end
 
 local function DisconnectClientForReserveSlot(client)
 	Server.DisconnectClient(client)	
+end
+
+function GetReserveSlotPlayerData()
+	local returnData = { }
+    if ReservedPlayers then
+    
+        returnData.amount = DAK.config.reservedslots.kReservedSlots
+        returnData.ids = { }
+        for r = 1, #ReservedPlayers do
+			local ReservePlayer = ReservedPlayers[r]
+            table.insert(returnData.ids, { name = ReservePlayer.name, id = ReservePlayer.id })
+        end
+        
+    end
+	return returnData
 end
 
 local function CheckReserveSlotForID(ns2ID, silent)
@@ -217,7 +232,7 @@ local function AddReservePlayer(client, parm1, parm2, parm3, parm4)
 
 	local idNum = tonumber(parm2)
 	if idNum == nil then
-		idNum = DAK:GetNS2IDFromSteamID(idNum)
+		idNum = DAK:GetNS2IDFromSteamID(parm2)
 	end
 	local exptime = tonumber(parm4)
 	if parm1 and idNum then
@@ -233,6 +248,27 @@ local function AddReservePlayer(client, parm1, parm2, parm3, parm4)
 end
 
 DAK:CreateServerAdminCommand("Console_sv_addreserve", AddReservePlayer, "<name> <player id> <reason> <time> Will add a reserve player to the list.")
+DAK:CreateServerAdminCommand("Console_sv_add_reserved_slot", AddReservePlayer, "<name> <player id> To support webadmin reserve slots.")
+
+local function RemoveReservePlayer(client, id)
+	local idNum = tonumber(id)
+	if idNum == nil then
+		idNum = DAK:GetNS2IDFromSteamID(id)
+	end
+	if idNum then
+		LoadReservedPlayers()
+		for r = #ReservedPlayers, 1, -1 do
+			local ReservePlayer = ReservedPlayers[r]
+			if ReservePlayer.id == idNum then
+				table.remove(ReservedPlayers, r)
+			end	
+		end
+		SaveReservedPlayers()
+	end
+end
+
+DAK:CreateServerAdminCommand("Console_sv_removereserve", RemoveReservePlayer, "<player id> Will remove a reserve player from the list.")
+DAK:CreateServerAdminCommand("Console_sv_remove_reserved_slot", RemoveReservePlayer, "<player id> To support webadmin reserve slots.")
 
 local function DebugReserveSlots(client)
 	for r = 1, #reserveslotactionslog, 1 do

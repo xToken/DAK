@@ -211,3 +211,10 @@ function CreateServerAdminCommand(commandName, commandFunction, helpText, option
 	//Assume its not blacklisted and proceed.
 	CreateBaseServerAdminCommand(commandName, commandFunction, helpText, optionalAlwaysAllowed)
 end
+
+function GetReservedSlotData() 
+    return DAK:ExecutePluginGlobalFunction("reservedslots", GetReserveSlotPlayerData)
+end
+
+function SetReservedSlotAmount()
+end

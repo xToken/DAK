@@ -1,5 +1,8 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.1.1105a
+- Added support for webadmin reserve slots, fixed error.
+
 ## v0.1.1014a
 - Had to add replaced file to account for changes made in B258.
 
