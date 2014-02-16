@@ -361,7 +361,7 @@ local function OnCommandMenuBaseSelection(client, selection)
 		local ns2id = client:GetUserId()
 		if ns2id ~= nil and tonumber(ns2id) ~= nil then
 			for i = #DAK.runningmenus, 1, -1 do
-				if DAK.runningmenus[i].clientNS2Id == ns2id then
+				if DAK.runningmenus[i] ~= nil and DAK.runningmenus[i].clientNS2Id == ns2id then
 					local menufunction = DAK.runningmenus[i].MenuFunction
 					DAK.runningmenus[i].MenuBaseUpdateMessage.inputallowed = nil
 					if selection == 10 and DAK.runningmenus[i].activepage > 0 then
