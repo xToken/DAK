@@ -1,5 +1,9 @@
 //Going to start tracking changes made better here - GitHub offers all the code tracking needed, just need to track what those changes are supposed to fix, along with better versioning.
 
+## v0.2.0813a
+- Added support for new server side rates.
+- Also included fix for afk players being randomed.
+
 ## v0.2.0216a
 - Fixed rare error with menus system.
 

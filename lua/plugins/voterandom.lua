@@ -44,7 +44,7 @@ local function ShuffleTeams()
 		if client ~= nil then
 			//Trying just making team decision based on position in array.. two randoms seems to somehow result in similar teams..
 			local gamerules = GetGamerules()
-			if gamerules then //and not DAK:GetClientCanRunCommand(client, "sv_dontrandom") then
+			if gamerules then
 				if not gamerules:GetCanJoinTeamNumber(teamnum) and gamerules:GetCanJoinTeamNumber(math.fmod(teamnum,2) + 1) then
 					teamnum = math.fmod(teamnum,2) + 1						
 				end

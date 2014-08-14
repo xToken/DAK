@@ -87,9 +87,12 @@ function DAK:ShuffledPlayerList()
 	local playerList = DAK:GetPlayerList()
 	for i = #playerList, 1, -1 do
 		if playerList[i] ~= nil then
-			if playerList[i]:GetTeamNumber() ~= 0 or DAK:IsPlayerAFK(playerList[i]) then
-				//table.insert(ShuffleDebug, string.format("Excluding player %s for reason %s", playerList[i]:GetName(), ConditionalValue(playerList[i]:GetTeamNumber() ~= 0,"not in readyroom.", "is afk.")))
-				table.remove(playerList, i)
+			local client = Server.GetOwner(playerList[i])
+			if client ~= nil then
+				if playerList[i]:GetTeamNumber() ~= 0 or DAK:IsPlayerAFK(playerList[i]) or DAK:GetClientCanRunCommand(client, "sv_dontrandom") then
+					//table.insert(ShuffleDebug, string.format("Excluding player %s for reason %s", playerList[i]:GetName(), ConditionalValue(playerList[i]:GetTeamNumber() ~= 0,"not in readyroom.", "is afk.")))
+					table.remove(playerList, i)
+				end
 			end
 		end
 	end

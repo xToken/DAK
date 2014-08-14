@@ -139,8 +139,29 @@ end
 
 Event.Hook("UpdateServer", DAKUpdateServer)
 
+local function SetupInitialRates()
+	if DAK.config and DAK.config and DAK.config.serverconfig then 
+		if DAK.config.serverconfig.TickRate ~= 30 then
+			Shared.ConsoleCommand(string.format("tickrate %f", DAK.config.serverconfig.TickRate))
+		end
+		if DAK.config.serverconfig.SendRate ~= 20 then
+			Shared.ConsoleCommand(string.format("sendrate %f", DAK.config.serverconfig.SendRate))
+		end
+		if DAK.config.serverconfig.MoveRate ~= 30 then
+			Shared.ConsoleCommand(string.format("mr %f", DAK.config.serverconfig.MoveRate))
+		end
+		if DAK.config.serverconfig.Interp ~= 100 then
+			Shared.ConsoleCommand(string.format("interp %f", (DAK.config.serverconfig.Interp / 1000)))
+		end
+		if DAK.config.serverconfig.BandwidthLimit ~= 20 then
+			Shared.ConsoleCommand(string.format("bwlimit %f", (DAK.config.serverconfig.BandwidthLimit * 1024)))
+		end
+	end
+end
+
 local function DAKRunPluginInitialized(deltaTime)
 	DAK:ExecuteEventHooks("OnPluginInitialized", deltaTime)
+	SetupInitialRates()
 	DAK:ClearEventHooks("OnPluginInitialized")
 	DAK:DeregisterEventHook("OnServerUpdateEveryFrame", DAKRunPluginInitialized)
 end
@@ -330,10 +351,7 @@ end
 local function SetServerConfigOnClientConnected(client)
 	if DAK.config and DAK.config and DAK.config.serverconfig then 
 		if DAK.config.serverconfig.Interp ~= 100 then
-			Shared.ConsoleCommand(string.format("interp %f", (DAK.config.serverconfig.Interp/1000)))
-		end
-		if DAK.config.serverconfig.UpdateRate ~= 20 then
-			//Shared.ConsoleCommand(string.format("cr %f", DAK.config.serverconfig.UpdateRate))
+			Shared.ConsoleCommand(string.format("interp %f", (DAK.config.serverconfig.Interp / 1000)))
 		end
 		if DAK.config.serverconfig.MoveRate ~= 30 then
 			Shared.ConsoleCommand(string.format("mr %f", DAK.config.serverconfig.MoveRate))

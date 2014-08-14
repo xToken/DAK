@@ -91,8 +91,10 @@ local function GenerateDefaultDAKConfig(Plugin, Save)
 		
 		DefaultConfig = { }
 		DefaultConfig.Interp = 100
-		DefaultConfig.UpdateRate = 20
+		DefaultConfig.SendRate = 20
 		DefaultConfig.MoveRate = 30
+		DefaultConfig.TickRate = 30
+		DefaultConfig.BandwidthLimit = 20
 		
 		DAK.config["serverconfig"] = tablemerge(DAK.config["serverconfig"], DefaultConfig)
 		
